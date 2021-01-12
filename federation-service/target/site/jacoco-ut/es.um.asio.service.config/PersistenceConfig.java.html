@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PersistenceConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.config</a> &gt; <span class="el_source">PersistenceConfig.java</span></div><h1>PersistenceConfig.java</h1><pre class="source lang-java linenums">package es.um.asio.service.config;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.cfg.AvailableSettings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.google.common.collect.Sets;
+import es.um.asio.service.config.properties.DatasourceProperties;
+import es.um.asio.service.config.properties.JpaProperties;
+import es.um.asio.service.config.properties.PersistenceProperties;
+import es.um.asio.service.model.User;
+import es.um.asio.service.repository.UserRepository;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+/**
+ * Persistence configuration.
+ */
+@Configuration
+@EnableConfigurationProperties(PersistenceProperties.class)
+@EnableJpaRepositories(basePackageClasses = { UserRepository.class })
+@EnableTransactionManagement
+@EntityScan(basePackageClasses = { User.class })
+<span class="fc" id="L43">public class PersistenceConfig {</span>
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    /**
+     * Configuration properties.
+     */
+    @Autowired
+    private PersistenceProperties properties;
+
+    /**
+     * Configures de datasource for the application.&lt;br&gt;
+     * If {@link DatasourceProperties#jndiName} has a value, it will be used to obtain one instead of using
+     * {@link DatasourceProperties#driverClassName}, {@link DatasourceProperties#url},
+     * {@link DatasourceProperties#username}, {@link DatasourceProperties#password}
+     * fields to build it.&lt;br&gt;
+     * In either case, HikariCP is used to wrap the datasource.
+     *
+     * @return an instance of {@link javax.sql.DataSource} to be used as the datasource
+     */
+    @Bean
+    public DataSource dataSource() {
+<span class="nc" id="L66">        final HikariConfig config = new HikariConfig();</span>
+<span class="nc" id="L67">        final DatasourceProperties datasourceProperties = this.properties.getDatasource();</span>
+
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (StringUtils.isNotBlank(datasourceProperties.getJndiName())) {</span>
+            // JNDI conection
+<span class="nc" id="L71">            final JndiDataSourceLookup dsLookup = new JndiDataSourceLookup();</span>
+<span class="nc" id="L72">            dsLookup.setResourceRef(true);</span>
+<span class="nc" id="L73">            final DataSource dataSource = dsLookup.getDataSource(datasourceProperties.getJndiName());</span>
+<span class="nc" id="L74">            config.setDataSource(dataSource);</span>
+<span class="nc" id="L75">        } else {</span>
+            // Paarameters connection
+<span class="nc" id="L77">            config.setDriverClassName(datasourceProperties.getDriverClassName());</span>
+<span class="nc" id="L78">            config.setJdbcUrl(datasourceProperties.getUrl());</span>
+<span class="nc" id="L79">            config.setUsername(datasourceProperties.getUsername());</span>
+<span class="nc" id="L80">            config.setPassword(datasourceProperties.getPassword());</span>
+        }
+
+<span class="nc" id="L83">        config.addDataSourceProperty(&quot;cachePrepStmts&quot;, &quot;true&quot;);</span>
+<span class="nc" id="L84">        config.addDataSourceProperty(&quot;prepStmtCacheSize&quot;, &quot;250&quot;);</span>
+<span class="nc" id="L85">        config.addDataSourceProperty(&quot;prepStmtCacheSqlLimit&quot;, &quot;2048&quot;);</span>
+<span class="nc" id="L86">        config.addDataSourceProperty(&quot;useServerPrepStmts&quot;, &quot;true&quot;);</span>
+
+<span class="nc" id="L88">        return new HikariDataSource(config);</span>
+    }
+
+    /**
+     * Builds the entity manager for the application.
+     *
+     * @param dataSource
+     *            The datasource to be used
+     * @return an instance of {@link org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean} for data access
+     */
+    @Bean
+    @Autowired
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(final DataSource dataSource) {
+<span class="fc" id="L101">        final JpaProperties jpa = this.properties.getJpa();</span>
+
+<span class="fc" id="L103">        final LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();</span>
+<span class="fc" id="L104">        entityManagerFactoryBean.setDataSource(dataSource);</span>
+<span class="fc" id="L105">        entityManagerFactoryBean.setPackagesToScan(this.getEntityPackages().stream().toArray(String[]::new));</span>
+<span class="fc" id="L106">        entityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());</span>
+
+<span class="fc" id="L108">        final Properties jpaProperties = new Properties();</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (StringUtils.isNotBlank(jpa.getDialect())) {</span>
+<span class="fc" id="L110">            jpaProperties.put(AvailableSettings.DIALECT, jpa.getDialect());</span>
+        }
+
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (jpa.isGenerateDdl()) {</span>
+<span class="fc" id="L114">            jpaProperties.put(AvailableSettings.HBM2DDL_AUTO, &quot;update&quot;);</span>
+        }
+
+<span class="fc" id="L117">        jpaProperties.put(AvailableSettings.SHOW_SQL, jpa.isShowSql());</span>
+<span class="fc" id="L118">        jpaProperties.put(AvailableSettings.FORMAT_SQL, jpa.isShowSql());</span>
+        
+<span class="fc" id="L120">        jpaProperties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, false);</span>
+<span class="fc" id="L121">        jpaProperties.putAll(jpa.getProperties());</span>
+
+<span class="fc" id="L123">        entityManagerFactoryBean.setJpaProperties(jpaProperties);</span>
+
+<span class="fc" id="L125">        return entityManagerFactoryBean;</span>
+    }
+
+    /**
+     * Creates and configures the TransactionManager instance for the platform.
+     *
+     * @return an instance of {@link org.springframework.transaction.PlatformTransactionManager}
+     */
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+<span class="fc" id="L135">        return new JpaTransactionManager();</span>
+    }
+
+    /**
+     * Gets packages containing entities.
+     * 
+     * @return Set of packages containing entities
+     */
+    private Set&lt;String&gt; getEntityPackages() {
+<span class="fc" id="L144">        final Set&lt;String&gt; packages = Sets.newHashSet();</span>
+
+<span class="fc" id="L146">        final Map&lt;String, Object&gt; beans = this.applicationContext.getBeansWithAnnotation(EntityScan.class);</span>
+
+        EntityScan annotation;
+
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (final String name : beans.keySet()) {</span>
+<span class="fc" id="L151">            annotation = this.applicationContext.findAnnotationOnBean(name, EntityScan.class);</span>
+
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">            if(annotation != null) {</span>
+                // Get basePackages configuration
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">                if (annotation.basePackages() != null) {</span>
+<span class="fc" id="L156">                    packages.addAll(Arrays.asList(annotation.basePackages()));</span>
+                }
+    
+                // Get basePackageClasses configuration
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">                if (annotation.basePackageClasses() != null) {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">                    for (final Class&lt;?&gt; clazz : annotation.basePackageClasses()) {</span>
+<span class="fc" id="L162">                        packages.add(clazz.getPackageName());</span>
+                    }
+                }
+            }
+<span class="fc" id="L166">        }</span>
+
+<span class="fc" id="L168">        return packages;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

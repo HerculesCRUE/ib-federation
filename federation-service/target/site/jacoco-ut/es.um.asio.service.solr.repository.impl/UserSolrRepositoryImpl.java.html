@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserSolrRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.solr.repository.impl</a> &gt; <span class="el_source">UserSolrRepositoryImpl.java</span></div><h1>UserSolrRepositoryImpl.java</h1><pre class="source lang-java linenums">package es.um.asio.service.solr.repository.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.core.query.SimpleQuery;
+
+import es.um.asio.service.filter.UserFilter;
+import es.um.asio.service.solr.model.UserSolr;
+import es.um.asio.service.solr.repository.UserSolrRepositoryCustom;
+import com.izertis.libraries.solr.autoconfigure.properties.SolrProperties;
+import com.izertis.libraries.solr.query.impl.AbstractFilteredQueryRepositoryImpl;
+
+/**
+ * Custom Spring Data Solr repository implementation for {@link UserSolr}
+ */
+<span class="nc" id="L23">public class UserSolrRepositoryImpl extends AbstractFilteredQueryRepositoryImpl&lt;UserFilter, UserSolr&gt;</span>
+        implements UserSolrRepositoryCustom {
+
+    /**
+     * Solr Template
+     */
+    @Autowired
+    private SolrTemplate solrTemplate;
+
+    /**
+     * Solr properties.
+     */
+    @Autowired
+    private SolrProperties solrProperties;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Page&lt;UserSolr&gt; findAll(final UserFilter filter, final Pageable pageable) {
+<span class="nc" id="L43">        return this.solrTemplate.queryForPage(this.solrProperties.getCollectionName(),</span>
+<span class="nc" id="L44">                new SimpleQuery(this.createCriteria(filter), pageable), UserSolr.class);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected List&lt;Criteria&gt; createCriterias(final UserFilter filter) {
+<span class="nc" id="L52">        final List&lt;Criteria&gt; criterias = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (filter != null) {</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            if (StringUtils.isNotBlank(filter.getEmail())) {</span>
+<span class="nc" id="L56">                criterias.add(new Criteria(UserSolr.Fields.EMAIL).contains(filter.getEmail()));</span>
+            }
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (StringUtils.isNotBlank(filter.getName())) {</span>
+<span class="nc" id="L60">                criterias.add(new Criteria(UserSolr.Fields.NAME).contains(filter.getName()));</span>
+            }
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (filter.getEnabled() != null) {</span>
+<span class="nc" id="L64">                criterias.add(new Criteria(UserSolr.Fields.ENABLED).is(filter.getEnabled()));</span>
+            }
+        }
+
+<span class="nc" id="L68">        return criterias;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

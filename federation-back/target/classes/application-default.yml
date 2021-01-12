@@ -1,0 +1,30 @@
+---
+app:
+  # Persistence
+  persistence:
+    jpa:
+      generate-ddl: true
+      show-sql: true
+  # Swagger
+  swagger:
+    enabled: true
+    secured: true
+    authServerUrl: ../oauth
+    authServerClientId: acme
+    authServerClientSecret: acmesecret
+  # OAuth
+  oauth:
+    unprotected-url:
+      - /**
+      - /public/**
+      - /oauth/**
+      - /management/**
+      - /swagger-ui.html
+      - /webjars/springfox-swagger-ui/**
+      - /swagger-resources/**
+      - /v2/api-docs
+## Actuator
+management:
+  health:
+    redis:
+      enabled: false
