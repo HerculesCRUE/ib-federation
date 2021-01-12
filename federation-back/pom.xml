@@ -97,14 +97,14 @@
 			<dependencies>
 				<dependency>
 					<groupId>org.springframework.boot</groupId>
-					<dependency>
-						<groupId>org.mariadb.jdbc</groupId>
-						<artifactId>mariadb-java-client</artifactId>
-						<version>1.5.7</version>
-					</dependency><artifactId>spring-boot-starter-tomcat</artifactId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
 					<scope>compile</scope>
 				</dependency>
-
+				<dependency>
+					<groupId>org.mariadb.jdbc</groupId>
+					<artifactId>mariadb-java-client</artifactId>
+					<version>1.5.7</version>
+				</dependency>
 			</dependencies>
 
 			<build>

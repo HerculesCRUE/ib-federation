@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: es.um.asio.back.test.proxy.UserProxyTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.792 s - in es.um.asio.back.test.proxy.UserProxyTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 21.185 s - in es.um.asio.back.test.proxy.UserProxyTest

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FederationServiceHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.service</a> &gt; <span class="el_source">FederationServiceHelper.java</span></div><h1>FederationServiceHelper.java</h1><pre class="source lang-java linenums">package es.um.asio.service.service;
+
+import com.google.gson.JsonObject;
+import es.um.asio.service.model.WatchDog;
+import es.um.asio.service.repository.SparqlProxyHandler;
+import org.jsoup.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+@Service
+<span class="nc" id="L20">public class FederationServiceHelper {</span>
+
+<span class="nc" id="L22">    private final Logger logger = LoggerFactory.getLogger(FederationServiceHelper.class);</span>
+
+    @Autowired
+    HttpRequestHelper httpRequestHelper;
+
+    @Async(&quot;threadPoolTaskExecutor&quot;)
+    public CompletableFuture&lt;JsonObject&gt; executeQueryPaginated(String nodeName,URL url, String q, Integer pageSize, Integer timeout)  {
+<span class="nc" id="L29">        JsonObject jResponse = new JsonObject();</span>
+<span class="nc" id="L30">        int offset = 0;</span>
+<span class="nc" id="L31">        JsonObject jQueryResponse = null;</span>
+<span class="nc" id="L32">        WatchDog wd = new WatchDog();</span>
+<span class="nc" id="L33">        JsonObject jStats = new JsonObject();</span>
+<span class="nc" id="L34">        int success = 0;</span>
+<span class="nc" id="L35">        int fails = 0;</span>
+<span class="nc" id="L36">        int nulls = 0;</span>
+        do {
+<span class="nc" id="L38">            String query = q + String.format(&quot; LIMIT %d OFFSET %d &quot;,pageSize,offset);</span>
+<span class="nc" id="L39">            Map&lt;String, String&gt; headers = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L40">            headers.put(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);</span>
+<span class="nc" id="L41">            headers.put(&quot;Accept&quot;, &quot;application/json&quot;);</span>
+            try {
+<span class="nc" id="L43">                jQueryResponse = httpRequestHelper.doQueryRequest(url, query, Connection.Method.GET, headers, timeout);</span>
+<span class="nc" id="L44">                logger.info(String.format(&quot;Limit: %d, Offset: %d, Results: %d, Total: %d&quot;,</span>
+                        pageSize,
+<span class="nc" id="L46">                        offset+pageSize,</span>
+<span class="nc bnc" id="L47" title="All 4 branches missed.">                        ( jQueryResponse.has(&quot;results&quot;) &amp;&amp; jQueryResponse.get(&quot;results&quot;).getAsJsonObject().has(&quot;bindings&quot;))?jQueryResponse.get(&quot;results&quot;).getAsJsonObject().get(&quot;bindings&quot;).getAsJsonArray().size():0,</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">                        ( jResponse.has(&quot;results&quot;) &amp;&amp; jResponse.get(&quot;results&quot;).getAsJsonObject().has(&quot;bindings&quot;))?jResponse.get(&quot;results&quot;).getAsJsonObject().get(&quot;bindings&quot;).getAsJsonArray().size():0</span>
+                    )
+                );
+
+<span class="nc bnc" id="L52" title="All 2 branches missed.">                if (jQueryResponse != null) {</span>
+<span class="nc" id="L53">                    success++;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                    if (jResponse.size() == 0) {</span>
+<span class="nc" id="L55">                        jResponse = jQueryResponse;</span>
+                    } else {
+<span class="nc" id="L57">                        jResponse.get(&quot;results&quot;).getAsJsonObject().get(&quot;bindings&quot;).getAsJsonArray().addAll(jQueryResponse.get(&quot;results&quot;).getAsJsonObject().get(&quot;bindings&quot;).getAsJsonArray());</span>
+                    }
+                } else {
+<span class="nc" id="L60">                    nulls++;</span>
+                }
+
+<span class="nc" id="L63">            } catch (Exception e) {</span>
+<span class="nc" id="L64">                fails++;</span>
+<span class="nc" id="L65">            }</span>
+<span class="nc" id="L66">            offset += pageSize;</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        } while (!isFinishedPagination(jQueryResponse,pageSize));</span>
+
+<span class="nc" id="L69">        jStats.addProperty(&quot;node&quot;,nodeName);</span>
+<span class="nc" id="L70">        jStats.addProperty(&quot;url&quot;,url.toString());</span>
+<span class="nc" id="L71">        jStats.addProperty(&quot;delay&quot;,String.valueOf(wd.calculateDelay()));</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if ((fails+nulls) == 0) {</span>
+<span class="nc" id="L73">            jStats.addProperty(&quot;status&quot;,&quot;COMPLETED&quot;);</span>
+<span class="nc" id="L74">            jStats.addProperty(&quot;description&quot;,&quot;Fully Completed&quot;);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        } else if(success &gt; 0) {</span>
+<span class="nc" id="L76">            jStats.addProperty(&quot;status&quot;,&quot;PARTIALLY COMPLETED&quot;);</span>
+<span class="nc" id="L77">            jStats.addProperty(&quot;description&quot;,&quot;Partially Completed&quot;);</span>
+        } else {
+<span class="nc" id="L79">            jStats.addProperty(&quot;status&quot;,&quot;FAILED&quot;);</span>
+<span class="nc" id="L80">            jStats.addProperty(&quot;description&quot;,&quot;Partially Completed&quot;);</span>
+        }
+<span class="nc" id="L82">        jStats.addProperty(&quot;successPages&quot;,success);</span>
+<span class="nc" id="L83">        jStats.addProperty(&quot;failsPages&quot;,fails);</span>
+<span class="nc" id="L84">        jStats.addProperty(&quot;nullsPages&quot;,nulls);</span>
+<span class="nc bnc" id="L85" title="All 4 branches missed.">        jStats.addProperty(&quot;totalResults&quot;, ( jResponse.has(&quot;results&quot;) &amp;&amp; jResponse.get(&quot;results&quot;).getAsJsonObject().has(&quot;bindings&quot;))?jResponse.get(&quot;results&quot;).getAsJsonObject().get(&quot;bindings&quot;).getAsJsonArray().size():0);</span>
+<span class="nc" id="L86">        jResponse.add(&quot;stats&quot;,jStats);</span>
+<span class="nc" id="L87">        return CompletableFuture.completedFuture(jResponse);</span>
+    }
+
+    @Async(&quot;threadPoolTaskExecutor&quot;)
+    public CompletableFuture&lt;JsonObject&gt; executeQuery(String nodeName,URL url, String q, Integer timeout){
+<span class="nc" id="L92">        Map&lt;String, String&gt; headers = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L93">        JsonObject jStats = new JsonObject();</span>
+<span class="nc" id="L94">        headers.put(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);</span>
+<span class="nc" id="L95">        headers.put(&quot;Accept&quot;, &quot;application/json&quot;);</span>
+        JsonObject jResponse;
+<span class="nc" id="L97">        WatchDog wd = new WatchDog();</span>
+        try {
+<span class="nc" id="L99">            jResponse = httpRequestHelper.doQueryRequest(url, q, Connection.Method.GET, headers, timeout);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (jResponse == null) {</span>
+<span class="nc" id="L101">                jResponse = new JsonObject();</span>
+<span class="nc" id="L102">                jStats.addProperty(&quot;status&quot;,&quot;EMPTY&quot;);</span>
+<span class="nc" id="L103">                jStats.addProperty(&quot;description&quot;,&quot;Request is empty, check the query syntax&quot;);</span>
+            } else {
+<span class="nc" id="L105">                jStats.addProperty(&quot;status&quot;,&quot;COMPLETED&quot;);</span>
+<span class="nc" id="L106">                jStats.addProperty(&quot;description&quot;,&quot;Completed&quot;);</span>
+            }
+<span class="nc" id="L108">        } catch (IOException e) {</span>
+<span class="nc" id="L109">            jResponse = new JsonObject();</span>
+<span class="nc" id="L110">            jStats.addProperty(&quot;status&quot;,&quot;FAIL&quot;);</span>
+<span class="nc" id="L111">            jStats.addProperty(&quot;description&quot;,String.format(&quot;Exception: %s&quot;,e.getMessage()));</span>
+<span class="nc" id="L112">        }</span>
+<span class="nc" id="L113">        jStats.addProperty(&quot;node&quot;,nodeName);</span>
+<span class="nc" id="L114">        jStats.addProperty(&quot;url&quot;,url.toString());</span>
+<span class="nc" id="L115">        jStats.addProperty(&quot;delay&quot;,String.valueOf(wd.calculateDelay()));</span>
+<span class="nc" id="L116">        jResponse.add(&quot;stats&quot;,jStats);</span>
+<span class="nc" id="L117">        return CompletableFuture.completedFuture(jResponse);</span>
+    }
+
+    private boolean isFinishedPagination(JsonObject jResponse,int limit) {
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (jResponse == null)</span>
+<span class="nc" id="L122">            return true;</span>
+<span class="nc bnc" id="L123" title="All 4 branches missed.">        if (jResponse.has(&quot;results&quot;) &amp;&amp; jResponse.get(&quot;results&quot;).getAsJsonObject().has(&quot;bindings&quot;)) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (jResponse.get(&quot;results&quot;).getAsJsonObject().get(&quot;bindings&quot;).getAsJsonArray().size() &lt; limit)</span>
+<span class="nc" id="L125">                return true;</span>
+            else
+<span class="nc" id="L127">                return false;</span>
+        } else
+<span class="nc" id="L129">            return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

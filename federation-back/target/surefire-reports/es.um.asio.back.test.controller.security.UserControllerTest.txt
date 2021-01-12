@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: es.um.asio.back.test.controller.security.UserControllerTest
 -------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.759 s - in es.um.asio.back.test.controller.security.UserControllerTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.387 s - in es.um.asio.back.test.controller.security.UserControllerTest

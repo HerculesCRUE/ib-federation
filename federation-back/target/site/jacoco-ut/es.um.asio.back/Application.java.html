@@ -10,11 +10,13 @@ import org.springframework.context.annotation.Import;
 import es.um.asio.back.solr.SolrBackConfig;
 import es.um.asio.service.ServiceConfig;
 
+import java.util.Collections;
+
 @SpringBootApplication
 @EnableAutoConfiguration
 @Import({ ServiceConfig.class, SolrBackConfig.class })
 @ComponentScan(excludeFilters = { @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = &quot;*..solr..*&quot;) })
-<span class="nc" id="L17">public class Application {</span>
+<span class="nc" id="L19">public class Application {</span>
     /**
      * Main method for embedded deployment.
      *
@@ -22,7 +24,7 @@ import es.um.asio.service.ServiceConfig;
      *            the arguments
      */
     public static void main(final String[] args) {
-<span class="nc" id="L25">        SpringApplication.run(Application.class, args);</span>
-<span class="nc" id="L26">    }</span>
+<span class="nc" id="L27">        SpringApplication.run(Application.class, args);</span>
+<span class="nc" id="L28">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
