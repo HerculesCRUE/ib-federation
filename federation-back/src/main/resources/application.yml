@@ -141,3 +141,14 @@ data-sources:
           port:
           user: admin
           password: admin
+data-sets:
+  - name: SCOPUS
+    connection:
+      - type: api
+        baseURL: https://api.elsevier.com/content/
+        apiKey: 9c16500dca380fb18aa8014ecc812ad9
+        mappings:
+          classes:
+            - localName: Universidad
+              remoteName:
+

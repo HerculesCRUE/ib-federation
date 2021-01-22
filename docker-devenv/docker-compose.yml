@@ -1,16 +1,26 @@
-version: '3.1'
-
-services:
-  db:
-    image: postgres:11.1
-    volumes: 
-     - pgdata:/var/lib/postgresql/data
-    ports: 
-     - 5532:5432
-    environment:
-      POSTGRES_PASSWORD: admin123
-      POSTGRES_USER: postgres
-      POSTGRES_DB: app
+db:
+  image: mariadb:10.3
+  container_name: mariadb_asio
+  restart: unless-stopped
+  ports:
+    #      - "3306:3306"
+    - "3307:3306"
+  volumes:
+    - mysql-data2:/var/lib/mysql
+    - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+  command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+  environment:
+    # MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+    MYSQL_ROOT_USER: root
+    MYSQL_ROOT_PASSWORD: 1z3rt1s
+    # CONFIG - Change the default values below (should match values passed to wikibase)
+    MYSQL_DATABASE: 'federation'
+    MYSQL_USER: 'app'
+    MYSQL_PASSWORD: 'sqlpass'
+  networks:
+    default:
+      aliases:
+        - mysql.svc
 #  solr:
 #    image: solr:7.7
 #    ports:

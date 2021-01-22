@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -79,6 +80,18 @@ public class DataFetcherController {
         );
     }
 
+    @GetMapping(Mappings.LOD)
+    public Map<String,Object> fetchLod(
+            @ApiParam(name = "dataset", value = "Name of dataset. One of [SCOPUS]", allowableValues= "SCOPUS", defaultValue = "SCOPUS", required = true)
+            @RequestParam(required = true, defaultValue = "SCOPUS") @Validated(Create.class) final String dataset,
+            @ApiParam(name = "entity", value = "SCOPUS", defaultValue = "SCOPUS", required = true)
+            @RequestParam(required = true, defaultValue = "SCOPUS") @Validated(Create.class) final String entity
+
+    ) throws URISyntaxException, IOException {
+        return null;
+    }
+
+
     /**
      * Mappgins.
      */
@@ -108,5 +121,10 @@ public class DataFetcherController {
          * Mapping for list.
          */
         protected static final String FIND_INSTANCE = "/instance/find";
+
+        /**
+         * Mapping for list.
+         */
+        protected static final String LOD = "/lod";
     }
 }
