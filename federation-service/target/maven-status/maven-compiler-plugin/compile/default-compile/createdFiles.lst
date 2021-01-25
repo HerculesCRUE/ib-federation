@@ -33,6 +33,7 @@ es\um\asio\service\repository\SparqlProxyHandler.class
 es\um\asio\service\model\Role.class
 es\um\asio\service\model\constants\Constants.class
 es\um\asio\service\model\WatchDog.class
+es\um\asio\service\util\Utils.class
 es\um\asio\service\proxy\UserProxy.class
 es\um\asio\service\model\TripleObjectSimplified.class
 es\um\asio\service\config\DataSourceRepository.class

@@ -1,14 +1,24 @@
 package es.um.asio.service.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import es.um.asio.service.config.DataSourceRepository;
+import es.um.asio.service.model.constants.Constants;
 import es.um.asio.service.service.ServiceDiscoveryService;
+import es.um.asio.service.util.Utils;
+import org.jsoup.Connection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +29,9 @@ public class ServiceDiscoveryServiceImpl implements ServiceDiscoveryService {
 
     @Autowired
     DataSourceRepository dataSource;
+
+    @Value("${service-discovery-host}")
+    private String serviceDiscoveryHost;
 
     @Override
     public DataSourceRepository.Node getNode(String nodeName) {
@@ -37,25 +50,30 @@ public class ServiceDiscoveryServiceImpl implements ServiceDiscoveryService {
     @Override
     public Map<String, URL> getNodesByNameAndServiceAndType(List<String> nodes, String service, String type) throws URISyntaxException, MalformedURLException {
         Map<String,URL> uris = new HashMap<>();
-        List<DataSourceRepository.Node> nodesList = new ArrayList<>();
-        for (String node: nodes) {
-            DataSourceRepository.Node n = dataSource.getNodeByName(node);
-            if (n!=null)
-                nodesList.add(n);
-        }
-        for (DataSourceRepository.Node n: nodesList) {
-            DataSourceRepository.Node.Service s = n.getServiceByName(service);
-            DataSourceRepository.Node.Service.Type t;
-            if (service!=null) {
-                t = s.getTypeByName(type);
-                StringBuffer buffer = new StringBuffer();
-                buffer.append(s.buildBaseURL());
-                if (t!=null && t.getSuffixURL()!=null) {
-                    buffer.append(t.getSuffixURL());
+        try {
+            Map<String,String> queryParams = new HashMap<>();
+            queryParams.put("serviceName",service);
+            queryParams.put("typeName",type);
+            JsonElement jeResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service/type"), Connection.Method.GET,null,null,queryParams);
+            if (jeResponse!=null) {
+                JsonArray jResponseArray = jeResponse.getAsJsonArray();
+                for (JsonElement jeNode : jResponseArray) {
+                    String node = jeNode.getAsJsonObject().get("name").getAsString();
+                    if (nodes.contains(node)) {
+                        for (JsonElement jeService : jeNode.getAsJsonObject().get("services").getAsJsonArray()) {
+                            String baseURL = jeService.getAsJsonObject().get("baseURL").getAsString();
+                            String port = jeService.getAsJsonObject().get("port").getAsString();
+                            for (JsonElement jeType : jeService.getAsJsonObject().get("types").getAsJsonArray()) {
+                                String suffix = jeType.getAsJsonObject().get("suffixURL").getAsString();
+                                uris.put(node, Utils.buildURL(baseURL, port, suffix));
+                            }
+                        }
+                    }
                 }
-                String str = buffer.toString();
-                uris.put(n.getNodeName(),new URL(buffer.toString()));
+
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return uris;
     }
@@ -63,20 +81,31 @@ public class ServiceDiscoveryServiceImpl implements ServiceDiscoveryService {
     @Override
     public Map<String, URL> getAllNodesByServiceAndType(String service, String type) throws URISyntaxException, MalformedURLException {
         Map<String,URL> uris = new HashMap<>();
-        for (DataSourceRepository.Node n: dataSource.getNodes()) {
-            DataSourceRepository.Node.Service s = n.getServiceByName(service);
-            DataSourceRepository.Node.Service.Type t;
-            if (service!=null) {
-                t = s.getTypeByName(type);
-                StringBuffer buffer = new StringBuffer();
-                buffer.append(s.buildBaseURL());
-                if (t!=null && t.getSuffixURL()!=null) {
-                    buffer.append(t.getSuffixURL());
+        try {
+            Map<String,String> queryParams = new HashMap<>();
+            queryParams.put("serviceName",service);
+            queryParams.put("typeName",type);
+            JsonElement jeResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service/type"), Connection.Method.GET,null,null,queryParams);
+            if (jeResponse!=null) {
+                JsonArray jResponseArray = jeResponse.getAsJsonArray();
+                for (JsonElement jeNode : jResponseArray) {
+                    String node = jeNode.getAsJsonObject().get("name").getAsString();
+                    for (JsonElement jeService : jeNode.getAsJsonObject().get("services").getAsJsonArray()) {
+                        String baseURL = jeService.getAsJsonObject().get("baseURL").getAsString();
+                        String port = jeService.getAsJsonObject().get("port").getAsString();
+                        for (JsonElement jeType : jeService.getAsJsonObject().get("types").getAsJsonArray()) {
+                            String suffix = jeType.getAsJsonObject().get("suffixURL").getAsString();
+                            uris.put(node,Utils.buildURL(baseURL,port,suffix));
+                        }
+                    }
+
                 }
-                String str = buffer.toString();
-                uris.put(n.getNodeName(),new URL(buffer.toString()));
+
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return uris;
     }
+
 }

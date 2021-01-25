@@ -141,6 +141,8 @@ data-sources:
           port:
           user: admin
           password: admin
+
+service-discovery-host: http://localhost:9329
 data-sets:
   - name: SCOPUS
     connection:
