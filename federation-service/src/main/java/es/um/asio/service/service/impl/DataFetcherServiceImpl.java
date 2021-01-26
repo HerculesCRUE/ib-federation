@@ -95,7 +95,8 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                 if (type != null) {
                     // Get data
                     URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());
-                    String query = "query=SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( regex(str(?s),\"^http://.*/"+className+"/.*\") %26%26 (?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>))}";
+                    String query = "query=SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\"^http[s]*://.*/"+normalizeClassName(className)+"/.*\" )) %26%26 ( ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ) }";
+                    String s = normalizeClassName(className);
                     JsonObject jResponse = doRequest(url, query);
                     if (jResponse!=null) {
                         JsonArray jVarsArray = jResponse.get("head").getAsJsonObject().get("vars").getAsJsonArray();
@@ -293,6 +294,11 @@ public class DataFetcherServiceImpl implements DataFetcherService {
             if (jResults.get("results").getAsJsonObject().has("bindings"))
                 return jResults.get("results").getAsJsonObject().get("bindings").getAsJsonArray();
         return new JsonArray();
+    }
+
+    private String normalizeClassName(String className) {
+        String [] chunkedClassName = className.split("\\-");
+        return String.join("\\\\-",chunkedClassName);
     }
 
 }

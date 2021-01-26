@@ -152,5 +152,8 @@ data-sets:
         mappings:
           classes:
             - localName: Universidad
-              remoteName:
-
+              remoteName: AFFILIATION
+            - localName: AUTHOR
+              remoteName: Author
+            - localName: Documentos
+              remoteName: SCOPUS
