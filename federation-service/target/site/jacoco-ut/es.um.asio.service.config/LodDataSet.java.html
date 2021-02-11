@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LodDataSet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.config</a> &gt; <span class="el_source">LodDataSet.java</span></div><h1>LodDataSet.java</h1><pre class="source lang-java linenums">package es.um.asio.service.config;
+
+import es.um.asio.service.model.TripleObjectSimplified;
+import lombok.*;
+import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
+import util.Utils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Component
+@ConfigurationProperties(&quot;lod-data-sources&quot;) // prefix app, find app.* values
+@Getter
+<span class="nc" id="L18">@Setter</span>
+<span class="nc" id="L19">@AllArgsConstructor</span>
+<span class="nc" id="L20">@NoArgsConstructor</span>
+public class LodDataSet implements Cloneable{
+
+<span class="nc" id="L23">    private List&lt;Dataset&gt; datasets = new ArrayList&lt;&gt;();</span>
+
+    public Optional&lt;Dataset&gt; getDatasetByName(String name) {
+<span class="nc" id="L26">        Dataset dataset = null;</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        for (Dataset ds : datasets) {</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">            if (ds.getName().equalsIgnoreCase(name)) {</span>
+<span class="nc" id="L29">                dataset = ds;</span>
+<span class="nc" id="L30">                break;</span>
+            }
+<span class="nc" id="L32">        }</span>
+<span class="nc" id="L33">        return Optional.ofNullable(dataset);</span>
+    }
+
+    public List&lt;String&gt; getDatasetNames() {
+<span class="nc" id="L37">        List&lt;String&gt; datasetsNames = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        for (Dataset dataset : datasets) {</span>
+<span class="nc" id="L39">            datasetsNames.add(dataset.getName());</span>
+<span class="nc" id="L40">        }</span>
+<span class="nc" id="L41">        return datasetsNames;</span>
+    }
+
+
+<span class="nc" id="L45">    @AllArgsConstructor</span>
+<span class="nc" id="L46">    @NoArgsConstructor</span>
+    @Getter
+<span class="nc" id="L48">    @Setter</span>
+    public static class Dataset implements Cloneable{
+
+<span class="nc" id="L51">        private String name;</span>
+<span class="nc" id="L52">        private List&lt;Connection&gt; connections = new ArrayList&lt;&gt;();</span>
+
+        public Optional&lt;Connection&gt; getDefaultConnection() {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            Connection connection = (connections.size()&gt;0)?connections.get(0):null;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            for (Connection con : connections) {</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">                if (con.isDef()) {</span>
+<span class="nc" id="L58">                    connection = con;</span>
+<span class="nc" id="L59">                    break;</span>
+                }
+<span class="nc" id="L61">            }</span>
+<span class="nc" id="L62">            return Optional.ofNullable(connection);</span>
+        }
+
+        public Dataset getPrunedDatasetByClassName(String className) throws CloneNotSupportedException {
+<span class="nc" id="L66">            Dataset dataset = (Dataset) this.clone();</span>
+<span class="nc" id="L67">            int indexConnection = 0;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            for (Connection connection : connections) {</span>
+<span class="nc" id="L69">                boolean foundInConnection = false;</span>
+<span class="nc" id="L70">                int indexMapping = 0;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                for (Connection.Mapping mapping : connection.getMappings()) {</span>
+<span class="nc" id="L72">                    boolean foundInMapping = false;</span>
+<span class="nc" id="L73">                    int indexLocalClass = 0;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">                    for (Connection.Mapping.LocalClass localClass :mapping.localClasses) {</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                        if (localClass.getName().equals(className)) {</span>
+<span class="nc" id="L76">                            foundInConnection = true;</span>
+<span class="nc" id="L77">                            foundInMapping = true;</span>
+<span class="nc" id="L78">                            indexLocalClass++;</span>
+                        } else {
+<span class="nc" id="L80">                            dataset.getConnections().get(indexConnection).getMappings().get(indexMapping).getLocalClasses().remove(indexLocalClass);</span>
+                        }
+<span class="nc" id="L82">                    }</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                    if (!foundInMapping) {</span>
+<span class="nc" id="L84">                        dataset.getConnections().get(indexConnection).getMappings().remove(indexMapping);</span>
+                    } else {
+<span class="nc" id="L86">                        indexMapping++;</span>
+                    }
+<span class="nc" id="L88">                }</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                if (!foundInConnection) {</span>
+<span class="nc" id="L90">                    dataset.getConnections().remove(indexConnection);</span>
+                } else {
+<span class="nc" id="L92">                    indexConnection ++;</span>
+                }
+
+<span class="nc" id="L95">            }</span>
+<span class="nc" id="L96">            return dataset;</span>
+        }
+
+        public Dataset getPrunedDatasetSortedFilteredByConnectionType(List&lt;Connection.ConnectionType&gt; types) throws CloneNotSupportedException {
+<span class="nc" id="L100">            Dataset dataset = (Dataset) this.clone();</span>
+<span class="nc" id="L101">            dataset.connections = connections.stream().filter(c -&gt; types.contains(c.getConnectionType())).collect(Collectors.toList());</span>
+<span class="nc" id="L102">            dataset.connections = sortedConnections();</span>
+<span class="nc" id="L103">            return dataset;</span>
+        }
+
+        public List&lt;Connection&gt; sortedConnections() {
+<span class="nc" id="L107">            List&lt;Connection&gt; connectionsAux = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            for (Connection con:connections) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                if (con.isDef()) {</span>
+<span class="nc" id="L110">                    connectionsAux.add(con);</span>
+                }
+<span class="nc" id="L112">            }</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            for (Connection con:connections) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (!connectionsAux.contains(con)) {</span>
+<span class="nc" id="L115">                    connectionsAux.add(con);</span>
+                }
+<span class="nc" id="L117">            }</span>
+<span class="nc" id="L118">            return connectionsAux;</span>
+        }
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+<span class="nc" id="L123">            Dataset ds = new Dataset();</span>
+<span class="nc" id="L124">            ds.name = getName();</span>
+<span class="nc" id="L125">            ds.connections = new ArrayList();</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            for (Connection con : connections) {</span>
+<span class="nc" id="L127">                ds.connections.add((Connection) con.clone());</span>
+<span class="nc" id="L128">            }</span>
+<span class="nc" id="L129">            return ds;</span>
+        }
+
+<span class="nc" id="L132">        @AllArgsConstructor</span>
+<span class="nc" id="L133">        @NoArgsConstructor</span>
+        @Getter
+<span class="nc" id="L135">        @Setter</span>
+        public static class Connection implements Cloneable{
+<span class="nc" id="L137">            private ConnectionType connectionType;</span>
+<span class="nc" id="L138">            private boolean def;</span>
+<span class="nc" id="L139">            private String baseURL;</span>
+<span class="nc" id="L140">            private String user;</span>
+<span class="nc" id="L141">            private String password;</span>
+<span class="nc" id="L142">            private String apiKey;</span>
+<span class="nc" id="L143">            private List&lt;Mapping&gt; mappings = new ArrayList&lt;&gt;();</span>
+
+            public void setConnectionType(String type) {
+<span class="nc" id="L146">                this.connectionType = ConnectionType.valueOf(type);</span>
+<span class="nc" id="L147">            }</span>
+
+            public Connection getPrunedConnectionByTripleObjectSimplified(TripleObjectSimplified to) throws CloneNotSupportedException {
+<span class="nc" id="L150">                Connection connection = (Connection) this.clone();</span>
+
+<span class="nc" id="L152">                int indexMapping = 0;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                for (Mapping mapping : this.mappings) {</span>
+<span class="nc" id="L154">                    boolean foundInMapping = false;</span>
+<span class="nc" id="L155">                    int indexLocalClass = 0;</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">                    for (Mapping.LocalClass localClass : mapping.getLocalClasses()) {</span>
+<span class="nc" id="L157">                        Object value = to.getAttributeValue(to.getAttributes(),localClass.getAttributes());</span>
+<span class="nc bnc" id="L158" title="All 6 branches missed.">                        if (value!=null &amp;&amp; (value instanceof String &amp;&amp; Utils.isValidString(value.toString()))) {</span>
+<span class="nc" id="L159">                            foundInMapping = true;</span>
+<span class="nc" id="L160">                            indexLocalClass++;</span>
+                        } else {
+<span class="nc" id="L162">                            connection.getMappings().get(indexMapping).getLocalClasses().remove(indexLocalClass);</span>
+                        }
+<span class="nc" id="L164">                    }</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">                    if (!foundInMapping) {</span>
+<span class="nc" id="L166">                        connection.getMappings().remove(indexMapping);</span>
+                    } else {
+<span class="nc" id="L168">                        indexMapping ++;</span>
+                    }
+<span class="nc" id="L170">                }</span>
+<span class="nc" id="L171">                return connection;</span>
+            }
+
+            public List&lt;Mapping&gt; getSortedMappings() {
+<span class="nc" id="L175">                Comparator&lt;Mapping&gt; comparator = (m1,m2) -&gt; Integer.compare(m1.getOrder(),m2.getOrder());</span>
+<span class="nc" id="L176">                Collections.sort(mappings,comparator);</span>
+<span class="nc" id="L177">                return mappings;</span>
+            }
+
+            @Override
+            public Object clone() throws CloneNotSupportedException {
+<span class="nc" id="L182">                Connection connection = new Connection();</span>
+<span class="nc" id="L183">                connection.connectionType = getConnectionType();</span>
+<span class="nc" id="L184">                connection.def = isDef();</span>
+<span class="nc" id="L185">                connection.baseURL = getBaseURL();</span>
+<span class="nc" id="L186">                connection.user = getUser();</span>
+<span class="nc" id="L187">                connection.password = getPassword();</span>
+<span class="nc" id="L188">                connection.apiKey = getApiKey();</span>
+<span class="nc" id="L189">                connection.mappings = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                for ( Mapping m : getMappings()) {</span>
+<span class="nc" id="L191">                    connection.mappings.add((Mapping) m.clone());</span>
+<span class="nc" id="L192">                }</span>
+<span class="nc" id="L193">                return connection;</span>
+            }
+
+<span class="nc" id="L196">            @AllArgsConstructor</span>
+            @Getter
+            public static enum ConnectionType implements Cloneable{
+<span class="nc" id="L199">                API,SPARQL</span>
+            }
+
+<span class="nc" id="L202">            @AllArgsConstructor</span>
+<span class="nc" id="L203">            @NoArgsConstructor</span>
+            @Getter
+<span class="nc" id="L205">            @Setter</span>
+            public static class Mapping implements Cloneable{
+<span class="nc" id="L207">                private String remoteName;</span>
+<span class="nc" id="L208">                private String remoteAttribute;</span>
+<span class="nc" id="L209">                private String suffixURL;</span>
+<span class="nc" id="L210">                private boolean identifier;</span>
+<span class="nc" id="L211">                private boolean removeStopWords = false;</span>
+<span class="nc" id="L212">                private int order;</span>
+<span class="nc" id="L213">                private List&lt;LocalClass&gt; localClasses = new ArrayList&lt;&gt;();</span>
+
+                public Optional&lt;LocalClass&gt; getLocalClassByName(String localClassName) {
+<span class="nc" id="L216">                    LocalClass localClass = null;</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                    for (LocalClass lc : localClasses) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">                        if (lc.getName().equalsIgnoreCase(localClassName)) {</span>
+<span class="nc" id="L219">                            localClass = lc;</span>
+<span class="nc" id="L220">                            break;</span>
+                        }
+<span class="nc" id="L222">                    }</span>
+<span class="nc" id="L223">                    return Optional.ofNullable(localClass);</span>
+                }
+
+
+                @Override
+                public Object clone() throws CloneNotSupportedException {
+<span class="nc" id="L229">                    Mapping mapping = new Mapping();</span>
+<span class="nc" id="L230">                    mapping.remoteName = getRemoteName();</span>
+<span class="nc" id="L231">                    mapping.remoteAttribute = getRemoteAttribute();</span>
+<span class="nc" id="L232">                    mapping.suffixURL = getSuffixURL();</span>
+<span class="nc" id="L233">                    mapping.identifier = identifier;</span>
+<span class="nc" id="L234">                    mapping.removeStopWords = removeStopWords;</span>
+<span class="nc" id="L235">                    mapping.order = order;</span>
+<span class="nc" id="L236">                    mapping.localClasses = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">                    for ( LocalClass lc : getLocalClasses()) {</span>
+<span class="nc" id="L238">                        mapping.localClasses.add((LocalClass) lc.clone());</span>
+<span class="nc" id="L239">                    }</span>
+<span class="nc" id="L240">                    return mapping;</span>
+                }
+
+<span class="nc" id="L243">                @AllArgsConstructor</span>
+<span class="nc" id="L244">                @NoArgsConstructor</span>
+                @Getter
+<span class="nc" id="L246">                @Setter</span>
+                public static class LocalClass implements Cloneable{
+<span class="nc" id="L248">                    private String name;</span>
+<span class="nc" id="L249">                    private List&lt;String&gt; attributes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L250">                    private List&lt;Mapper&gt; mappers = new ArrayList&lt;&gt;();</span>
+
+                    @Override
+                    public Object clone() throws CloneNotSupportedException {
+<span class="nc" id="L254">                        LocalClass localClass = new LocalClass();</span>
+<span class="nc" id="L255">                        localClass.name = getName();</span>
+<span class="nc" id="L256">                        localClass.attributes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L257">                        localClass.mappers = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">                        for (String att:attributes) {</span>
+<span class="nc" id="L259">                            localClass.attributes.add(String.valueOf(att));</span>
+<span class="nc" id="L260">                        }</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">                        for (Mapper ma:mappers) {</span>
+<span class="nc" id="L262">                            localClass.mappers.add(ma);</span>
+<span class="nc" id="L263">                        }</span>
+<span class="nc" id="L264">                        return localClass;</span>
+                    }
+
+<span class="nc" id="L267">                    @AllArgsConstructor</span>
+<span class="nc" id="L268">                    @NoArgsConstructor</span>
+                    @Getter
+<span class="nc" id="L270">                    @Setter</span>
+                    public static class Mapper implements Cloneable {
+<span class="nc" id="L272">                        private String remoteAttribute;</span>
+<span class="nc" id="L273">                        private String localAttribute;</span>
+
+                        @Override
+                        public Object clone() throws CloneNotSupportedException {
+<span class="nc" id="L277">                            Mapper mapper = new Mapper();</span>
+<span class="nc" id="L278">                            mapper.remoteAttribute = String.valueOf(getRemoteAttribute());</span>
+<span class="nc" id="L279">                            mapper.localAttribute = String.valueOf(getLocalAttribute());</span>
+<span class="nc" id="L280">                            return mapper;</span>
+                        }
+                    }
+
+
+                }
+
+            }
+        }
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

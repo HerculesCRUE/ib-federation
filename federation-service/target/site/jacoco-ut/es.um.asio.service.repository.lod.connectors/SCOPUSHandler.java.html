@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SCOPUSHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.repository.lod.connectors</a> &gt; <span class="el_source">SCOPUSHandler.java</span></div><h1>SCOPUSHandler.java</h1><pre class="source lang-java linenums">package es.um.asio.service.repository.lod.connectors;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import es.um.asio.service.config.LodDataSet;
+import es.um.asio.service.model.TripleObjectLink;
+import es.um.asio.service.model.TripleObjectSimplified;
+
+import es.um.asio.service.service.impl.TextHandlerServiceImp;
+import es.um.asio.service.util.Utils;
+import org.jsoup.Connection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+@Repository
+<span class="fc" id="L26">public class SCOPUSHandler implements LODHandler {</span>
+
+    public static final String DATASET = &quot;SCOPUS&quot;;
+
+    @Override
+    public Set&lt;TripleObjectLink&gt; findLink(TripleObjectSimplified tos, LodDataSet.Dataset dataset, TextHandlerServiceImp textHandlerService) {
+<span class="nc" id="L32">        Set&lt;TripleObjectLink&gt; result = new HashSet&lt;&gt;();</span>
+        try {
+<span class="nc" id="L34">            boolean isCompleted = false;</span>
+<span class="nc" id="L35">            LodDataSet.Dataset prunedDataset =</span>
+<span class="nc" id="L36">                    dataset.getPrunedDatasetSortedFilteredByConnectionType(</span>
+<span class="nc" id="L37">                            Arrays.asList(new LodDataSet.Dataset.Connection.ConnectionType [] {</span>
+                                    LodDataSet.Dataset.Connection.ConnectionType.API
+                            }
+                            )
+                    );
+<span class="nc bnc" id="L42" title="All 2 branches missed.">            for (LodDataSet.Dataset.Connection con : prunedDataset.getConnections()) {</span>
+<span class="nc" id="L43">                result = handleAPIRequest(con,tos, textHandlerService);</span>
+<span class="nc" id="L44">                return result;</span>
+            }
+<span class="nc" id="L46">        } catch (CloneNotSupportedException e) {</span>
+<span class="nc" id="L47">            e.printStackTrace();</span>
+<span class="nc" id="L48">        }</span>
+
+<span class="nc" id="L50">        return result;</span>
+    }
+
+    private Set&lt;TripleObjectLink&gt; handleAPIRequest(LodDataSet.Dataset.Connection con, TripleObjectSimplified tos,TextHandlerServiceImp textHandlerService) {
+<span class="nc" id="L54">        Set&lt;TripleObjectLink&gt; results = new HashSet&lt;&gt;();</span>
+        try {
+<span class="nc" id="L56">            LodDataSet.Dataset.Connection connection = con.getPrunedConnectionByTripleObjectSimplified(tos);</span>
+<span class="nc" id="L57">            String apiKey = connection.getApiKey();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            for (LodDataSet.Dataset.Connection.Mapping mapping : connection.getSortedMappings()) {</span>
+<span class="nc" id="L59">                URL url = buildURL(Arrays.asList(new String[] {</span>
+<span class="nc" id="L60">                        connection.getBaseURL(),</span>
+<span class="nc" id="L61">                        mapping.getSuffixURL()</span>
+                }));
+<span class="nc bnc" id="L63" title="All 2 branches missed.">                for (LodDataSet.Dataset.Connection.Mapping.LocalClass lc : mapping.getLocalClasses()) {</span>
+<span class="nc" id="L64">                    List&lt;String&gt; localAttributes = lc.getAttributes();</span>
+<span class="nc" id="L65">                    Object value = tos.getAttributeValue(tos.getAttributes(),localAttributes);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                    if (Utils.isPrimitive(value)) {</span>
+<span class="nc" id="L67">                        Map&lt;String, String&gt; headers = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L68">                        headers.put(&quot;X-ELS-APIKey&quot;, apiKey);</span>
+<span class="nc" id="L69">                        Map&lt;String, String&gt; queryParams = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L70">                        queryParams.put(&quot;query&quot;,buildContentQuery(mapping.getRemoteAttribute(),String.valueOf(value),mapping.isIdentifier(),mapping.isRemoveStopWords(),textHandlerService));</span>
+<span class="nc" id="L71">                        JsonElement jResponse = Utils.doRequest(url, Connection.Method.GET,headers,null,queryParams);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                        if (jResponse!=null) {</span>
+<span class="nc" id="L73">                            results = parseResult(tos,DATASET,con.getBaseURL(),mapping.getRemoteName(),lc.getName(),jResponse.getAsJsonObject(),lc.getMappers());</span>
+<span class="nc bnc" id="L74" title="All 4 branches missed.">                            if (results!=null &amp;&amp; results.size()&gt;0) {</span>
+<span class="nc" id="L75">                                return results;</span>
+                            }
+                        }
+                    } else {
+                        continue;
+                    }
+<span class="nc" id="L81">                }</span>
+<span class="nc" id="L82">            }</span>
+<span class="nc" id="L83">        } catch (Exception e) {</span>
+<span class="nc" id="L84">            e.printStackTrace();</span>
+<span class="nc" id="L85">        }</span>
+<span class="nc" id="L86">        return results;</span>
+    }
+
+
+    private String buildContentQuery(String remoteAttribute, String value, boolean isIdentifier, boolean removeStopwords,TextHandlerServiceImp textHandlerService) throws UnsupportedEncodingException {
+<span class="nc bnc" id="L91" title="All 4 branches missed.">        if (!isIdentifier &amp;&amp; removeStopwords) {</span>
+<span class="nc" id="L92">            value = value.replaceAll(&quot;-&quot;,&quot; &quot;);</span>
+<span class="nc" id="L93">            value = textHandlerService.removeStopWords(value);</span>
+<span class="nc" id="L94">            String [] chunks  = value.split(&quot;  *&quot;);</span>
+<span class="nc" id="L95">            value = String.join(&quot; AND &quot;,value.split(&quot;  *&quot;));</span>
+            //value = URLEncoder.encode(value, StandardCharsets.UTF_8);
+        }
+<span class="nc" id="L98">        String formatStr = String.format(&quot;%s(%s)&quot;, remoteAttribute, value);</span>
+<span class="nc" id="L99">        return formatStr;</span>
+    }
+
+    private URL buildURL(List&lt;String&gt; urlChunks) throws MalformedURLException {
+<span class="nc" id="L103">        StringBuffer sb = new StringBuffer();</span>
+<span class="nc" id="L104">        List&lt;String&gt; urlCheckedChunks = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (String chunk: urlChunks) {</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (!Utils.isValidString(chunk))</span>
+<span class="nc" id="L107">                continue;</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (chunk.startsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L109">                urlCheckedChunks.add(chunk.substring(1));</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            } else if (chunk.endsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L111">                urlCheckedChunks.add(chunk.substring(0,chunk.length()-1));</span>
+            } else {
+<span class="nc" id="L113">                urlCheckedChunks.add(chunk);</span>
+            }
+
+<span class="nc" id="L116">        }</span>
+<span class="nc" id="L117">        return new URL(String.join(&quot;/&quot;,urlCheckedChunks));</span>
+    }
+
+    private Set&lt;TripleObjectLink&gt; parseResult(TripleObjectSimplified tos,String datasetName, String baseURL, String remoteName, String localClassName, JsonObject jResponse, List&lt;LodDataSet.Dataset.Connection.Mapping.LocalClass.Mapper&gt; mappers) {
+<span class="nc" id="L121">        Set&lt;TripleObjectLink&gt; tripleObjectLinks = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (jResponse.has(&quot;search-results&quot;)) {</span>
+
+<span class="nc" id="L124">            JsonObject jSearchResult = jResponse.get(&quot;search-results&quot;).getAsJsonObject();</span>
+<span class="nc bnc" id="L125" title="All 6 branches missed.">            if (jSearchResult.has(&quot;entry&quot;) &amp;&amp; jSearchResult.has(&quot;opensearch:totalResults&quot;) &amp;&amp; jSearchResult.get(&quot;opensearch:totalResults&quot;).getAsInt() &gt;0 ) {</span>
+<span class="nc" id="L126">                JsonArray jEntries = jSearchResult.get(&quot;entry&quot;).getAsJsonArray();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                for (JsonElement jeEntry : jEntries) {</span>
+<span class="nc" id="L128">                    JsonObject jEntry = jeEntry.getAsJsonObject();</span>
+<span class="nc" id="L129">                    JsonArray jLinks = new JsonArray();</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                    if (jEntry.has(&quot;link&quot;)) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                        for (JsonElement jeLinks :jEntry.get(&quot;link&quot;).getAsJsonArray()) {</span>
+<span class="nc" id="L132">                            JsonObject jLink = new JsonObject();</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                            if (jeLinks.getAsJsonObject().has(&quot;@ref&quot;)) {</span>
+<span class="nc" id="L134">                                jLink.addProperty(&quot;type&quot;,jeLinks.getAsJsonObject().get(&quot;@ref&quot;).getAsString());</span>
+                            }
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                            if (jeLinks.getAsJsonObject().has(&quot;@href&quot;)) {</span>
+<span class="nc" id="L137">                                jLink.addProperty(&quot;link&quot;,jeLinks.getAsJsonObject().get(&quot;@href&quot;).getAsString());</span>
+                            }
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                            if (jLink.size()&gt;0) {</span>
+<span class="nc" id="L140">                                jLinks.add(jLink);</span>
+                            }
+<span class="nc" id="L142">                        }</span>
+<span class="nc" id="L143">                        jEntry.remove(&quot;link&quot;);</span>
+                    }
+<span class="nc" id="L145">                    JsonObject jPrefixes = new JsonObject();</span>
+<span class="nc" id="L146">                    jPrefixes.addProperty(&quot;prism&quot;,&quot;http://prismstandard.org/namespaces/1.2/basic/&quot;);</span>
+<span class="nc" id="L147">                    jPrefixes.addProperty(&quot;dc&quot;,&quot;http://purl.org/dc/elements/1.1/&quot;);</span>
+<span class="nc" id="L148">                    jPrefixes.addProperty(&quot;default&quot;,&quot;http://scopus.com/&quot;);</span>
+<span class="nc" id="L149">                    TripleObjectLink tol = new TripleObjectLink(datasetName,baseURL,remoteName,localClassName);</span>
+<span class="nc" id="L150">                    tol.setOrigin(tos);</span>
+<span class="nc" id="L151">                    tol.populatePrefixes(jPrefixes);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                    if (jEntry.has(&quot;dc:identifier&quot;))</span>
+<span class="nc" id="L153">                        tol.setId(jEntry.get(&quot;dc:identifier&quot;).getAsString());</span>
+<span class="nc" id="L154">                    tol.populateMapper(mappers);</span>
+<span class="nc" id="L155">                    tol.populateLinks(jLinks);</span>
+<span class="nc" id="L156">                    tol.populateAttributes(jEntry);</span>
+<span class="nc" id="L157">                    tripleObjectLinks.add(tol);</span>
+<span class="nc" id="L158">                }</span>
+            }
+        }
+<span class="nc" id="L161">        return tripleObjectLinks;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

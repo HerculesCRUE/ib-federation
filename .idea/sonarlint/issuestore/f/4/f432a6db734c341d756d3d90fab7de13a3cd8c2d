@@ -1,0 +1,7 @@
+
+…
+java:S1488+"jImmediately return this expression instead of assigning it to the temporary variable "jFederatedResponse".(öý—¢øÿÿÿÿ
+…
+java:S14888"jImmediately return this expression instead of assigning it to the temporary variable "jFederatedResponse".(öý—¢øÿÿÿÿ
+‡
+java:S1130>"lRemove the declaration of thrown exception 'java.io.IOException', as it cannot be thrown from method's body.(ð»†‚ùÿÿÿÿ

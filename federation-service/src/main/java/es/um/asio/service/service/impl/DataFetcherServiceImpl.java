@@ -1,18 +1,17 @@
 package es.um.asio.service.service.impl;
 
-import com.google.gson.Gson;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import es.um.asio.service.config.DataSourceRepository;
+
 import es.um.asio.service.model.TripleObjectSimplified;
 import es.um.asio.service.model.URIComponent;
 import es.um.asio.service.service.DataFetcherService;
 import es.um.asio.service.service.HttpRequestHelper;
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.service.ServiceDiscoveryService;
-import jdk.jshell.execution.Util;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Connection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -214,7 +213,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                             "WHERE {\n" +
                             "?subject ?p <http://www.w3.org/ns/ldp#RDFSource> .\n" +
                             "?subject <http://purl.org/dc/terms/modified> ?object .\n" +
-                            "FILTER regex(str(?subject),\"^.*/"+className+"/.*\")\n" +
+                            "FILTER regex(str(?subject),\"^.*/"+normalizeClassName(className)+"/.*\")\n" +
                             "}";
                     JsonObject jResponse = doRequest(url, query);
                     if (jResponse!=null) {
@@ -298,7 +297,12 @@ public class DataFetcherServiceImpl implements DataFetcherService {
 
     private String normalizeClassName(String className) {
         String [] chunkedClassName = className.split("\\-");
-        return String.join("\\\\-",chunkedClassName);
+        String [] chunkedClassNameRegex = new String[chunkedClassName.length];
+        for (int i = 0; i < chunkedClassName.length ; i++) {
+            char first = chunkedClassName[i].charAt(0);
+            chunkedClassNameRegex[i] = String.format("[%s|%s]%s",Character.toLowerCase(first),Character.toUpperCase(first),chunkedClassName[i].substring(1));
+        }
+        return String.join("(\\\\-)*",chunkedClassNameRegex);
     }
 
 }

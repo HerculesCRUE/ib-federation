@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CorsProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Back</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.back.config.properties</a> &gt; <span class="el_source">CorsProperties.java</span></div><h1>CorsProperties.java</h1><pre class="source lang-java linenums">package es.um.asio.back.config.properties;
+
+import java.util.Arrays;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * Cors related configuration properties.
+ */
+@ConfigurationProperties(&quot;app.cors&quot;)
+@Validated
+@Getter
+<span class="nc" id="L18">@Setter</span>
+<span class="nc" id="L19">@ToString</span>
+<span class="nc" id="L20">public class CorsProperties {</span>
+    /**
+     * Enable or disable the CORS filter for this application.
+     */
+<span class="nc" id="L24">    private boolean enabled;</span>
+
+    /**
+     * Allowed origin for CORS.
+     */
+<span class="nc" id="L29">    private String allowedOrigin;</span>
+
+    /**
+     * Allowed methods for CORS.
+     */
+<span class="nc" id="L34">    private String allowedMethods;</span>
+
+    /**
+     * The allowed headers for CORS.
+     */
+    private String[] allowedHeaders;
+
+    /**
+     * CORS preflight max age allowed.
+     */
+<span class="nc" id="L44">    private String maxAge;</span>
+
+    /**
+     * Gets the allowed headers for CORS.
+     * 
+     * @return allowed headers for CORS.
+     */
+    public String[] getAllowedHeaders() {
+<span class="nc" id="L52">        return Arrays.copyOf(this.allowedHeaders, this.allowedHeaders.length);</span>
+    }
+
+    /**
+     * Sets the allowed headers for CORS.
+     * 
+     * @param allowedHeaders
+     *            allowed headers for CORS.
+     */
+    public void setAllowedHeaders(final String[] allowedHeaders) {
+<span class="nc" id="L62">        this.allowedHeaders = Arrays.copyOf(allowedHeaders, allowedHeaders.length);</span>
+<span class="nc" id="L63">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

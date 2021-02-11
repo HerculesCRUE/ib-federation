@@ -1,8 +1,12 @@
 package es.um.asio.back.controller.datafetcher;
 
+import es.um.asio.service.config.DataSourceRepository;
+import es.um.asio.service.config.LodDataSet;
 import es.um.asio.service.model.TripleObjectSimplified;
 import es.um.asio.service.service.DataFetcherService;
 import es.um.asio.service.validation.group.Create;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -21,17 +25,20 @@ import java.util.Set;
 
 @RestController
 @RequestMapping(DataFetcherController.Mappings.BASE)
+@Api(value = "Module Data-fetcher of Federation")
 public class DataFetcherController {
 
     @Autowired
     DataFetcherService dataFetcherService;
 
-    @GetMapping(Mappings.GREET)
-    public String greet(){
-        return "HELLO";
-    }
+    @Autowired
+    LodDataSet lodDataSet;
+
+    @Autowired
+    DataSourceRepository dataSourceRepository;
 
     @GetMapping(Mappings.OBJECTS)
+    @ApiOperation(value = "Get All Class in the Triple Store")
     public Set<String> getAllObjects(
         @ApiParam(name = "node", value = "Node of data", defaultValue = "um", required = true)
         @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
@@ -46,6 +53,7 @@ public class DataFetcherController {
     }
 
     @GetMapping(Mappings.INSTANCES)
+    @ApiOperation(value = "Get All Instances in the Triple Store")
     public Set<TripleObjectSimplified> getAllInstances(
             @ApiParam(name = "node", value = "Node of data", defaultValue = "um", required = true)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
@@ -62,6 +70,7 @@ public class DataFetcherController {
     }
 
     @GetMapping(Mappings.FIND_INSTANCE)
+    @ApiOperation(value = "Find a instance in the Triple Store by Canonical URI")
     public TripleObjectSimplified getFindInstanceByURI(
             @ApiParam(name = "node", value = "Node of data", defaultValue = "um", required = true)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
@@ -80,16 +89,6 @@ public class DataFetcherController {
         );
     }
 
-    @GetMapping(Mappings.LOD)
-    public Map<String,Object> fetchLod(
-            @ApiParam(name = "dataset", value = "Name of dataset. One of [SCOPUS]", allowableValues= "SCOPUS", defaultValue = "SCOPUS", required = true)
-            @RequestParam(required = true, defaultValue = "SCOPUS") @Validated(Create.class) final String dataset,
-            @ApiParam(name = "entity", value = "SCOPUS", defaultValue = "SCOPUS", required = true)
-            @RequestParam(required = true, defaultValue = "SCOPUS") @Validated(Create.class) final String entity
-
-    ) throws URISyntaxException, IOException {
-        return null;
-    }
 
 
     /**
@@ -122,9 +121,5 @@ public class DataFetcherController {
          */
         protected static final String FIND_INSTANCE = "/instance/find";
 
-        /**
-         * Mapping for list.
-         */
-        protected static final String LOD = "/lod";
     }
 }

@@ -58,7 +58,7 @@ public class ServiceDiscoveryServiceImpl implements ServiceDiscoveryService {
             if (jeResponse!=null) {
                 JsonArray jResponseArray = jeResponse.getAsJsonArray();
                 for (JsonElement jeNode : jResponseArray) {
-                    String node = jeNode.getAsJsonObject().get("name").getAsString();
+                    String node = jeNode.getAsJsonObject().get("name").getAsString().trim();
                     if (nodes.contains(node)) {
                         for (JsonElement jeService : jeNode.getAsJsonObject().get("services").getAsJsonArray()) {
                             String baseURL = jeService.getAsJsonObject().get("baseURL").getAsString();

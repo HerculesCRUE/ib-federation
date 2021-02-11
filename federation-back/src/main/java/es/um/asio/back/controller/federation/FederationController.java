@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import es.um.asio.service.exceptions.CustomFederationException;
 import es.um.asio.service.service.FederationService;
 import es.um.asio.service.validation.group.Create;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(FederationController.Mappings.BASE)
+@Api(value = "Federation Module in Federation: Execute a federate SPARQL query")
 public class FederationController {
 
     @Autowired
@@ -31,39 +34,41 @@ public class FederationController {
     Integer defaultTimeout;
 
     @PostMapping(Mappings.ALL)
+    @ApiOperation("Execute federate SPARQL query in all nodes registered")
     public String executeQueryInAllNodes(
-            @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "trellis", required = true)
-            @RequestParam(required = true, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "sparql", required = true)
+            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
-            @RequestParam(required = false) final Integer nodeTimeout,
+            @RequestParam(required = false) final String nodeTimeout,
             @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false)
-            @RequestParam(required = false) final Integer pageSize,
+            @RequestParam(required = false) final String pageSize,
             @ApiParam(name = "query", value = "Query to execute in nodes", required = true)
-            @RequestParam(required = true, defaultValue = "query") final String query
+            @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c}") final String query
     ) throws IOException, URISyntaxException, JSONException {
-        JsonObject jResponse = federationService.executeQueryInAllNodes(query,tripleStore,pageSize, (nodeTimeout==null)?defaultTimeout:nodeTimeout );
+        JsonObject jResponse = federationService.executeQueryInAllNodes(query,tripleStore,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
     @PostMapping(Mappings.NODES_LIST)
+    @ApiOperation("Execute federate SPARQL query in nodes of list in param nodeList (coma separated)")
     public String executeQueryInNodesList(
-            @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "trellis", required = true)
-            @RequestParam(required = true, defaultValue = "trellis") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "sparql", required = true)
+            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
-            @RequestParam(required = false) final Integer nodeTimeout,
-            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false)
-            @RequestParam(required = false) final Integer pageSize,
+            @RequestParam(required = false) final String nodeTimeout,
+            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false, type = "Integer")
+            @RequestParam(required = false) final String pageSize,
             @ApiParam(name = "nodeList", value = "Node List", defaultValue = "um, um2", required = true)
             @RequestParam(required = true) final String nodeList,
             @ApiParam(name = "query", value = "Query to execute in nodes", required = true)
-            @RequestParam(required = true, defaultValue = "query") final String query
+            @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c}") final String query
     ) throws IOException, URISyntaxException, JSONException {
         if (!Utils.isValidString(nodeList)) {
             throw new CustomFederationException("nodes list can not be null");
         }
-        List<String> nodes = Arrays.asList(nodeList.split(","));
+        List<String> nodes = Arrays.asList(nodeList.replaceAll(" ","").split(","));
 
-        JsonObject jResponse = federationService.executeQueryInNodesList(query,tripleStore,nodes,pageSize, (nodeTimeout==null)?defaultTimeout:nodeTimeout );
+        JsonObject jResponse = federationService.executeQueryInNodesList(query,tripleStore,nodes,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataFetcherController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Back</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.back.controller.datafetcher</a> &gt; <span class="el_source">DataFetcherController.java</span></div><h1>DataFetcherController.java</h1><pre class="source lang-java linenums">package es.um.asio.back.controller.datafetcher;
+
+import es.um.asio.service.config.DataSourceRepository;
+import es.um.asio.service.config.LodDataSet;
+import es.um.asio.service.model.TripleObjectSimplified;
+import es.um.asio.service.service.DataFetcherService;
+import es.um.asio.service.validation.group.Create;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+@RestController
+@RequestMapping(DataFetcherController.Mappings.BASE)
+@Api(value = &quot;Module Data-fetcher of Federation&quot;)
+<span class="nc" id="L29">public class DataFetcherController {</span>
+
+    @Autowired
+    DataFetcherService dataFetcherService;
+
+    @Autowired
+    LodDataSet lodDataSet;
+
+    @Autowired
+    DataSourceRepository dataSourceRepository;
+
+    @GetMapping(Mappings.OBJECTS)
+    @ApiOperation(value = &quot;Get All Class in the Triple Store&quot;)
+    public Set&lt;String&gt; getAllObjects(
+        @ApiParam(name = &quot;node&quot;, value = &quot;Node of data&quot;, defaultValue = &quot;um&quot;, required = true)
+        @RequestParam(required = true, defaultValue = &quot;um&quot;) @Validated(Create.class) final String node,
+        @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;sparql-proxy&quot;, required = true)
+        @RequestParam(required = true, defaultValue = &quot;sparql-proxy&quot;) @Validated(Create.class) final String endpointSPARQService,
+        @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;sparql&quot;, required = true)
+        @RequestParam(required = true, defaultValue = &quot;sparql&quot;) @Validated(Create.class) final String tripleStore
+    ) throws URISyntaxException, IOException {
+<span class="nc" id="L50">        return dataFetcherService.getObjectsUris(</span>
+                node,endpointSPARQService,tripleStore
+        );
+    }
+
+    @GetMapping(Mappings.INSTANCES)
+    @ApiOperation(value = &quot;Get All Instances in the Triple Store&quot;)
+    public Set&lt;TripleObjectSimplified&gt; getAllInstances(
+            @ApiParam(name = &quot;node&quot;, value = &quot;Node of data&quot;, defaultValue = &quot;um&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;um&quot;) @Validated(Create.class) final String node,
+            @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;sparql-proxy&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;sparql-proxy&quot;) @Validated(Create.class) final String endpointSPARQService,
+            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;sparql&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;sparql&quot;) @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = &quot;className&quot;, value = &quot;The class of instances&quot;, required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String className
+    ) throws URISyntaxException, IOException {
+<span class="nc" id="L67">        return dataFetcherService.getTripleObjectSimplified(</span>
+                node,endpointSPARQService,tripleStore,className
+        );
+    }
+
+    @GetMapping(Mappings.FIND_INSTANCE)
+    @ApiOperation(value = &quot;Find a instance in the Triple Store by Canonical URI&quot;)
+    public TripleObjectSimplified getFindInstanceByURI(
+            @ApiParam(name = &quot;node&quot;, value = &quot;Node of data&quot;, defaultValue = &quot;um&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;um&quot;) @Validated(Create.class) final String node,
+            @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;sparql-proxy&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;sparql-proxy&quot;) @Validated(Create.class) final String endpointSPARQService,
+            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;sparql&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;sparql&quot;) @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = &quot;className&quot;, value = &quot;The class of instances&quot;, required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String className,
+            @ApiParam(name = &quot;uri&quot;, value = &quot;URI of subject&quot;, required = true)
+            @RequestParam(required = true) @Validated(Create.class) final String uri
+
+    ) throws URISyntaxException, IOException {
+<span class="nc" id="L87">        return dataFetcherService.findTripleObjectSimplifiedByURI(</span>
+                node,endpointSPARQService,tripleStore,className,uri
+        );
+    }
+
+
+
+    /**
+     * Mappgins.
+     */
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    static final class Mappings {
+        /**
+         * Controller request mapping.
+         */
+        protected static final String BASE = &quot;/data-fetcher&quot;;
+
+        /**
+         * Mapping for list.
+         */
+        protected static final String GREET = &quot;/greet&quot;;
+
+        /**
+         * Mapping for list.
+         */
+        protected static final String OBJECTS = &quot;/objects&quot;;
+
+        /**
+         * Mapping for list.
+         */
+        protected static final String INSTANCES = &quot;/instances&quot;;
+
+        /**
+         * Mapping for list.
+         */
+        protected static final String FIND_INSTANCE = &quot;/instance/find&quot;;
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

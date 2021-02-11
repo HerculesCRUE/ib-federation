@@ -1,0 +1,9 @@
+
+
+java:S11496"_Replace the synchronized class "StringBuffer" by an unsynchronized one such as "StringBuilder".(ºè®õûÿÿÿÿ8Êğ¤ó.
+ƒ
+java:S14881"aImmediately return this expression instead of assigning it to the temporary variable "jResponse".(œ˜ùÿÿÿÿ8Êğ¤ó.
+|
+java:S1149D"_Replace the synchronized class "StringBuffer" by an unsynchronized one such as "StringBuilder".(í…Ò‰8ñÆ¦§ó.
+W
+java:S1118":Add a private constructor to hide the implicit public one.(¼Øûì8å±§ó.

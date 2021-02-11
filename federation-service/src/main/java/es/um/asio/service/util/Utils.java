@@ -2,6 +2,7 @@ package es.um.asio.service.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import org.apache.commons.lang3.ClassUtils;
 import org.jsoup.Connection;
 
 import java.io.BufferedReader;
@@ -11,7 +12,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
+import org.apache.catalina.util.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,7 @@ public class Utils {
         }
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod(method.toString());
+        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         if (headers!=null) {
             for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
                 con.setRequestProperty(headerEntry.getKey(),headerEntry.getValue());
@@ -56,7 +59,8 @@ public class Utils {
             base.append("?");
             List<String> qpList = new ArrayList<>();
             for (Map.Entry<String, String> qpEntry : queryParams.entrySet()) {
-                qpList.add(qpEntry.getKey()+"="+ URLEncoder.encode(qpEntry.getValue(), StandardCharsets.UTF_8.toString()));
+                qpList.add(qpEntry.getKey()+"="+ new URLEncoder().encode(qpEntry.getValue(), Charset.defaultCharset()));
+                        //URLEncoder.encode(qpEntry.getValue(), StandardCharsets.UTF_8.toString()));
             }
             base.append(String.join("&",qpList));
         }
@@ -77,4 +81,15 @@ public class Utils {
         }
         return new URL(sb.toString());
     }
+
+    public static boolean isPrimitive(Object o) {
+        if (o == null)
+            return true;
+        return ClassUtils.isPrimitiveOrWrapper(o.getClass()) || o instanceof String;
+    }
+
+    public static boolean isValidString(String s) {
+        return s != null && !s.equals("");
+    }
+
 }

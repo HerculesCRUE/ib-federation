@@ -1,4 +1,5 @@
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\model\CustomRDF.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\LODHandlerService.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\config\properties\package-info.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\filter\package-info.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\UserService.java
@@ -12,6 +13,7 @@ C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\ma
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\util\Utils.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\solr\indexer\package-info.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\impl\ServiceDiscoveryServiceImpl.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\model\TripleObjectLink.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\HttpRequestHelper.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\solr\mapper\UserSolrMapper.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\solr\SolrConfig.java
@@ -27,10 +29,12 @@ C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\ma
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\mapper\BaseMapper.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\mapper\decorator\UserMapperDecorator.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\util\package-info.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\config\LodDataSet.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\mapper\UserMapper.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\impl\UserServiceImpl.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\impl\HttpRequestHelperImpl.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\util\JpaConstants.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\repository\lod\connectors\CrossRefHandler.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\model\UserRole.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\repository\SparqlProxyHandler.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\model\Role.java
@@ -47,6 +51,7 @@ C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\ma
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\solr\repository\impl\package-info.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\FederationService.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\filter\UserFilter.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\impl\TextHandlerServiceImp.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\config\properties\DatasourceProperties.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\dto\UserDto.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\impl\SchemaServiceImp.java
@@ -58,18 +63,22 @@ C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\ma
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\package-info.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\config\SpringAsyncConfig.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\solr\mapper\BaseSolrMapper.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\repository\lod\connectors\SCOPUSHandler.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\impl\FederationServiceImpl.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\util\AttributeType.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\impl\package-info.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\model\URIComponent.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\solr\repository\UserSolrRepositoryCustom.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\util\ValidationConstants.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\TextHandlerService.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\service\impl\LODHandlerServiceImp.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\solr\mapper\decorator\UserSolrMapperDecorator.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\proxy\impl\package-info.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\config\properties\JpaProperties.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\model\constants\Constants.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\model\CustomTriplet.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\mapper\package-info.java
+C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\repository\lod\connectors\LODHandler.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\repository\package-info.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\validation\group\Update.java
 C:\Users\druiz\repositorios\UM\Formacion\ib-federation\federation-service\src\main\java\es\um\asio\service\model\Node.java

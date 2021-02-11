@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LODHandlerServiceImp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.service.impl</a> &gt; <span class="el_source">LODHandlerServiceImp.java</span></div><h1>LODHandlerServiceImp.java</h1><pre class="source lang-java linenums">package es.um.asio.service.service.impl;
+
+import es.um.asio.service.config.LodDataSet;
+import es.um.asio.service.model.TripleObjectLink;
+import es.um.asio.service.model.TripleObjectSimplified;
+import es.um.asio.service.repository.lod.connectors.LODHandler;
+import es.um.asio.service.repository.lod.connectors.SCOPUSHandler;
+import es.um.asio.service.service.LODHandlerService;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+<span class="nc" id="L16">public class LODHandlerServiceImp implements LODHandlerService {</span>
+
+    @Autowired
+    LodDataSet lds;
+
+    @Autowired
+    TextHandlerServiceImp textHandlerService;
+
+    @Override
+    public Set&lt;TripleObjectLink&gt; findLinksInHandlers(List&lt;String&gt; dataSets, TripleObjectSimplified tos) {
+<span class="nc" id="L26">        Set&lt;TripleObjectLink&gt; results = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        for (String dataset : dataSets) {</span>
+<span class="nc" id="L28">            Optional&lt;LodDataSet.Dataset&gt; ods = lds.getDatasetByName(dataset);</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">            if (ods.get()!=null) { // Si contiene datos</span>
+<span class="nc" id="L30">                DatasetEnum dse = DatasetEnum.findByName(dataset);</span>
+                try {
+<span class="nc" id="L32">                    LodDataSet.Dataset pds = ods.get().getPrunedDatasetByClassName(tos.getClassName());</span>
+<span class="nc bnc" id="L33" title="All 4 branches missed.">                    if (dse != null &amp;&amp; pds.getConnections().size() &gt; 0) {</span>
+<span class="nc" id="L34">                        LODHandler handler = dse.getHandler();</span>
+<span class="nc" id="L35">                        results = handler.findLink(tos, pds,textHandlerService);</span>
+<span class="nc" id="L36">                        return results;</span>
+                    }
+<span class="nc" id="L38">                } catch (Exception e) {</span>
+<span class="nc" id="L39">                    e.printStackTrace();</span>
+<span class="nc" id="L40">                    System.out.println();</span>
+<span class="nc" id="L41">                }</span>
+
+            }
+<span class="nc" id="L44">        }</span>
+<span class="nc" id="L45">        return results;</span>
+    }
+
+<span class="nc" id="L48">    @Getter</span>
+    public enum DatasetEnum {
+<span class="nc" id="L50">        SCOPUS(&quot;SCOPUS&quot;, new SCOPUSHandler());</span>
+
+<span class="nc" id="L52">        private String name;</span>
+<span class="nc" id="L53">        private LODHandler handler;</span>
+
+<span class="nc" id="L55">        DatasetEnum(String name, LODHandler handler) {</span>
+<span class="nc" id="L56">            this.name = name;</span>
+<span class="nc" id="L57">            this.handler = handler;</span>
+<span class="nc" id="L58">        }</span>
+
+        public static DatasetEnum findByName(String name) {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            for (DatasetEnum dse : DatasetEnum.values()) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                if(dse.getName().equals(name))</span>
+<span class="nc" id="L63">                    return dse;</span>
+            }
+<span class="nc" id="L65">            return null;</span>
+        }
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

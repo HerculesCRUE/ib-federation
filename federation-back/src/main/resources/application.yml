@@ -127,7 +127,7 @@ data-sources:
           user:
           password:
           types:
-            - name: trellis
+            - name: sparql
               suffixURL: /trellis/sparql
               user:
               password:
@@ -143,17 +143,61 @@ data-sources:
           password: admin
 
 service-discovery-host: http://localhost:9329
-data-sets:
-  - name: SCOPUS
-    connection:
-      - type: api
-        baseURL: https://api.elsevier.com/content/
-        apiKey: 9c16500dca380fb18aa8014ecc812ad9
-        mappings:
-          classes:
-            - localName: Universidad
-              remoteName: AFFILIATION
-            - localName: AUTHOR
-              remoteName: Author
-            - localName: Documentos
-              remoteName: SCOPUS
+
+lod-data-sources:
+  datasets:
+    - name: SCOPUS
+      connections:
+        - connectionType: API
+          def: true
+          baseURL: https://api.elsevier.com/content/
+          apiKey: 9c16500dca380fb18aa8014ecc812ad9
+          mappings:
+            - remoteName: SCOPUS
+              remoteAttribute: DOI
+              suffixURL: search/scopus
+              identifier: true
+              order: 1
+              localClasses:
+                - name: Articulo
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "name"
+                - name: Documento
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "name"
+            - remoteName: SCOPUS
+              remoteAttribute: TITLE-ABS-KEY
+              suffixURL: search/scopus
+              identifier: false
+              removeStopWords: true
+              order: 2
+              localClasses:
+                - name: Articulo
+                  attributes:
+                    - titulo
+                    - title
+                    - name
+                  mappers:
+                    - remoteAttribute: "doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "name"
+                - name: Documento
+                  attributes:
+                    - titulo
+                    - title
+                  mapperAttribute:
+                    - remoteAttribute: "doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "name"

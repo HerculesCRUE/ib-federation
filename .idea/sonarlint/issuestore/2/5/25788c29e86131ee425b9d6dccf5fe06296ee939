@@ -1,0 +1,25 @@
+
+p
+java:S2975~"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(¯áÑë8¦¨”šô.
+f
+java:S1182À"HUse super.clone() to create and seed the cloned instance to be returned.(¯áÑë8¢ñÓô.
+q
+java:S2975ª"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(¯áÑë8¢ñÓô.
+p
+java:S2975b"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(¯áÑë8¦¨”šô.
+C
+java:S2129Å" Remove this "String" constructor(¼‘±´ÿÿÿÿÿ8¢ñÓô.
+F
+java:S2786")Remove this redundant "static" qualifier.(Ÿ§Àm8¦¨”šô.
+e
+java:S1182~"HUse super.clone() to create and seed the cloned instance to be returned.(¯áÑë8¦¨”šô.
+[
+java:S11555">Use isEmpty() to check whether the collection is empty or not.(Ä½Î‘8í±Èõó.
+f
+java:S1182ª"HUse super.clone() to create and seed the cloned instance to be returned.(¯áÑë8¢ñÓô.
+q
+java:S2975À"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(¯áÑë8¢ñÓô.
+G
+java:S2157"%Add a "clone()" method to this class.(´”€Ìıÿÿÿÿ8’›€™ô.
+e
+java:S1182b"HUse super.clone() to create and seed the cloned instance to be returned.(¯áÑë8¦¨”šô.

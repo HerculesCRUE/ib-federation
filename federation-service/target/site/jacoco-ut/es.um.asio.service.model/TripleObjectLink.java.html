@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TripleObjectLink.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.model</a> &gt; <span class="el_source">TripleObjectLink.java</span></div><h1>TripleObjectLink.java</h1><pre class="source lang-java linenums">package es.um.asio.service.model;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
+import es.um.asio.service.config.LodDataSet;
+import lombok.*;
+import util.Utils;
+
+import java.util.*;
+
+@Getter
+<span class="nc" id="L15">@Setter</span>
+<span class="nc" id="L16">@ToString</span>
+<span class="nc" id="L17">@NoArgsConstructor</span>
+<span class="nc" id="L18">@AllArgsConstructor</span>
+public class TripleObjectLink {
+
+<span class="nc" id="L21">    private String id;</span>
+<span class="nc" id="L22">    private String datasetName;</span>
+<span class="nc" id="L23">    private String baseURL;</span>
+<span class="nc" id="L24">    private String remoteName;</span>
+<span class="nc" id="L25">    private String localClassName;</span>
+<span class="nc" id="L26">    private Map&lt;String,String&gt; mapper;</span>
+<span class="nc" id="L27">    private Map&lt;String,String&gt; prefixes;</span>
+<span class="nc" id="L28">    private TripleObjectSimplified origin;</span>
+<span class="nc" id="L29">    private List&lt;LinkedTreeMap&lt;String, Object&gt;&gt; links;</span>
+<span class="nc" id="L30">    private LinkedTreeMap&lt;String, Object&gt; attributes;</span>
+
+<span class="nc" id="L32">    public TripleObjectLink(String id, String datasetName, String baseURL, String remoteName, String localClassName) {</span>
+<span class="nc" id="L33">        this.id = id;</span>
+<span class="nc" id="L34">        this.datasetName = datasetName;</span>
+<span class="nc" id="L35">        this.baseURL = baseURL;</span>
+<span class="nc" id="L36">        this.remoteName = remoteName;</span>
+<span class="nc" id="L37">        this.localClassName = localClassName;</span>
+<span class="nc" id="L38">        this.prefixes = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L39">        this.mapper = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L40">        this.links = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L41">        this.attributes = new LinkedTreeMap&lt;&gt;();</span>
+<span class="nc" id="L42">    }</span>
+
+<span class="nc" id="L44">    public TripleObjectLink(String datasetName, String baseURL, String remoteName, String localClassName) {</span>
+<span class="nc" id="L45">        this.datasetName = datasetName;</span>
+<span class="nc" id="L46">        this.baseURL = baseURL;</span>
+<span class="nc" id="L47">        this.remoteName = remoteName;</span>
+<span class="nc" id="L48">        this.localClassName = localClassName;</span>
+<span class="nc" id="L49">        this.prefixes = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L50">        this.mapper = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L51">        this.links = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L52">        this.attributes = new LinkedTreeMap&lt;&gt;();</span>
+<span class="nc" id="L53">    }</span>
+
+    public void populateMapper(List&lt;LodDataSet.Dataset.Connection.Mapping.LocalClass.Mapper&gt; mappers) {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (LodDataSet.Dataset.Connection.Mapping.LocalClass.Mapper m : mappers) {</span>
+<span class="nc" id="L57">            mapper.put(m.getRemoteAttribute(),m.getLocalAttribute());</span>
+<span class="nc" id="L58">        }</span>
+<span class="nc" id="L59">    }</span>
+
+    public void populateLinks(JsonArray jLinks) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        for (JsonElement jeLink: jLinks) {</span>
+<span class="nc" id="L63">            LinkedTreeMap&lt;String, Object&gt; link = new LinkedTreeMap&lt;&gt;();</span>
+<span class="nc" id="L64">            JsonObject jLink = jeLink.getAsJsonObject();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (jLink.has(&quot;type&quot;)) {</span>
+<span class="nc" id="L66">                link.put(&quot;type&quot;,jLink.get(&quot;type&quot;).getAsString());</span>
+            }
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (jLink.has(&quot;link&quot;)) {</span>
+<span class="nc" id="L69">                link.put(&quot;link&quot;,jLink.get(&quot;link&quot;).getAsString());</span>
+            }
+<span class="nc" id="L71">            links.add(link);</span>
+<span class="nc" id="L72">        }</span>
+<span class="nc" id="L73">    }</span>
+
+    public void populateAttributes(JsonObject jAttrs) {
+<span class="nc" id="L76">        this.attributes = new Gson().fromJson(jAttrs.toString(), LinkedTreeMap.class);</span>
+<span class="nc" id="L77">    }</span>
+
+    public void populatePrefixes(JsonObject jPrefixes) {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (Map.Entry&lt;String,JsonElement&gt;  att: jPrefixes.entrySet()) {</span>
+<span class="nc" id="L81">            this.prefixes.put(att.getKey(),att.getValue().getAsString());</span>
+<span class="nc" id="L82">        }</span>
+<span class="nc" id="L83">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L88" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="nc" id="L89">        TripleObjectLink that = (TripleObjectLink) o;</span>
+<span class="nc" id="L90">        return id.equals(that.id);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L95">        return Objects.hash(id);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -1,0 +1,5 @@
+
+ฒ
+java:S1130+"Remove the declaration of thrown exception 'org.springframework.boot.configurationprocessor.json.JSONException', as it cannot be thrown from method's body.(ึ่็
+ฒ
+java:S1130<"Remove the declaration of thrown exception 'org.springframework.boot.configurationprocessor.json.JSONException', as it cannot be thrown from method's body.(ึ่็

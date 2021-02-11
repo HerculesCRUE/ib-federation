@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.service.impl</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package es.um.asio.service.service.impl;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import es.um.asio.service.filter.UserFilter;
+import es.um.asio.service.model.User;
+import es.um.asio.service.repository.UserRepository;
+import es.um.asio.service.service.UserService;
+import es.um.asio.service.solr.mapper.UserSolrMapper;
+import es.um.asio.service.solr.model.UserSolr;
+import es.um.asio.service.solr.repository.UserSolrRepository;
+import com.izertis.libraries.solr.annotation.Indexable;
+import com.izertis.libraries.solr.annotation.IndexableClass;
+
+/**
+ * Service implementation to handle {@link User} entity related operations
+ */
+@IndexableClass
+@Service
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+<span class="fc" id="L33">public class UserServiceImpl implements UserService, UserDetailsService {</span>
+
+    /**
+     * Spring Data repository for {@link User}.
+     */
+    @Autowired
+    private UserRepository userRepository;
+
+    /**
+     * Spring Data Solr repository for {@link UserSolr}
+     */
+    @Autowired(required = false)
+    private UserSolrRepository userSolrRepository;
+
+    /**
+     * Solr enabled
+     */
+    @Value(&quot;${app.solr.enabled:#{false}}&quot;)
+    private boolean solrEnabled;
+
+    /**
+     * MapStruct Mapper for {@link UserSolr}.
+     */
+    @Autowired(required = false)
+    private UserSolrMapper userSolrMapper;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Indexable(User.class)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Override
+    public User save(final User entity) {
+<span class="fc" id="L66">        return this.userRepository.save(entity);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Indexable(User.class)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Override
+    public List&lt;User&gt; save(final Iterable&lt;User&gt; entities) {
+<span class="fc" id="L76">        return this.userRepository.saveAll(entities);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Indexable(User.class)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Override
+    public User update(final User entity) {
+<span class="nc" id="L86">        return this.userRepository.save(entity);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Indexable(User.class)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Override
+    public void delete(final User entity) {
+<span class="nc" id="L96">        this.userRepository.setAccountNonLocked(false, entity.getId());</span>
+<span class="nc" id="L97">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Indexable(User.class)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Override
+    public void delete(final String identifier) {
+<span class="nc" id="L106">        this.userRepository.setAccountNonLocked(false, identifier);</span>
+<span class="nc" id="L107">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Indexable(User.class)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Override
+    public void undelete(final String identifier) {
+<span class="nc" id="L116">        this.userRepository.setAccountNonLocked(true, identifier);</span>
+<span class="nc" id="L117">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional&lt;User&gt; find(final String identifier) {
+<span class="fc" id="L124">        return this.userRepository.findById(identifier);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Page&lt;User&gt; findPaginated(final UserFilter filter, final Pageable pageable) {
+        Page&lt;User&gt; page;
+
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (this.solrEnabled) {</span>
+<span class="nc" id="L135">            page = this.userSolrMapper.convertFromSolr(this.userSolrRepository.findAll(filter, pageable));</span>
+        } else {
+<span class="fc" id="L137">            page = this.userRepository.findAll(filter, pageable);</span>
+        }
+
+<span class="fc" id="L140">        return page;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;User&gt; findAll() {
+<span class="fc" id="L148">        return this.userRepository.findAll();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UserDetails loadUserByUsername(final String username) {
+<span class="fc" id="L156">        return this.userRepository.findByUsername(username).orElseThrow(</span>
+<span class="fc" id="L157">                () -&gt; new UsernameNotFoundException(String.format(&quot;User with username %s not found&quot;, username)));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

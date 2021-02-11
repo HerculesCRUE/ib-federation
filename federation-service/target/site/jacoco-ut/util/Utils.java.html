@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Utils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">util</a> &gt; <span class="el_source">Utils.java</span></div><h1>Utils.java</h1><pre class="source lang-java linenums">package util;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.text.DateFormat;
+import java.text.Normalizer;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.apache.commons.validator.routines.UrlValidator;
+
+public class Utils {
+
+    private Utils(){}
+
+<span class="nc" id="L22">    static List&lt;String&gt; dateFormats = generateValidFormatDates();</span>
+<span class="nc" id="L23">    static List&lt;Locale&gt; locales = generateLocales();</span>
+
+    public static List&lt;String&gt; generateValidFormatDates() {
+<span class="nc" id="L26">        List&lt;String&gt; dateFormats = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L27">        dateFormats.addAll(</span>
+<span class="nc" id="L28">                generateCombinations(</span>
+<span class="nc" id="L29">                &quot;d&quot;,buildListInt(1,2),</span>
+<span class="nc" id="L30">                &quot;M&quot;,buildListInt(1,2,3,5),</span>
+<span class="nc" id="L31">                &quot;y&quot;,buildListInt(2,4),</span>
+<span class="nc" id="L32">                        buildListStr(&quot;.&quot;,&quot;/&quot;,&quot;-&quot;))</span>
+        );
+<span class="nc" id="L34">        dateFormats.addAll(</span>
+<span class="nc" id="L35">                generateCombinations(</span>
+<span class="nc" id="L36">                &quot;y&quot;,buildListInt(2,4),</span>
+<span class="nc" id="L37">                &quot;M&quot;,buildListInt(1,2,3,5),</span>
+<span class="nc" id="L38">                &quot;d&quot;,buildListInt(1,2),</span>
+<span class="nc" id="L39">                buildListStr(&quot;.&quot;,&quot;/&quot;,&quot;-&quot;))</span>
+        );
+
+<span class="nc" id="L42">        List&lt;String&gt; timeFormats = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L43">        timeFormats.addAll(</span>
+<span class="nc" id="L44">                generateCombinationsTime(</span>
+<span class="nc" id="L45">                &quot;h&quot;,buildListInt(1,2),</span>
+<span class="nc" id="L46">                &quot;m&quot;,buildListInt(1,2,3,5),</span>
+<span class="nc" id="L47">                &quot;s&quot;,buildListInt(2,4),</span>
+<span class="nc" id="L48">                &quot;S&quot;,buildListInt(0,3),</span>
+<span class="nc" id="L49">                buildListStr(&quot;:&quot;))</span>
+        );
+
+<span class="nc" id="L52">        timeFormats.addAll(</span>
+<span class="nc" id="L53">                generateCombinationsTime(</span>
+<span class="nc" id="L54">                &quot;H&quot;,buildListInt(1,2),</span>
+<span class="nc" id="L55">                &quot;m&quot;,buildListInt(1,2,3,5),</span>
+<span class="nc" id="L56">                &quot;s&quot;,buildListInt(2,4),</span>
+<span class="nc" id="L57">                &quot;S&quot;,buildListInt(0,3),</span>
+<span class="nc" id="L58">                buildListStr(&quot;:&quot;))</span>
+        );
+
+<span class="nc" id="L61">        List&lt;String&gt; formats = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        for (String date: dateFormats) {</span>
+<span class="nc" id="L63">            formats.add(date);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            for (String time: timeFormats) {</span>
+<span class="nc" id="L65">                formats.add(date+&quot; &quot;+time);</span>
+<span class="nc" id="L66">            }</span>
+<span class="nc" id="L67">        }</span>
+<span class="nc" id="L68">        formats.add(&quot;EEEEE MMMMM yyyy HH:mm:ss.SSSZ&quot;);</span>
+<span class="nc" id="L69">        formats.add(&quot;yyyy-MM-dd'T'HH:mm:ss. SSSZ&quot;);</span>
+<span class="nc" id="L70">        return formats;</span>
+    }
+
+    private static List&lt;Integer&gt; buildListInt(int ... args) {
+<span class="nc" id="L74">        List&lt;Integer&gt; ints = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (int arg : args) {</span>
+<span class="nc" id="L76">            ints.add(arg);</span>
+        }
+<span class="nc" id="L78">        return ints;</span>
+    }
+
+    private static List&lt;String&gt; buildListStr(String ... args) {
+<span class="nc" id="L82">        return Arrays.asList(args);</span>
+    }
+
+    public static List&lt;String&gt; generateCombinations(String c1, List&lt;Integer&gt; rep1, String c2, List&lt;Integer&gt; rep2, String c3, List&lt;Integer&gt; rep3, List&lt;String&gt; separators) {
+<span class="nc" id="L86">        List&lt;String&gt; combinations = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        for (String s: separators) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            for (int r1 : rep1) {</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                for (int r2 : rep2) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                    for (int r3 : rep3) {</span>
+<span class="nc" id="L91">                        combinations.add(c1.repeat(r1)+s+c2.repeat(r2)+s+c3.repeat(r3));</span>
+<span class="nc" id="L92">                    }</span>
+<span class="nc" id="L93">                }</span>
+<span class="nc" id="L94">            }</span>
+<span class="nc" id="L95">        }</span>
+<span class="nc" id="L96">        return combinations;</span>
+    }
+
+    public static List&lt;Locale&gt; generateLocales() {
+<span class="nc" id="L100">        List&lt;Locale&gt; locales = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L101">        locales.add(new Locale ( &quot;es&quot; , &quot;ES&quot; ));</span>
+<span class="nc" id="L102">        locales.add(Locale.US);</span>
+<span class="nc" id="L103">        locales.add(Locale.ROOT);</span>
+<span class="nc" id="L104">        return locales;</span>
+    }
+
+    public static List&lt;String&gt; generateCombinationsTime(String c1, List&lt;Integer&gt; rep1, String c2, List&lt;Integer&gt; rep2, String c3, List&lt;Integer&gt; rep3, String c4, List&lt;Integer&gt; rep4, List&lt;String&gt; separators) {
+<span class="nc" id="L108">        List&lt;String&gt; combinations = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (String s: separators) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            for (int r1 : rep1) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                for (int r2 : rep2) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                    for (int r3 : rep3) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                        for (int r4 : rep4) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                            if (r4&gt;0) {</span>
+<span class="nc" id="L115">                                combinations.add(c1.repeat(r1) + s + c2.repeat(r2) + s + c3.repeat(r3) + &quot;.&quot; + c4.repeat(r4));</span>
+                            } else {
+<span class="nc" id="L117">                                combinations.add(c1.repeat(r1) + s + c2.repeat(r2) + s + c3.repeat(r3));</span>
+                            }
+<span class="nc" id="L119">                        }</span>
+<span class="nc" id="L120">                    }</span>
+<span class="nc" id="L121">                }</span>
+<span class="nc" id="L122">            }</span>
+<span class="nc" id="L123">        }</span>
+<span class="nc" id="L124">        return combinations;</span>
+    }
+
+    public static Map&lt;Locale,List&lt;String&gt;&gt; getStringFormat() {
+<span class="nc" id="L128">        Map&lt;Locale,List&lt;String&gt;&gt; formats = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L129">        formats.put(Locale.ROOT,new ArrayList&lt;&gt;(buildListStr(&quot;MM/DD/YY&quot;,&quot;DD/MM/YY&quot;,&quot;YY/MM/DD&quot;,&quot;MMM D, YY&quot;,&quot;M/D/YY&quot;,&quot;D/M/YY&quot;,&quot;YY/M/D&quot;,&quot;M/bD/YY&quot;,</span>
+                &quot;bD/M/YY&quot;,&quot;YY/M/bD&quot;,&quot;MMDDYY&quot;,&quot;DDMMYY&quot;,&quot;YYMMDD&quot;,&quot;MonDDYY&quot;,&quot;DDMonYY&quot;,&quot;YYMonDD&quot;,&quot;day/YY&quot;,&quot;YY/day&quot;,&quot;D MMM, YY&quot;,&quot;YY, MMM D&quot;,&quot;Mon-DD-YYYY&quot;,&quot;DD-Mon-YYYY&quot;,
+                &quot;YYYYY-Mon-DD&quot;,&quot;Mon DD, YYYY&quot;,&quot;DD Mon, YYYY&quot;,&quot;YYYY, Mon DD&quot;,&quot;yyyyMMddZ&quot;,&quot;yyyyMMdd&quot;,&quot;yyyy-MM-dd G&quot;,&quot;yyyy-MM-ddXXX&quot;,&quot;yyyy-MM-dd'T'HH:mm:ss.SSS'['VV']'&quot;,&quot;yyyy-MM-dd'T'HH:mm:ss.SSS&quot;,
+                &quot;yyyy-MM-dd'T'HH:mm:ss&quot;,&quot;yyyy-MM-dd'T'HH:mm:ss.SSS'Z'&quot;,&quot;yyyy-MM-dd'T'HH:mm:ss.SSSXXX&quot;,&quot;yyyy-MM-dd'T'HH:mm:ssXXX&quot;,&quot;yyyy-DDDXXX&quot;,
+                &quot;YYYY'W'wc&quot;,&quot;YYYY-'W'w-c&quot;,&quot;yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'&quot;,&quot;yyyy-MM-dd'T'HH:mm:ssXXX'['VV']'&quot;)));
+<span class="nc" id="L134">        formats.put(new Locale ( &quot;es&quot; , &quot;ES&quot; ),new ArrayList&lt;&gt;(Arrays.asList(new String[] {&quot;d/MM/yy&quot;,&quot;d/MM/yy H:mm&quot;,&quot;d.M.yy H:mm&quot;})));</span>
+<span class="nc" id="L135">        formats.put(Locale.US,new ArrayList&lt;&gt;(buildListStr(&quot;M/d/yy&quot;,&quot;M/d/yy&quot;,&quot;MM/dd/yy&quot;,&quot;MM-dd-yy&quot;,&quot;M-d-yy&quot;,&quot;MMM d, yyyy&quot;,&quot;MMMM d, yyyy&quot;,&quot;EEEE, MMMM d, yyyy&quot;,&quot;MMM d yyyy&quot;,</span>
+                &quot;MMMM d yyyy&quot;,&quot;MM-dd-yyyy&quot;,&quot;M-d-yyyy&quot;,&quot;yyyy-MM-ddXXX&quot;,&quot;dd/MM/yyyy&quot;,&quot;d/M/yyyy&quot;,&quot;MM/dd/yyyy&quot;,&quot;M/d/yyyy&quot;,&quot;yyyy/M/d&quot;,&quot;M/d/yy h:mm a&quot;,
+                &quot;MM/dd/yy h:mm a&quot;,&quot;MM-dd-yy h:mm a&quot;,&quot;M-d-yy h:mm a&quot;,&quot;MMM d, yyyy h:mm:ss a&quot;,&quot;EEEE, MMMM d, yyyy h:mm:ss a z&quot;,&quot;EEE MMM dd HH:mm:ss z yyyy&quot;,
+                &quot;EEE, d MMM yyyy HH:mm:ss Z&quot;,&quot;d MMM yyyy HH:mm:ss Z&quot;,&quot;MM-dd-yyyy h:mm:ss a&quot;,&quot;M-d-yyyy h:mm:ss a&quot;,&quot;yyyy-MM-dd h:mm:ss a&quot;,&quot;yyyy-M-d h:mm:ss a&quot;,
+                &quot;yyyy-MM-dd HH:mm:ss.S&quot;,&quot;dd/MM/yyyy h:mm:ss a&quot;,&quot;d/M/yyyy h:mm:ss a&quot;,&quot;MM/dd/yyyy h:mm:ss a&quot;,&quot;M/d/yyyy h:mm:ss a&quot;,&quot;MM/dd/yy h:mm:ss a&quot;,
+                &quot;MM/dd/yy H:mm:ss&quot;,&quot;M/d/yy H:mm:ss&quot;,&quot;dd/MM/yyyy h:mm a&quot;,&quot;d/M/yyyy h:mm a&quot;,&quot;MM/dd/yyyy h:mm a&quot;,&quot;M/d/yyyy h:mm a&quot;,
+                &quot;MM-dd-yy h:mm:ss a&quot;,&quot;M-d-yy h:mm:ss a&quot;,&quot;MM-dd-yyyy h:mm a&quot;,&quot;M-d-yyyy h:mm a&quot;,&quot;yyyy-MM-dd h:mm a&quot;,&quot;yyyy-M-d h:mm a&quot;,&quot;MMM.dd.yyyy&quot;,
+                &quot;d/MMM/yyyy H:mm:ss Z&quot;,&quot;dd/MMM/yy h:mm a&quot;)));
+<span class="nc" id="L143">        formats.put(Locale.UK,new ArrayList&lt;&gt;(buildListStr(&quot;dd MMMM yyyy&quot;,&quot;EEEE, d MMMM yyyy&quot;,&quot;dd-MMM-yyyy&quot;,&quot;dd MMMM yyyy HH:mm:ss z&quot;,&quot;EEEE, d MMMM yyyy HH:mm:ss 'o''clock' z&quot;,</span>
+                &quot;dd-MMM-yyyy HH:mm:ss&quot;,&quot;dd-MMM-yyyy HH:mm:ss&quot;,&quot;dd-MMM-yy hh.mm.ss.nnnnnnnnn a&quot;)));
+<span class="nc" id="L145">        return formats;</span>
+    }
+
+
+    public static boolean isInteger(String s) {
+<span class="nc" id="L150">        String regex = &quot;-?\\d+&quot;;</span>
+<span class="nc" id="L151">        return s.trim().matches(regex);</span>
+    }
+
+    public static boolean isNumber(String s) {
+<span class="nc" id="L155">        String regex = &quot;^-?[1-9]\\d*\\.(\\d+)?$&quot;;</span>
+<span class="nc" id="L156">        return s.trim().matches(regex);</span>
+    }
+
+    public static boolean isValidNumber(String s) {
+<span class="nc bnc" id="L160" title="All 4 branches missed.">        return isInteger(s) || isNumber(s);</span>
+    }
+
+    public static boolean isBoolean(String s) {
+<span class="nc" id="L164">        String regex = &quot;^(true|false|yes|no|si|s|n)$&quot;;</span>
+<span class="nc" id="L165">        return s.trim().toLowerCase().matches(regex);</span>
+    }
+
+    public static boolean getBoolean(String s) {
+<span class="nc" id="L169">        s = s.strip().toLowerCase();</span>
+<span class="nc bnc" id="L170" title="All 8 branches missed.">        if (s.equals(&quot;true&quot;) || s.equals(&quot;yes&quot;) || s.equals(&quot;si&quot;) || s.equals(&quot;s&quot;))</span>
+<span class="nc" id="L171">            return true;</span>
+<span class="nc bnc" id="L172" title="All 6 branches missed.">        else if (s.equals(&quot;false&quot;) || s.equals(&quot;no&quot;)  || s.equals(&quot;n&quot;))</span>
+<span class="nc" id="L173">            return false;</span>
+        else {
+            try {
+<span class="nc" id="L176">                return Boolean.getBoolean(s);</span>
+<span class="nc" id="L177">            } catch (Exception e) {</span>
+<span class="nc" id="L178">                return false;</span>
+            }
+        }
+    }
+
+    public static boolean isDate(String s) {
+<span class="nc" id="L184">        String regex = &quot;[0-9]{2,4}(/|-|\\.)[0-9]{2,4}(/|-|\\.)[0-9]{2,4}((\\s|T)[0-5][0-9]:[0-5][0-9]:[0-5][0-9](Z|\\.[0-9]||\\.[0-9]{2,3})?)?&quot;;</span>
+<span class="nc" id="L185">        return s.matches(regex);</span>
+    }
+
+    public static Date getDate(String s) {
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        for (Locale l : locales) {</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">            for (String f: dateFormats) {</span>
+<span class="nc" id="L191">                DateFormat sdf = new SimpleDateFormat(f,l);</span>
+                try {
+<span class="nc" id="L193">                    return sdf.parse(s);</span>
+<span class="nc" id="L194">                } catch (Exception e) {</span>
+<span class="nc" id="L195">                    continue;</span>
+                }
+            }
+<span class="nc" id="L198">        }</span>
+<span class="nc" id="L199">        return null;</span>
+    }
+
+    public static boolean isObject(String s) {
+        try {
+<span class="nc" id="L204">            JsonElement je = new Gson().fromJson(s, JsonElement.class);</span>
+<span class="nc" id="L205">            boolean isObject = false;</span>
+<span class="nc bnc" id="L206" title="All 4 branches missed.">            if (je.isJsonArray() || je.isJsonObject())</span>
+<span class="nc" id="L207">                isObject = true;</span>
+<span class="nc" id="L208">            return isObject;</span>
+<span class="nc" id="L209">        } catch (Exception e) {</span>
+<span class="nc" id="L210">            return false;</span>
+        }
+    }
+
+    public static AttributeType getAttributeType(String s) {
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        if (isDate(s))</span>
+<span class="nc" id="L216">            return AttributeType.DATE;</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        else if (isBoolean(s))</span>
+<span class="nc" id="L218">            return AttributeType.BOOLEAN;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        else if (isInteger(s))</span>
+<span class="nc" id="L220">            return AttributeType.INTEGER;</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        else if (isNumber(s))</span>
+<span class="nc" id="L222">            return AttributeType.NUMBER;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        else if (isObject(s))</span>
+<span class="nc" id="L224">            return AttributeType.OBJECT;</span>
+        else
+<span class="nc" id="L226">            return AttributeType.STRING;</span>
+    }
+
+    public static boolean isValidString(String s) {
+<span class="nc bnc" id="L230" title="All 4 branches missed.">        return s != null &amp;&amp; !s.equals(&quot;&quot;);</span>
+    }
+
+    public static String normalize(String s)
+    {
+<span class="nc" id="L235">        s = Normalizer.normalize(s, Normalizer.Form.NFD);</span>
+<span class="nc" id="L236">        s = s.replaceAll(&quot;[\\p{InCombiningDiacriticalMarks}]&quot;, &quot;&quot;);</span>
+<span class="nc" id="L237">        s = s.replaceAll(&quot;\\p{Punct}&quot;,&quot;&quot;);</span>
+<span class="nc" id="L238">        return StringUtils.stripAccents(s);</span>
+    }
+
+    public static boolean isPrimitive(Object o) {
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        if (o == null)</span>
+<span class="nc" id="L243">            return true;</span>
+<span class="nc bnc" id="L244" title="All 4 branches missed.">        return ClassUtils.isPrimitiveOrWrapper(o.getClass()) || o instanceof String;</span>
+    }
+
+    public static boolean containsRegex(String text, String regex) {
+<span class="nc" id="L248">        return text.matches(regex);</span>
+    }
+
+    public static boolean isValidURL(String url) {
+<span class="nc" id="L252">        return new UrlValidator().isValid(url);</span>
+    }
+
+    public static String getLastFragmentURL(String url) {
+<span class="nc" id="L256">        String [] urlParts = url.split(&quot;/&quot;);</span>
+<span class="nc" id="L257">        return urlParts[urlParts.length-1];</span>
+    }
+
+    public static &lt;K, V extends Comparable&lt;V&gt;&gt; Map&lt;K, V&gt; sortByValues(final Map&lt;K, V&gt; map) {
+<span class="nc" id="L261">        Comparator&lt;K&gt; valueComparator =</span>
+<span class="nc" id="L262">                new Comparator&lt;K&gt;() {</span>
+                    public int compare(K k1, K k2) {
+<span class="nc" id="L264">                        int compare = map.get(k2).compareTo(map.get(k1));</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">                        if (compare == 0)</span>
+<span class="nc" id="L266">                            return 1;</span>
+                        else
+<span class="nc" id="L268">                            return compare;</span>
+                    }
+                };
+<span class="nc" id="L271">        Map&lt;K, V&gt; sortedByValues =</span>
+                new TreeMap&lt;&gt;(valueComparator);
+<span class="nc" id="L273">        sortedByValues.putAll(map);</span>
+<span class="nc" id="L274">        return sortedByValues;</span>
+    }
+
+    public static boolean checkIfFloat(String s) {
+        try {
+<span class="nc" id="L279">            String regex = &quot;^([+-]?\\d*\\.\\d+(e\\d+)?)$&quot;;</span>
+<span class="nc" id="L280">            double d = Double.parseDouble(s);</span>
+<span class="nc bnc" id="L281" title="All 6 branches missed.">            return s.matches(regex) &amp;&amp; d &gt;= Float.MIN_VALUE &amp;&amp; d &lt;= Float.MAX_VALUE;</span>
+<span class="nc" id="L282">        } catch (Exception e) {</span>
+<span class="nc" id="L283">            return false;</span>
+        }
+    }
+
+
+    public static boolean checkIfDouble(String s) {
+        try {
+<span class="nc" id="L290">            String regex = &quot;^([+-]?\\d*\\.\\d+(e\\d+)?)$&quot;;</span>
+<span class="nc" id="L291">            double d = Double.parseDouble(s);</span>
+<span class="nc bnc" id="L292" title="All 6 branches missed.">            return s.matches(regex) &amp;&amp; d &gt;= Double.MIN_VALUE &amp;&amp; d &lt;= Double.MAX_VALUE;</span>
+<span class="nc" id="L293">        } catch (Exception e) {</span>
+<span class="nc" id="L294">            return false;</span>
+        }
+    }
+
+    public static boolean checkIfInt(String s) {
+        try {
+<span class="nc" id="L300">            String regex = &quot;[+-]?[0-9]+&quot;;</span>
+<span class="nc" id="L301">            double l = Long.parseLong(s);</span>
+<span class="nc bnc" id="L302" title="All 6 branches missed.">            return s.matches(regex) &amp;&amp; l &gt;= Integer.MIN_VALUE &amp;&amp; l &lt;= Integer.MAX_VALUE;</span>
+<span class="nc" id="L303">        } catch (Exception e) {</span>
+<span class="nc" id="L304">            return false;</span>
+        }
+    }
+
+    public static boolean checkIfLong(String s) {
+        try {
+<span class="nc" id="L310">            String regex = &quot;[+-]?[0-9]+&quot;;</span>
+<span class="nc" id="L311">            double l = Long.parseLong(s);</span>
+<span class="nc bnc" id="L312" title="All 6 branches missed.">            return s.matches(regex) &amp;&amp; l &gt;= Long.MIN_VALUE &amp;&amp; l &lt;= Long.MAX_VALUE;</span>
+<span class="nc" id="L313">        } catch (Exception e) {</span>
+<span class="nc" id="L314">            return false;</span>
+        }
+    }
+
+    public static boolean checkIfBoolean(String s) {
+<span class="nc" id="L319">        return isBoolean(s);</span>
+    }
+
+    public static boolean checkIfDate(String s) {
+<span class="nc" id="L323">        return isDate(s);</span>
+    }
+
+    public static boolean checkIfString(Object o) {
+        try {
+<span class="nc" id="L328">            boolean isString = false;</span>
+<span class="nc" id="L329">            String.valueOf(o);</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">            if (o instanceof String)</span>
+<span class="nc" id="L331">                isString = true;</span>
+<span class="nc" id="L332">            return isString;</span>
+<span class="nc" id="L333">        } catch (Exception e) {</span>
+<span class="nc" id="L334">            return false;</span>
+        }
+    }
+
+        public static boolean checkIfComposeStringIsSame(String str1, String str2) {
+<span class="nc" id="L339">        List&lt;String&gt; str1List = Arrays.asList(str1.split(&quot;(?=\\p{Upper})|-&quot;));</span>
+<span class="nc" id="L340">        List&lt;String&gt; str2List = Arrays.asList(str2.split(&quot;(?=\\p{Upper})|-&quot;));</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">        str1List = str1List.stream().filter(Utils::isValidString).filter(s-&gt;!s.matches(&quot;j\\.[0-9]+:&quot;)).map(String::toLowerCase).collect(Collectors.toList());</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">        str2List = str2List.stream().filter(Utils::isValidString).filter(s-&gt;!s.matches(&quot;j\\.[0-9]+:&quot;)).map(String::toLowerCase).collect(Collectors.toList());</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        for (String token : str1List) {</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">            if (!str2List.contains(token))</span>
+<span class="nc" id="L345">                return false;</span>
+<span class="nc" id="L346">        }</span>
+<span class="nc" id="L347">        return true;</span>
+    }
+
+    public static String replaceSubstringByRegex(String str,String replace, JsonObject jContext, String regex) {
+<span class="nc" id="L351">        Pattern pattern = Pattern.compile(regex);</span>
+<span class="nc" id="L352">        Matcher matcher = pattern.matcher(str);</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">        if (matcher.find())</span>
+        {
+<span class="nc" id="L355">            String key = matcher.group(0);</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">            if (jContext.has(key)) {</span>
+<span class="nc" id="L357">                return str.replace(key+replace,jContext.get(key).getAsString());</span>
+            }
+        }
+<span class="nc" id="L360">        return str;</span>
+    }
+
+    public static Object parseToType(String val) {
+<span class="nc bnc" id="L364" title="All 2 branches missed.">        if (isPrimitive(val)) {</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">            if (checkIfDate(val))</span>
+<span class="nc" id="L366">                return getDate(val);</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">            else if(checkIfInt(val))</span>
+<span class="nc" id="L368">                return Integer.valueOf(val);</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">            else if(checkIfLong(val))</span>
+<span class="nc" id="L370">                return Long.valueOf(val);</span>
+<span class="nc bnc" id="L371" title="All 2 branches missed.">            else if(checkIfFloat(val))</span>
+<span class="nc" id="L372">                return Float.valueOf(val);</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">            else if(checkIfDouble(val))</span>
+<span class="nc" id="L374">                return Float.valueOf(val);</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">            else if(checkIfBoolean(val))</span>
+<span class="nc" id="L376">                return Boolean.valueOf(val);</span>
+            else
+<span class="nc" id="L378">                return String.valueOf(val);</span>
+        } else
+<span class="nc" id="L380">            return new Gson().fromJson(val, JsonObject.class);</span>
+    }
+
+}
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
