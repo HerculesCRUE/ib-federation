@@ -21,9 +21,9 @@ import java.util.Map;
 
 public class Utils {
 
-    public static JsonElement doRequest(URL url, Connection.Method method, Map<String,String> headers, Map<String,String> params, Map<String,String> queryParams) throws IOException {
+    public static JsonElement doRequest(URL url, Connection.Method method, Map<String,String> headers, Map<String,String> params, Map<String,String> queryParams,boolean encode) throws IOException {
         if (queryParams!=null) {
-            url = buildQueryParams(url,queryParams);
+            url = buildQueryParams(url,queryParams, encode);
         }
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod(method.toString());
@@ -52,15 +52,17 @@ public class Utils {
         return jResponse;
     }
 
-    private static URL buildQueryParams(URL baseURL, Map<String,String> queryParams) throws MalformedURLException, UnsupportedEncodingException {
+    private static URL buildQueryParams(URL baseURL, Map<String,String> queryParams,boolean encode) throws MalformedURLException, UnsupportedEncodingException {
         StringBuffer base = new StringBuffer();
         base.append(baseURL.toString());
         if (queryParams!=null && queryParams.size()>0) {
             base.append("?");
             List<String> qpList = new ArrayList<>();
             for (Map.Entry<String, String> qpEntry : queryParams.entrySet()) {
-                qpList.add(qpEntry.getKey()+"="+ new URLEncoder().encode(qpEntry.getValue(), Charset.defaultCharset()));
-                        //URLEncoder.encode(qpEntry.getValue(), StandardCharsets.UTF_8.toString()));
+                if (encode)
+                    qpList.add(qpEntry.getKey()+"="+ new URLEncoder().encode(qpEntry.getValue(), Charset.defaultCharset()));
+                else
+                    qpList.add(qpEntry.getKey()+"="+qpEntry.getValue());
             }
             base.append(String.join("&",qpList));
         }

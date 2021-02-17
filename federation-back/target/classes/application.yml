@@ -201,3 +201,54 @@ lod-data-sources:
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
                       localAttribute: "name"
+    - name: CROSSREF
+      connections:
+        - connectionType: API
+          def: true
+          baseURL: https://api.crossref.org/
+          apiKey:
+          mappings:
+            - remoteName: WORKS
+              remoteAttribute: works
+              suffixURL: works/$var$
+              identifier: true
+              order: 1
+              paramType: URI
+              localClasses:
+                - name: Articulo
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "name"
+                - name: Documento
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "name"
+    - name: WIKIDATA
+      connections:
+        - connectionType: SPARQL
+          def: true
+          baseURL: https://query.wikidata.org/sparql
+          apiKey:
+          mappings:
+            - remoteName: WIKIDATA
+              remoteAttribute: "ORCID"
+              suffixURL:
+              query: SELECT%20%3Fcompany%20%3Fwd%20%3FwdLabel%20%3Fps_Label%20%7B%20%3Fcompany%20wdt%3AP496%20%22$ORCID$%22%20.%20%3Fcompany%20%3Fp%20%3Fstatement%20.%20%3Fstatement%20%3Fps%20%3Fps_%20.%20%3Fwd%20wikibase%3Aclaim%20%3Fp.%20%3Fwd%20wikibase%3AstatementProperty%20%3Fps.%20OPTIONAL%20%7B%20%3Fstatement%20%3Fpq%20%3Fpq_%20.%20%3Fwdpq%20wikibase%3Aqualifier%20%3Fpq%20.%20%7D%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22%20%7D%20%7D%20ORDER%20BY%20%3Fwd%20%3Fstatement%20%3Fps_
+              identifier: true
+              order: 1
+              paramType: SPARQL
+              localClasses:
+                - name: Persona
+                  attributes:
+                    - ORCID
+                  mappers:
+                    - remoteAttribute: "wde:P496"
+                      localAttribute: "ORCID"

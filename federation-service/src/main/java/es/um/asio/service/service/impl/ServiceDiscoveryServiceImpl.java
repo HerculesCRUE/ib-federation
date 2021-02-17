@@ -54,7 +54,7 @@ public class ServiceDiscoveryServiceImpl implements ServiceDiscoveryService {
             Map<String,String> queryParams = new HashMap<>();
             queryParams.put("serviceName",service);
             queryParams.put("typeName",type);
-            JsonElement jeResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service/type"), Connection.Method.GET,null,null,queryParams);
+            JsonElement jeResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service/type"), Connection.Method.GET,null,null,queryParams, true);
             if (jeResponse!=null) {
                 JsonArray jResponseArray = jeResponse.getAsJsonArray();
                 for (JsonElement jeNode : jResponseArray) {
@@ -85,7 +85,7 @@ public class ServiceDiscoveryServiceImpl implements ServiceDiscoveryService {
             Map<String,String> queryParams = new HashMap<>();
             queryParams.put("serviceName",service);
             queryParams.put("typeName",type);
-            JsonElement jeResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service/type"), Connection.Method.GET,null,null,queryParams);
+            JsonElement jeResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service/type"), Connection.Method.GET,null,null,queryParams, true);
             if (jeResponse!=null) {
                 JsonArray jResponseArray = jeResponse.getAsJsonArray();
                 for (JsonElement jeNode : jResponseArray) {

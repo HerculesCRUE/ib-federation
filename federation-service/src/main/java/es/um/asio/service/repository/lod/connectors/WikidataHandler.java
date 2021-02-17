@@ -17,9 +17,9 @@ import java.net.URL;
 import java.util.*;
 
 @Repository
-public class CrossRefHandler implements LODHandler {
+public class WikidataHandler implements LODHandler {
 
-    public static final String DATASET = "CROSSREF";
+    public static final String DATASET = "WIKIDATA";
 
     @Override
     public Set<TripleObjectLink> findLink(TripleObjectSimplified tos, LodDataSet.Dataset dataset, TextHandlerServiceImp textHandlerService) {
@@ -29,7 +29,7 @@ public class CrossRefHandler implements LODHandler {
             LodDataSet.Dataset prunedDataset =
                     dataset.getPrunedDatasetSortedFilteredByConnectionType(
                             Arrays.asList(new LodDataSet.Dataset.Connection.ConnectionType [] {
-                                    LodDataSet.Dataset.Connection.ConnectionType.API
+                                    LodDataSet.Dataset.Connection.ConnectionType.SPARQL
                             }
                             )
                     );
@@ -58,12 +58,18 @@ public class CrossRefHandler implements LODHandler {
                     List<String> localAttributes = lc.getAttributes();
                     Object value = tos.getAttributeValue(tos.getAttributes(),localAttributes);
                     if (Utils.isPrimitive(value)) {
-                        if (mapping.getParamType() == LodDataSet.Dataset.Connection.Mapping.ParamType.URI) {
-                            url = new URL(url.toURI().toString().replaceAll("\\$var\\$",value.toString()));
+                        if (mapping.getParamType() == LodDataSet.Dataset.Connection.Mapping.ParamType.SPARQL) {
                             try {
-                                JsonElement jResponse = Utils.doRequest(url, Connection.Method.GET, null, null, null, true);
+                                Map<String,String> queryParam = new HashMap<>();
+                                String regex = "\\$"+mapping.getRemoteAttribute()+"\\$";
+                                String q = mapping.getQuery().replaceAll(regex,value.toString());
+                                queryParam.put("query", q);
+                                Map<String,String> headers = new HashMap<>();
+                                headers.put("Accept","application/json");
+                                headers.put("Host","query.wikidata.org");
+                                JsonElement jResponse = Utils.doRequest(url, Connection.Method.GET, headers, null, queryParam, false);
                                 if (jResponse!=null) {
-                                    results = parseResultByDOI(tos,DATASET,con.getBaseURL(),mapping.getRemoteName(),lc.getName(),jResponse.getAsJsonObject(),lc.getMappers());
+                                    results = parseResult(tos,DATASET,con.getBaseURL(),mapping.getRemoteName(),lc.getName(),jResponse.getAsJsonObject(),lc.getMappers());
                                     if (results!=null && results.size()>0) {
                                         return results;
                                     }
@@ -84,18 +90,6 @@ public class CrossRefHandler implements LODHandler {
     }
 
 
-    private String buildContentQuery(String remoteAttribute, String value, boolean isIdentifier, boolean removeStopwords,TextHandlerServiceImp textHandlerService) throws UnsupportedEncodingException {
-        if (!isIdentifier && removeStopwords) {
-            value = value.replaceAll("-"," ");
-            value = textHandlerService.removeStopWords(value);
-            String [] chunks  = value.split("  *");
-            value = String.join(" AND ",value.split("  *"));
-            //value = URLEncoder.encode(value, StandardCharsets.UTF_8);
-        }
-        String formatStr = String.format("%s(%s)", remoteAttribute, value);
-        return formatStr;
-    }
-
     private URL buildURL(List<String> urlChunks) throws MalformedURLException {
         StringBuffer sb = new StringBuffer();
         List<String> urlCheckedChunks = new ArrayList<>();
@@ -114,68 +108,83 @@ public class CrossRefHandler implements LODHandler {
         return new URL(String.join("/",urlCheckedChunks));
     }
 
-    private Set<TripleObjectLink> parseResultByDOI(TripleObjectSimplified tos,String datasetName, String baseURL, String remoteName, String localClassName, JsonObject jResponse, List<LodDataSet.Dataset.Connection.Mapping.LocalClass.Mapper> mappers) {
-        Set<TripleObjectLink> tripleObjectLinks = new HashSet<>();
-        if (jResponse.has("message")) {
+    private Set<TripleObjectLink> parseResult(TripleObjectSimplified tos,String datasetName, String baseURL, String remoteName, String localClassName, JsonObject jResponse, List<LodDataSet.Dataset.Connection.Mapping.LocalClass.Mapper> mappers) {
 
-            JsonObject jMessage = jResponse.get("message").getAsJsonObject();
+        final String DEFAULT_URI = "http://www.wikidata.org/entity/";
+        final String DEFAULT_PREFIX = "wde";
+
+        Set<TripleObjectLink> tripleObjectLinks = new HashSet<>();
+        if (jResponse.has("results")) {
+
+            JsonObject jResults = jResponse.get("results").getAsJsonObject();
 
             JsonObject jPrefixes = new JsonObject();
-            jPrefixes.addProperty("default","https://crossref.org/");
-            JsonArray jLinks = new JsonArray();
-            if (jMessage!=null) {
-                if (jMessage.has("link")) {
-                    for (JsonElement jeLinks :jMessage.get("link").getAsJsonArray()) {
-                        JsonObject jLink = new JsonObject();
-                        if (jeLinks.getAsJsonObject().has("intended-application")) {
-                            jLink.addProperty("type",jeLinks.getAsJsonObject().get("intended-application").getAsString());
-                        }
-                        if (jeLinks.getAsJsonObject().has("@URL")) {
-                            jLink.addProperty("link",jeLinks.getAsJsonObject().get("URL").getAsString());
-                        }
-                        if (jeLinks.getAsJsonObject().has("content-type")) {
-                            jLink.addProperty("content-type",jeLinks.getAsJsonObject().get("content-type").getAsString());
-                        }
-                        if (jeLinks.getAsJsonObject().has("content-version")) {
-                            jLink.addProperty("content-version",jeLinks.getAsJsonObject().get("content-version").getAsString());
-                        }
-                        if (jLink.size()>0) {
-                            jLinks.add(jLink);
+            jPrefixes.addProperty(DEFAULT_PREFIX,DEFAULT_URI);
+            jPrefixes.addProperty("skos",DEFAULT_URI);
+            Set<String> objectLinks = new HashSet<>();
+
+            // Atributos de la entidad
+            JsonObject jAttributes = new JsonObject();
+
+            if (jResults.has("bindings") && jResults.get("bindings").isJsonArray()) {
+                for (JsonElement jeAtt: jResults.get("bindings").getAsJsonArray()) {
+                    JsonObject jAtt = jeAtt.getAsJsonObject();
+                    // Añado el enlace
+                    if (jAtt.has("company") && jAtt.get("company").isJsonObject() && jAtt.get("company").getAsJsonObject().has("value")) {
+                        objectLinks.add(jAtt.get("company").getAsJsonObject().get("value").getAsString());
+                    }
+                    // Propiedad
+                    String uri = null;
+                    if (jAtt.has("wd") && jAtt.get("wd").isJsonObject() && jAtt.get("wd").getAsJsonObject().has("value")) {
+                        uri = jAtt.get("wd").getAsJsonObject().get("value").getAsString().replace(DEFAULT_URI,DEFAULT_PREFIX+":");
+                    }
+                    String value = null;
+                    if (jAtt.has("ps_Label") && jAtt.get("ps_Label").isJsonObject() && jAtt.get("ps_Label").getAsJsonObject().has("value")) {
+                        value = jAtt.get("ps_Label").getAsJsonObject().get("value").getAsString();
+                    }
+                    if (Utils.isValidString(uri) && Utils.isValidString(value)) {
+                        if (jAttributes.has(uri)) {
+                            String oldValue = jAttributes.get(uri).getAsString();
+                            jAttributes.addProperty(uri,oldValue+","+value);
+                        } else {
+                            jAttributes.addProperty(uri,value);
                         }
                     }
+                    // Valor
                 }
             }
-            jMessage.remove("link");
+
+
+
+            JsonArray jLinks = new JsonArray();
+            for (String link : objectLinks) {
+                JsonObject jLink = new JsonObject();
+                jLink.addProperty("type","self");
+                jLink.addProperty("link",link);
+                jLinks.add(jLink);
+            }
             TripleObjectLink tol = new TripleObjectLink(datasetName,baseURL,remoteName,localClassName);
             tol.setOrigin(tos);
             tol.populatePrefixes(jPrefixes);
-            if (jMessage.has("DOI"))
-                tol.setId(jMessage.get("DOI").getAsString());
+            if (jLinks.size()>0) {
+                String uriId = jLinks.get(0).getAsJsonObject().get("link").getAsString();
+                String[] uriIdParts = uriId.split("/");
+                String id = null;
+                for (int i = uriIdParts.length-1; i >= 0 ; i--) {
+                    if (Utils.isValidString(uriIdParts[i])) {
+                        id = uriIdParts[i];
+                        break;
+                    }
+                }
+                tol.setId(id);
+            }
             tol.populateMapper(mappers);
             tol.populateLinks(jLinks);
-            tol.populateAttributes(removeDateParts(jMessage));
+            tol.populateAttributes(jAttributes);
             tripleObjectLinks.add(tol);
 
         }
         return tripleObjectLinks;
-    }
-
-    private JsonObject removeDateParts(JsonObject jObject) {
-        JsonObject jObjectCopy = new JsonObject();
-        for (Map.Entry<String, JsonElement> jAttr :jObject.entrySet()) {
-            if (jAttr.getValue().isJsonPrimitive()) {
-                jObjectCopy.add(jAttr.getKey(),jAttr.getValue());
-            } else {
-                if (jAttr.getKey().contains("date-parts")) {
-                    continue;
-                } else if (jAttr.getValue().isJsonObject()) {
-                    jObjectCopy.add(jAttr.getKey(),removeDateParts(jAttr.getValue().getAsJsonObject()));
-                } else { // Es una lista
-                    jObjectCopy.add(jAttr.getKey(),jAttr.getValue());
-                }
-            }
-        }
-        return jObjectCopy;
     }
 
 

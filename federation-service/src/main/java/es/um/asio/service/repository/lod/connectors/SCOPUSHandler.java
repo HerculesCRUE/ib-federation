@@ -68,12 +68,16 @@ public class SCOPUSHandler implements LODHandler {
                         headers.put("X-ELS-APIKey", apiKey);
                         Map<String, String> queryParams = new HashMap<>();
                         queryParams.put("query",buildContentQuery(mapping.getRemoteAttribute(),String.valueOf(value),mapping.isIdentifier(),mapping.isRemoveStopWords(),textHandlerService));
-                        JsonElement jResponse = Utils.doRequest(url, Connection.Method.GET,headers,null,queryParams);
-                        if (jResponse!=null) {
-                            results = parseResult(tos,DATASET,con.getBaseURL(),mapping.getRemoteName(),lc.getName(),jResponse.getAsJsonObject(),lc.getMappers());
-                            if (results!=null && results.size()>0) {
-                                return results;
+                        try {
+                            JsonElement jResponse = Utils.doRequest(url, Connection.Method.GET,headers,null,queryParams, true);
+                            if (jResponse!=null) {
+                                results = parseResult(tos,DATASET,con.getBaseURL(),mapping.getRemoteName(),lc.getName(),jResponse.getAsJsonObject(),lc.getMappers());
+                                if (results!=null && results.size()>0) {
+                                    return results;
+                                }
                             }
+                        } catch (Exception e) {
+                            continue;
                         }
                     } else {
                         continue;

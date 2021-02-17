@@ -207,10 +207,16 @@ public class LodDataSet implements Cloneable{
                 private String remoteName;
                 private String remoteAttribute;
                 private String suffixURL;
+                private String query;
                 private boolean identifier;
                 private boolean removeStopWords = false;
                 private int order;
+                private ParamType paramType;
                 private List<LocalClass> localClasses = new ArrayList<>();
+
+                public void setParamType(String paramType) {
+                    this.paramType = ParamType.valueOf(paramType);
+                }
 
                 public Optional<LocalClass> getLocalClassByName(String localClassName) {
                     LocalClass localClass = null;
@@ -230,14 +236,22 @@ public class LodDataSet implements Cloneable{
                     mapping.remoteName = getRemoteName();
                     mapping.remoteAttribute = getRemoteAttribute();
                     mapping.suffixURL = getSuffixURL();
+                    mapping.query = getQuery();
                     mapping.identifier = identifier;
                     mapping.removeStopWords = removeStopWords;
                     mapping.order = order;
+                    mapping.paramType = paramType;
                     mapping.localClasses = new ArrayList<>();
                     for ( LocalClass lc : getLocalClasses()) {
                         mapping.localClasses.add((LocalClass) lc.clone());
                     }
                     return mapping;
+                }
+
+                @AllArgsConstructor
+                @Getter
+                public static enum ParamType implements Cloneable{
+                    URI,QUERY,SPARQL
                 }
 
                 @AllArgsConstructor

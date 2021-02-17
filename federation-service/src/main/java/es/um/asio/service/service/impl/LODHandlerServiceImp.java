@@ -3,8 +3,10 @@ package es.um.asio.service.service.impl;
 import es.um.asio.service.config.LodDataSet;
 import es.um.asio.service.model.TripleObjectLink;
 import es.um.asio.service.model.TripleObjectSimplified;
+import es.um.asio.service.repository.lod.connectors.CrossRefHandler;
 import es.um.asio.service.repository.lod.connectors.LODHandler;
 import es.um.asio.service.repository.lod.connectors.SCOPUSHandler;
+import es.um.asio.service.repository.lod.connectors.WikidataHandler;
 import es.um.asio.service.service.LODHandlerService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +34,11 @@ public class LODHandlerServiceImp implements LODHandlerService {
                     LodDataSet.Dataset pds = ods.get().getPrunedDatasetByClassName(tos.getClassName());
                     if (dse != null && pds.getConnections().size() > 0) {
                         LODHandler handler = dse.getHandler();
-                        results = handler.findLink(tos, pds,textHandlerService);
-                        return results;
+                        Set<TripleObjectLink> resultsAux = handler.findLink(tos, pds,textHandlerService);
+                        results.addAll(resultsAux);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println();
                 }
 
             }
@@ -47,7 +48,9 @@ public class LODHandlerServiceImp implements LODHandlerService {
 
     @Getter
     public enum DatasetEnum {
-        SCOPUS("SCOPUS", new SCOPUSHandler());
+        SCOPUS("SCOPUS", new SCOPUSHandler()),
+        CROSSREF("CROSSREF", new CrossRefHandler()),
+        WIKIDATA("WIKIDATA", new WikidataHandler());
 
         private String name;
         private LODHandler handler;

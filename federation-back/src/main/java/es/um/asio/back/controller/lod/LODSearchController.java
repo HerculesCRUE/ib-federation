@@ -63,7 +63,6 @@ public class LODSearchController {
             @RequestParam(required = true, defaultValue = "SCOPUS") @Validated(Create.class) final String dataSets,
             @RequestBody final Object obj
     )  {
-        System.out.println();
         List<String> datasets = Arrays.asList(dataSets.trim().split(","));
         Gson gson = new Gson();
         JsonObject jTripleObject = gson.fromJson(gson.toJson(obj), JsonObject.class);

@@ -17,10 +17,6 @@ public class Test_1 {
 
     @Test
     public void test1() throws IOException, EncoderException {
-        String ul = new URLEncoder().encode("HOLA MUNDO", Charset.defaultCharset());
-        System.out.println(ul);
-        System.out.println(new URLCodec().encode("Hola Mundo"));
-        System.out.println(java.net.URLEncoder.encode("Hello World", "UTF-8").replace("+", "%20"));
 
     }
 
