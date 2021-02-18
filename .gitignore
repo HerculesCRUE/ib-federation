@@ -25,6 +25,7 @@
 hs_err_pid*
 
 .gitignore
+federation-service/target/classes/META-INF/
 federation-back/target/
 federation-back/target/generated-sources/
 federation-back/target/generated-test-sources/
