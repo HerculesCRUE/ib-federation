@@ -2,6 +2,7 @@ package es.um.asio.service.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import es.um.asio.service.repository.SparqlProxyHandler;
 import org.apache.commons.lang3.ClassUtils;
 import org.jsoup.Connection;
 
@@ -13,6 +14,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.apache.catalina.util.URLEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -20,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Utils {
+
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static JsonElement doRequest(URL url, Connection.Method method, Map<String,String> headers, Map<String,String> params, Map<String,String> queryParams,boolean encode) throws IOException {
         if (queryParams!=null) {
@@ -92,6 +98,26 @@ public class Utils {
 
     public static boolean isValidString(String s) {
         return s != null && !s.equals("");
+    }
+
+    public static String getPublicIP() throws Exception {
+        URL whatismyip = new URL("http://checkip.amazonaws.com");
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(
+                    whatismyip.openStream()));
+            String ip = in.readLine();
+            logger.info("Find IP: {}",ip);
+            return ip;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 }

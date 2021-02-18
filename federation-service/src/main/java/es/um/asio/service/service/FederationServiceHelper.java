@@ -3,6 +3,7 @@ package es.um.asio.service.service;
 import com.google.gson.JsonObject;
 import es.um.asio.service.model.WatchDog;
 import es.um.asio.service.repository.SparqlProxyHandler;
+import es.um.asio.service.util.Utils;
 import org.jsoup.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class FederationServiceHelper {
     HttpRequestHelper httpRequestHelper;
 
     @Async("threadPoolTaskExecutor")
-    public CompletableFuture<JsonObject> executeQueryPaginated(String nodeName,URL url, String q, Integer pageSize, Integer timeout)  {
+    public CompletableFuture<JsonObject> executeQueryPaginated(String authorization, String nodeName,URL url, String q, Integer pageSize, Integer timeout)  {
         JsonObject jResponse = new JsonObject();
         int offset = 0;
         JsonObject jQueryResponse = null;
@@ -39,6 +40,9 @@ public class FederationServiceHelper {
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/x-www-form-urlencoded");
             headers.put("Accept", "application/json");
+            if (Utils.isValidString(authorization)) {
+                headers.put("Authorization", authorization);
+            }
             try {
                 jQueryResponse = httpRequestHelper.doQueryRequest(url, query, Connection.Method.GET, headers, timeout);
                 logger.info(String.format("Limit: %d, Offset: %d, Results: %d, Total: %d",
@@ -88,11 +92,14 @@ public class FederationServiceHelper {
     }
 
     @Async("threadPoolTaskExecutor")
-    public CompletableFuture<JsonObject> executeQuery(String nodeName,URL url, String q, Integer timeout){
+    public CompletableFuture<JsonObject> executeQuery(String authorization,String nodeName,URL url, String q, Integer timeout){
         Map<String, String> headers = new HashMap<>();
         JsonObject jStats = new JsonObject();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         headers.put("Accept", "application/json");
+        if (Utils.isValidString(authorization)) {
+            headers.put("Authorization", authorization);
+        }
         JsonObject jResponse;
         WatchDog wd = new WatchDog();
         try {

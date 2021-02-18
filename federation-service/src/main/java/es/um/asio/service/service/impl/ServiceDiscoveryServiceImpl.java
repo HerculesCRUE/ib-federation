@@ -30,7 +30,7 @@ public class ServiceDiscoveryServiceImpl implements ServiceDiscoveryService {
     @Autowired
     DataSourceRepository dataSource;
 
-    @Value("${service-discovery-host}")
+    @Value("${app.service-discovery-host}")
     private String serviceDiscoveryHost;
 
     @Override

@@ -70,9 +70,9 @@ public class FederationServiceImpl implements FederationService {
             if (!futures.containsKey(uriEntry.getKey()))
                 futures.put(uriEntry.getKey(), new ArrayList<>());
             if (pageSize!=null) //(String nodeName,URL url, String q, Integer pageSize, Integer timeout)
-                futures.get(uriEntry.getKey()).add(federationServiceHelper.executeQueryPaginated(uriEntry.getKey(),uriEntry.getValue(),query, pageSize,nodeTimeout));
+                futures.get(uriEntry.getKey()).add(federationServiceHelper.executeQueryPaginated(null,uriEntry.getKey(),uriEntry.getValue(),query, pageSize,nodeTimeout));
             else
-                futures.get(uriEntry.getKey()).add(federationServiceHelper.executeQuery(uriEntry.getKey(),uriEntry.getValue(),query,nodeTimeout));
+                futures.get(uriEntry.getKey()).add(federationServiceHelper.executeQuery(null,uriEntry.getKey(),uriEntry.getValue(),query,nodeTimeout));
         }
         for (Map.Entry<String, List<CompletableFuture<JsonObject>>> nodeEntry : futures.entrySet()) { // For all nodes
             for (CompletableFuture<JsonObject> future : nodeEntry.getValue()) { // For all futures

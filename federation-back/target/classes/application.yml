@@ -1,5 +1,12 @@
 ---
 app:
+  host: http://localhost
+  port: 9328
+  node: um
+  name: Federation
+  healthEndpoint: /management/health
+  tripleStores: fuseki, wikibase
+  service-discovery-host: http://localhost:9329
   default-request-timeout: 60000
   persistence:
     datasource:
@@ -80,7 +87,7 @@ management:
     web:
       base-path: /management
   server:
-    port: 9328
+    port: ${app.port}
   health:
     mail:
       enabled: false
@@ -142,7 +149,16 @@ data-sources:
           user: admin
           password: admin
 
-service-discovery-host: http://localhost:9329
+
+datasource-sparql:
+  nodeName: um
+  connectors:
+    - type: fuseki
+      host: http://localhost
+      port: 3030
+      suffixURL: /trellis/query
+      queryParamName: query
+
 
 lod-data-sources:
   datasets:
