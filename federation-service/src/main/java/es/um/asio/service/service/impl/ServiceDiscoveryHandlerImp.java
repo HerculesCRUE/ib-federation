@@ -67,15 +67,27 @@ public class ServiceDiscoveryHandlerImp {
         queryParam.put("nodeName",node);
         queryParam.put("serviceName",name);
         queryParam.put("healthEndpoint",healthEndpoint);
+        boolean isDone = false;
         try {
-            JsonElement jResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service"), Connection.Method.GET,null, null, queryParam,true);
-            if (jResponse!=null && jResponse.isJsonArray() && jResponse.getAsJsonArray().size()>0) {
+            JsonElement jResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service"), Connection.Method.POST,null, null, queryParam,true);
+            isDone = (jResponse!=null && jResponse.isJsonObject() && jResponse.getAsJsonObject().size()>0);
+            if (isDone) {
+                // Para cada triplestore definido
+                for (String tripleStore : tripleStores) {
+                    Map<String,String> queryParamsType = new HashMap<>();
+                    queryParamsType.put("nodeName",node);
+                    queryParamsType.put("serviceName",name);
+                    queryParamsType.put("suffixURL",String.format("/endpoint-sparql/%s",tripleStore));
+                    queryParamsType.put("typeName",tripleStore);
+                    JsonElement jTripleResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/type"), Connection.Method.POST,null, null, queryParamsType,true);
+                    isDone = isDone && (jTripleResponse!=null && jTripleResponse.isJsonObject() && jTripleResponse.getAsJsonObject().size()>0);
+                }
 
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        return false;
+        return isDone;
     }
 
 }

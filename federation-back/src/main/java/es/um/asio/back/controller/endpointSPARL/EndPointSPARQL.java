@@ -7,10 +7,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import es.um.asio.back.controller.datafetcher.DataFetcherController;
 import es.um.asio.service.service.EndPointSparqlService;
 import es.um.asio.service.validation.group.Create;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,22 +33,59 @@ public class EndPointSPARQL {
 
     @GetMapping("/{type}")
     @ApiOperation(value = "End Point Sparql to fetch data at local node and triple store type by name")
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "query",
+                    examples = @io.swagger.annotations.Example(
+                            value = {
+                                    @ExampleProperty(value = "SELECT ?a ?b ?c WHERE { ?a ?b ?c }", mediaType = "text/plain")
+                            }))
+    })
     public Map<String,Object> executeQueryInTripleStore(
             @RequestHeader( value = "Authorization", required = false) final String authorization,
             @ApiParam(name = "type", value = "Triple Store by name to fetch data [ fuseki , wikibase ]", defaultValue = "fuseki", required = true)
             @PathVariable(required = true) @Validated(Create.class) final String type,
-            @ApiParam(name = "query", value = "Query to execute in Endpoint SPARQL", defaultValue = "SELECT ?a ?b ?c WHERE { ?a ?b ?c}", required = true)
-            @RequestParam(required = true, defaultValue = "sparql-proxy") @Validated(Create.class) final String query,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
             @RequestParam(required = false) final String nodeTimeout,
             @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false)
-            @RequestParam(required = false) final String pageSize
+            @RequestParam(required = false) final String pageSize,
+            @ApiParam(name = "query", value = "the query", defaultValue = "SELECT ?a ?b ?c WHERE { ?a ?b ?c }", required = false)
+            @RequestParam(required = true)  final String query
+
     ) throws URISyntaxException, IOException {
 
         JsonObject jResponse = endPointSparqlService.executeQuery(authorization,query,type,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
         return new Gson().fromJson(jResponse.toString(), LinkedTreeMap.class);
         //return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
+
+    @PostMapping(path = "/{type}", consumes = "text/plain; charset: utf-8")
+    @ApiOperation(value = "End Point Sparql to fetch data at local node and triple store type by name")
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "query",
+                    examples = @io.swagger.annotations.Example(
+                            value = {
+                                    @ExampleProperty(value = "SELECT ?a ?b ?c WHERE { ?a ?b ?c }", mediaType = "text/plain")
+                            }))
+    })
+    public Map<String,Object> executeQueryPostInTripleStore(
+            @RequestHeader( value = "Authorization", required = false) final String authorization,
+            @ApiParam(name = "type", value = "Triple Store by name to fetch data [ fuseki , wikibase ]", defaultValue = "fuseki", required = true)
+            @PathVariable(required = true) @Validated(Create.class) final String type,
+            @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
+            @RequestParam(required = false) final String nodeTimeout,
+            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false)
+            @RequestParam(required = false) final String pageSize,
+            @RequestBody(required = true) String query
+    ) throws URISyntaxException, IOException {
+
+        JsonObject jResponse = endPointSparqlService.executeQuery(authorization,query,type,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
+        return new Gson().fromJson(jResponse.toString(), LinkedTreeMap.class);
+        //return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
+    }
+
+
 
     /**
      * Mappgins.
