@@ -35,16 +35,30 @@ public class ServiceDiscoveryServiceImpl implements ServiceDiscoveryService {
 
     @Override
     public DataSourceRepository.Node getNode(String nodeName) {
-        return dataSource.getNodeByName(nodeName);
+        try {
+            Map<String,String> queryParams = new HashMap<>();
+            queryParams.put("nodeName",nodeName);
+            JsonElement jeResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/node"), Connection.Method.GET,null,null,queryParams,true);
+            DataSourceRepository.Node node = new Gson().fromJson(jeResponse.toString(),DataSourceRepository.Node.class);
+            return node;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
     public DataSourceRepository.Node.Service getService(String nodeName, String service) {
-        DataSourceRepository.Node node = getNode(nodeName);
-        if (node!=null) {
+        try {
+            Map<String,String> queryParams = new HashMap<>();
+            queryParams.put("nodeName",nodeName);
+            JsonElement jeResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service"), Connection.Method.GET,null,null,queryParams,true);
+            DataSourceRepository.Node node = new Gson().fromJson(jeResponse.toString(),DataSourceRepository.Node.class);
             return node.getServiceByName(service);
-        } else
-            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

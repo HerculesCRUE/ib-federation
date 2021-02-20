@@ -102,54 +102,6 @@ management:
 server:
   port: ${management.server.port}
 
-data-sources:
-  nodes:
-    - nodeName: um
-      services:
-        - name: sparql-proxy
-          baseUri: http://herc-iz-front-desa.atica.um.es
-          port: 8080
-          user:
-          password:
-          types:
-            - name: sparql
-              suffixURL: /trellis/sparql
-              user:
-              password:
-        - name: uris-factory
-          baseUri: http://localhost
-          port: 9326
-          user:
-          password:
-        - name: trellis
-          baseUri: http://herc-iz-front-desa.atica.um.es
-          port:
-          user: admin
-          password: admin
-    - nodeName: um2
-      services:
-        - name: sparql-proxy
-          baseUri: http://herc-iz-front-desa.atica.um.es
-          port: 8080
-          user:
-          password:
-          types:
-            - name: sparql
-              suffixURL: /trellis/sparql
-              user:
-              password:
-        - name: uris-factory
-          baseUri: http://localhost
-          port: 8080
-          user:
-          password:
-        - name: trellis
-          baseUri: http://herc-iz-front-desa.atica.um.es
-          port:
-          user: admin
-          password: admin
-
-
 datasource-sparql:
   nodeName: um
   connectors:

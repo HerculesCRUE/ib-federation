@@ -1,5 +1,7 @@
 package es.um.asio.service.config;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +24,7 @@ public class DataSourceRepository {
 
     public Node getNodeByName(String nodeName) {
         for (Node node: nodes) {
-            if (node.getNodeName().equalsIgnoreCase(nodeName))
+            if (node.getName().equalsIgnoreCase(nodeName))
                 return node;
         }
         return null;
@@ -34,7 +36,9 @@ public class DataSourceRepository {
     @Setter
     public static class Node {
 
-        private String nodeName;
+        private int id;
+        private String name;
+
         private List<Service> services = new ArrayList<>();
 
         public Service getServiceByName(String name) {
@@ -51,11 +55,12 @@ public class DataSourceRepository {
         @Getter
         @Setter
         public static class Service {
+            private int id;
             private String name;
-            private String baseUri;
+            private String baseURL;
             private String port;
-            private String user;
-            private String password;
+            private String healthEndpoint;
+            private String status;
             private List<Type> types = new ArrayList<>();
 
             public Type getTypeByName(String name) {
@@ -69,9 +74,9 @@ public class DataSourceRepository {
 
             public String buildBaseURL() {
                 if (port == null || port.equals("")) {
-                    return baseUri;
+                    return baseURL;
                 } else
-                    return baseUri + ":" + port;
+                    return baseURL + ":" + port;
             }
 
 
@@ -80,11 +85,9 @@ public class DataSourceRepository {
             @Getter
             @Setter
             public static class Type {
+                private int id;
                 private String name;
                 private String suffixURL;
-                private String user;
-                private String password;
-
             }
 
         }
