@@ -7,6 +7,7 @@ app:
   healthEndpoint: /management/health
   tripleStores: fuseki, wikibase
   service-discovery-host: http://localhost:9329
+  trellis-host: http://localhost
   default-request-timeout: 60000
   persistence:
     datasource:

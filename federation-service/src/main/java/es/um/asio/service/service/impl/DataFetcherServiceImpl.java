@@ -50,6 +50,9 @@ public class DataFetcherServiceImpl implements DataFetcherService {
     @Value("${app.default-request-timeout}")
     Integer defaultTimeout;
 
+    @Value("${app.trellis-host}")
+    String trellisHost;
+
     @Override
     public Set<String> getObjectsUris(String nodeName, String service, String tripleStore) throws IOException {
         Set<String> objects = new HashSet<>();
@@ -66,8 +69,8 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                             " FILTER regex(str(?object),\"^http://hercules.org/um/*/*/\")" +
                             "}";
                     Map<String,String> queryParam = new HashMap<>();
-                    queryParam.put("nodeTimeout","60000");
-                    queryParam.put("pageSize","10000");
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
                     queryParam.put("query",query);
                     JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
 
@@ -102,12 +105,12 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                 if (type != null) {
                     // Get data
                     URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
-                    String query = "SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\"^http[s]*://.*/"+normalizeClassName(className)+"/.*\" )) %26%26 ( ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ) }";
+                    String query = "SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\"^http[s]*://.*/"+normalizeClassName(className)+"/.*\" )) && ( ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ) }";
                     String s = normalizeClassName(className);
 
                     Map<String,String> queryParam = new HashMap<>();
-                    queryParam.put("nodeTimeout","60000");
-                    queryParam.put("pageSize","10000");
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
                     queryParam.put("query",query);
                     JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
 
@@ -142,7 +145,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                     for (Map.Entry<String, Map<String, String>> mdEntry : metadata.entrySet()) {
                         String id = mdEntry.getKey();
                         String uri = String.valueOf(mdEntry.getValue().get("uri"));
-                        if (uri.contains("trellis:data") && serviceTrellis !=null) {
+                        if (uri.contains("trellis:data") && trellisHost !=null) {
                             uri = uri.replace("trellis:data",serviceTrellis.buildBaseURL());
                         }
                         Long lastModification = Long.valueOf(mdEntry.getValue().get("lastModification"));
@@ -171,8 +174,8 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                     String query = "SELECT ?subject ?predicate ?object WHERE { ?subject ?predicate ?object . FILTER regex(str(?subject),\""+uri+"\") }";
 
                     Map<String,String> queryParam = new HashMap<>();
-                    queryParam.put("nodeTimeout","60000");
-                    queryParam.put("pageSize","10000");
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
                     queryParam.put("query",query);
                     JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
 
@@ -240,8 +243,8 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                             "FILTER regex(str(?subject),\"^.*/"+normalizeClassName(className)+"/.*\")\n" +
                             "}";
                     Map<String,String> queryParam = new HashMap<>();
-                    queryParam.put("nodeTimeout","60000");
-                    queryParam.put("pageSize","10000");
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
                     queryParam.put("query",query);
                     JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
 
@@ -284,12 +287,12 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                             "WHERE {\n" +
                             "?subject ?p <http://www.w3.org/ns/ldp#RDFSource> .\n" +
                             "?subject <http://purl.org/dc/terms/modified> ?object .\n" +
-                            "  FILTER ((regex(str(?subject),\"^.*"+className+".*\")) %26%26 (regex(str(?subject),\"^.*"+idInstance+".*\")))\n" +
+                            "  FILTER ((regex(str(?subject),\"^.*"+className+".*\")) && (regex(str(?subject),\"^.*"+idInstance+".*\")))\n" +
                             "}";
 
                     Map<String,String> queryParam = new HashMap<>();
-                    queryParam.put("nodeTimeout","60000");
-                    queryParam.put("pageSize","10000");
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
                     queryParam.put("query",query);
                     JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
 

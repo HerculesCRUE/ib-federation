@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -119,5 +121,17 @@ public class Utils {
             }
         }
     }
+
+    public static Integer extractLimitInSPARQL(String query) {
+        String pattern = "(?i)limit\\s+(\\d+)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(query);
+
+        while (m.find()) {
+            return Integer.valueOf(m.group(1));
+        }
+        return null;
+    }
+
 
 }

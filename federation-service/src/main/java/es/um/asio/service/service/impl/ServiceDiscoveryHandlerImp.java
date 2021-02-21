@@ -40,25 +40,9 @@ public class ServiceDiscoveryHandlerImp {
     @Value("${app.service-discovery-host}")
     private String serviceDiscoveryHost;
 
+    @Value("${app.trellis-host}")
+    private String trellisHost;
 
-    public static void schedule() {
-/*        Calendar due = Calendar.getInstance();
-        due.set(Calendar.MINUTE,10);
-        if( due.before(Calendar.getInstance()) ) {
-            due.add(Calendar.HOUR, 1);
-        }
-
-        timer.schedule(new TimerTask() {
-
-            @Override
-            public void run() {
-
-                System.out.println("due");
-                registerService();
-            }
-
-        }, due.getTime());*/
-    }
 
     public boolean registerService() {
         Map<String,String> queryParam = new HashMap<>();
@@ -72,6 +56,8 @@ public class ServiceDiscoveryHandlerImp {
             JsonElement jResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service"), Connection.Method.POST,null, null, queryParam,true);
             isDone = (jResponse!=null && jResponse.isJsonObject() && jResponse.getAsJsonObject().size()>0);
             if (isDone) {
+                if (Utils.isValidString(trellisHost))
+                    isDone = registerTrellis();
                 // Para cada triplestore definido
                 for (String tripleStore : tripleStores) {
                     Map<String,String> queryParamsType = new HashMap<>();
@@ -84,6 +70,21 @@ public class ServiceDiscoveryHandlerImp {
                 }
 
             }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return isDone;
+    }
+
+    public boolean registerTrellis() {
+        Map<String,String> queryParam = new HashMap<>();
+        queryParam.put("host",trellisHost);
+        queryParam.put("nodeName",node);
+        queryParam.put("serviceName","trellis");
+        boolean isDone = false;
+        try {
+            JsonElement jResponse = Utils.doRequest(new URL(serviceDiscoveryHost+"/service-discovery/service"), Connection.Method.POST,null, null, queryParam,true);
+            isDone = (jResponse!=null && jResponse.isJsonObject() && jResponse.getAsJsonObject().size()>0);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

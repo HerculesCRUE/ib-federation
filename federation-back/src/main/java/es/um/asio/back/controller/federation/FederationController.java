@@ -36,8 +36,8 @@ public class FederationController {
     @PostMapping(Mappings.ALL)
     @ApiOperation("Execute federate SPARQL query in all nodes registered")
     public String executeQueryInAllNodes(
-            @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "sparql", required = true)
-            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "fuseki", required = true)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
             @RequestParam(required = false) final String nodeTimeout,
             @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false)
@@ -45,15 +45,16 @@ public class FederationController {
             @ApiParam(name = "query", value = "Query to execute in nodes", required = true)
             @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c}") final String query
     ) throws IOException, URISyntaxException, JSONException {
-        JsonObject jResponse = federationService.executeQueryInAllNodes(query,tripleStore,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
+        Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);
+        JsonObject jResponse = federationService.executeQueryInAllNodes(query,tripleStore,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout), limit);
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
     @PostMapping(Mappings.NODES_LIST)
     @ApiOperation("Execute federate SPARQL query in nodes of list in param nodeList (coma separated)")
     public String executeQueryInNodesList(
-            @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "sparql", required = true)
-            @RequestParam(required = true, defaultValue = "sparql") @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "fuseki", required = true)
+            @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
             @RequestParam(required = false) final String nodeTimeout,
             @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false, type = "Integer")
@@ -67,8 +68,8 @@ public class FederationController {
             throw new CustomFederationException("nodes list can not be null");
         }
         List<String> nodes = Arrays.asList(nodeList.replaceAll(" ","").split(","));
-
-        JsonObject jResponse = federationService.executeQueryInNodesList(query,tripleStore,nodes,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
+        Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);
+        JsonObject jResponse = federationService.executeQueryInNodesList(query,tripleStore,nodes,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout),limit );
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
