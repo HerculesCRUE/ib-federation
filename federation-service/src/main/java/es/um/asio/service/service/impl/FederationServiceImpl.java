@@ -66,25 +66,25 @@ public class FederationServiceImpl implements FederationService {
         JsonArray jStatsArray = new JsonArray();
         JsonObject jFederatedResponse = new JsonObject();
         // Populate futures
-        Map<String,List<JsonObject>> results = new HashMap<>();
+        Map<String,List<CompletableFuture<JsonObject>>> results = new HashMap<>();
         for (Map.Entry<String, URL> uriEntry :uris.entrySet()) {
             if (!results.containsKey(uriEntry.getKey()))
                 results.put(uriEntry.getKey(), new ArrayList<>());
             if (pageSize!=null)  {
                 CompletableFuture<JsonObject> future = federationServiceHelper.executeQueryPaginated(null,uriEntry.getKey(),uriEntry.getValue(),query, pageSize,nodeTimeout,limit);
                 JsonObject jResult = future.join();
-                results.get(uriEntry.getKey()).add(jResult);
+                results.get(uriEntry.getKey()).add(future);
                 //futures.get(uriEntry.getKey()).add(federationServiceHelper.executeQueryPaginated(null,uriEntry.getKey(),uriEntry.getValue(),query, pageSize,nodeTimeout,limit));
             } else {
                 CompletableFuture<JsonObject> future = federationServiceHelper.executeQuery(null,uriEntry.getKey(),uriEntry.getValue(),query,nodeTimeout,limit);
                 JsonObject jResult = future.join();
-                results.get(uriEntry.getKey()).add(jResult);
+                results.get(uriEntry.getKey()).add(future);
             }
         }
-        for (Map.Entry<String, List<JsonObject>> nodeEntry : results.entrySet()) { // For all nodes
-            for (JsonObject jResult : nodeEntry.getValue()) { // For all futures
+        for (Map.Entry<String, List<CompletableFuture<JsonObject>>> nodeEntry : results.entrySet()) { // For all nodes
+            for (CompletableFuture<JsonObject> f : nodeEntry.getValue()) { // For all futures
                 Node node = new Node(nodeEntry.getKey(),uris.get(nodeEntry.getKey()));
-                JsonObject jResponse = jResult;
+                JsonObject jResponse = f.join();
                 if (jResponse.has("stats")) // Añado la estadistica
                     jStatsArray.add(jResponse.get("stats"));
 
