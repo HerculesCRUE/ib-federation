@@ -36,31 +36,31 @@ public class FederationServiceImpl implements FederationService {
     ServiceDiscoveryService serviceDiscoveryService;
 
     @Override
-    public JsonObject executeQueryInNodesList(String query, String tripleStore,List<String> nodeList, Integer pageSize, Integer nodeTimeout, Integer limit) throws URISyntaxException, IOException {
+    public JsonObject executeQueryInNodesList(String authorization,String query, String tripleStore,List<String> nodeList, Integer pageSize, Integer nodeTimeout, Integer limit) throws URISyntaxException, IOException {
         Map<String, URL> uris = serviceDiscoveryService.getNodesByNameAndServiceAndType(nodeList,Constants.SPARQL_ENDPOINT_SERVICE,tripleStore);
         if (pageSize!=null) {
                 query = query.replaceAll("(?i)limit\\s+(\\d+)", "");
                 query = query.replaceAll("(?i)offset\\s+(\\d+)", "");
         }
-        JsonObject jFederatedResponse = doExecuteQuery(uris,query,pageSize,nodeTimeout,limit);
+        JsonObject jFederatedResponse = doExecuteQuery(authorization,uris,query,pageSize,nodeTimeout,limit);
         return jFederatedResponse;
     }
 
     @Override
-    public JsonObject executeQueryInAllNodes(String query, String tripleStore, Integer pageSize, Integer nodeTimeout, Integer limit) throws URISyntaxException, IOException {
+    public JsonObject executeQueryInAllNodes(String authorization,String query, String tripleStore, Integer pageSize, Integer nodeTimeout, Integer limit) throws URISyntaxException, IOException {
 
         Map<String, URL> uris = serviceDiscoveryService.getAllNodesByServiceAndType(Constants.SPARQL_ENDPOINT_SERVICE,tripleStore);
         if (pageSize!=null) {
                 query = query.replaceAll("(?i)limit\\s+(\\d+)", "");
                 query = query.replaceAll("(?i)offset\\s+(\\d+)", "");
         }
-        JsonObject jFederatedResponse = doExecuteQuery(uris,query,pageSize,nodeTimeout,limit);
+        JsonObject jFederatedResponse = doExecuteQuery(authorization,uris,query,pageSize,nodeTimeout,limit);
         return jFederatedResponse;
 
     }
 
 
-    private JsonObject doExecuteQuery(Map<String, URL> uris,String query, Integer pageSize, Integer nodeTimeout, Integer limit) throws IOException {
+    private JsonObject doExecuteQuery(String authorization,Map<String, URL> uris,String query, Integer pageSize, Integer nodeTimeout, Integer limit) throws IOException {
         Map<Integer, CustomObject> objects = new HashMap<>();
         List<String> variables = new ArrayList<>();
         JsonArray jStatsArray = new JsonArray();
@@ -71,12 +71,12 @@ public class FederationServiceImpl implements FederationService {
             if (!results.containsKey(uriEntry.getKey()))
                 results.put(uriEntry.getKey(), new ArrayList<>());
             if (pageSize!=null)  {
-                CompletableFuture<JsonObject> future = federationServiceHelper.executeQueryPaginated(null,uriEntry.getKey(),uriEntry.getValue(),query, pageSize,nodeTimeout,limit);
+                CompletableFuture<JsonObject> future = federationServiceHelper.executeQueryPaginated("Federation",authorization,uriEntry.getKey(),uriEntry.getValue(),query, pageSize,nodeTimeout,limit);
                 JsonObject jResult = future.join();
                 results.get(uriEntry.getKey()).add(future);
                 //futures.get(uriEntry.getKey()).add(federationServiceHelper.executeQueryPaginated(null,uriEntry.getKey(),uriEntry.getValue(),query, pageSize,nodeTimeout,limit));
             } else {
-                CompletableFuture<JsonObject> future = federationServiceHelper.executeQuery(null,uriEntry.getKey(),uriEntry.getValue(),query,nodeTimeout,limit);
+                CompletableFuture<JsonObject> future = federationServiceHelper.executeQuery("Federation",authorization,uriEntry.getKey(),uriEntry.getValue(),query,nodeTimeout,limit);
                 JsonObject jResult = future.join();
                 results.get(uriEntry.getKey()).add(future);
             }

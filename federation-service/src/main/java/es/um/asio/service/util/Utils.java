@@ -56,6 +56,7 @@ public class Utils {
                 response.append(responseLine.trim());
             }
         }
+        con.disconnect();
         JsonElement jResponse = new Gson().fromJson(response.toString(), JsonElement.class);
         return jResponse;
     }

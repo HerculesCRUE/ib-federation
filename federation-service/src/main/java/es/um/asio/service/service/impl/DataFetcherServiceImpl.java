@@ -105,7 +105,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                 if (type != null) {
                     // Get data
                     URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
-                    String query = "SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\"^http[s]*://.*/"+normalizeClassName(className)+"/.*\" )) && ( ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ) }";
+                    String query = "SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\"^http[s]*://.*/"+normalizeClassName(className)+"/.*\" ))  && ( regex(str(?s),\"^http[s]*://.*/rec/.*\" ))&& ( ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ) }";
                     String s = normalizeClassName(className);
 
                     Map<String,String> queryParam = new HashMap<>();
@@ -150,8 +150,10 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                         }
                         Long lastModification = Long.valueOf(mdEntry.getValue().get("lastModification"));
                         TripleObjectSimplified tos = objects.get(id);
-                        tos.setLocalURI(uri);
-                        tos.setLastModification(lastModification);
+                        if (tos!=null) {
+                            tos.setLocalURI(uri);
+                            tos.setLastModification(lastModification);
+                        }
                     }
                 }
             }

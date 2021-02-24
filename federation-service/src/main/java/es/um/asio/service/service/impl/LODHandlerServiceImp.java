@@ -3,12 +3,11 @@ package es.um.asio.service.service.impl;
 import es.um.asio.service.config.LodDataSet;
 import es.um.asio.service.model.TripleObjectLink;
 import es.um.asio.service.model.TripleObjectSimplified;
-import es.um.asio.service.repository.lod.connectors.CrossRefHandler;
-import es.um.asio.service.repository.lod.connectors.LODHandler;
-import es.um.asio.service.repository.lod.connectors.SCOPUSHandler;
-import es.um.asio.service.repository.lod.connectors.WikidataHandler;
+import es.um.asio.service.repository.lod.connectors.*;
 import es.um.asio.service.service.LODHandlerService;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +22,8 @@ public class LODHandlerServiceImp implements LODHandlerService {
     @Autowired
     TextHandlerServiceImp textHandlerService;
 
+    private final Logger logger = LoggerFactory.getLogger(LODHandlerServiceImp.class);
+
     @Override
     public Set<TripleObjectLink> findLinksInHandlers(List<String> dataSets, TripleObjectSimplified tos) {
         Set<TripleObjectLink> results = new HashSet<>();
@@ -36,6 +37,7 @@ public class LODHandlerServiceImp implements LODHandlerService {
                         LODHandler handler = dse.getHandler();
                         Set<TripleObjectLink> resultsAux = handler.findLink(tos, pds,textHandlerService);
                         results.addAll(resultsAux);
+                        logger.info("In dataset {} for Class {} --> found {} similarities objects for TripleObject with id {}",dse.getName(),tos.getClassName(),results.size(),tos.getId());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -43,6 +45,7 @@ public class LODHandlerServiceImp implements LODHandlerService {
 
             }
         }
+        logger.info("Founds {} similarities objects for TripleObject with id {}",results.size(),tos.getId());
         return results;
     }
 
@@ -50,7 +53,8 @@ public class LODHandlerServiceImp implements LODHandlerService {
     public enum DatasetEnum {
         SCOPUS("SCOPUS", new SCOPUSHandler()),
         CROSSREF("CROSSREF", new CrossRefHandler()),
-        WIKIDATA("WIKIDATA", new WikidataHandler());
+        WIKIDATA("WIKIDATA", new WikidataHandler()),
+        ORCID("ORCID", new ORCIDHandler());
 
         private String name;
         private LODHandler handler;

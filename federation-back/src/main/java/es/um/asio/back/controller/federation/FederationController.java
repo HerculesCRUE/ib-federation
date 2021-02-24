@@ -36,6 +36,7 @@ public class FederationController {
     @PostMapping(Mappings.ALL)
     @ApiOperation("Execute federate SPARQL query in all nodes registered")
     public String executeQueryInAllNodes(
+            @RequestHeader( value = "Authorization", required = false) final String authorization,
             @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "fuseki", required = true)
             @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
@@ -46,13 +47,14 @@ public class FederationController {
             @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c}") final String query
     ) throws IOException, URISyntaxException, JSONException {
         Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);
-        JsonObject jResponse = federationService.executeQueryInAllNodes(query,tripleStore,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout), limit);
+        JsonObject jResponse = federationService.executeQueryInAllNodes(authorization,query,tripleStore,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout), limit);
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
     @PostMapping(Mappings.NODES_LIST)
     @ApiOperation("Execute federate SPARQL query in nodes of list in param nodeList (coma separated)")
     public String executeQueryInNodesList(
+            @RequestHeader( value = "Authorization", required = false) final String authorization,
             @ApiParam(name = "tripleStore", value = "Triple Store of data", defaultValue = "fuseki", required = true)
             @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
@@ -69,7 +71,7 @@ public class FederationController {
         }
         List<String> nodes = Arrays.asList(nodeList.replaceAll(" ","").split(","));
         Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);
-        JsonObject jResponse = federationService.executeQueryInNodesList(query,tripleStore,nodes,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout),limit );
+        JsonObject jResponse = federationService.executeQueryInNodesList(authorization,query,tripleStore,nodes,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout),limit );
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 

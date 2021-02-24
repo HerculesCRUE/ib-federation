@@ -57,9 +57,9 @@ public class EndPointSparqlServiceImpl implements EndPointSparqlService  {
         String url = connector.buildQueryURL(true);
 
         if (pageSize!=null) //(String nodeName,URL url, String q, Integer pageSize, Integer timeout)
-            future = federationServiceHelper.executeQueryPaginated(authorization,dataSourceSPARQL.getNodeName(),new URL(url),query,pageSize,nodeTimeout,limit);
+            future = federationServiceHelper.executeQueryPaginated("EndPoint",authorization,dataSourceSPARQL.getNodeName(),new URL(url),query,pageSize,nodeTimeout,limit);
         else
-            future = federationServiceHelper.executeQuery(authorization,dataSourceSPARQL.getNodeName(),new URL(url),query,nodeTimeout,limit);
+            future = federationServiceHelper.executeQuery("EndPoint",authorization,dataSourceSPARQL.getNodeName(),new URL(url),query,nodeTimeout,limit);
 
         JsonObject jResponse = future.join();
 

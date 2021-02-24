@@ -5,7 +5,7 @@ app:
   node: um
   name: Federation
   healthEndpoint: /management/health
-  tripleStores: fuseki, wikibase
+  tripleStores: fuseki
   service-discovery-host: http://localhost:9329
   trellis-host: http://localhost
   default-request-timeout: 60000
@@ -128,14 +128,54 @@ lod-data-sources:
               identifier: true
               order: 1
               localClasses:
-                - name: Articulo
+                - name: Article
                   attributes:
                     - doi
                   mappers:
                     - remoteAttribute: "prism:doi"
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                      localAttribute: "title"
+                - name: Book
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: BookChapter
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: BookSection
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: DoctoralThesis
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: MasterThesis
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
                 - name: Documento
                   attributes:
                     - doi
@@ -143,7 +183,7 @@ lod-data-sources:
                     - remoteAttribute: "prism:doi"
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                      localAttribute: "title"
             - remoteName: SCOPUS
               remoteAttribute: TITLE-ABS-KEY
               suffixURL: search/scopus
@@ -151,25 +191,62 @@ lod-data-sources:
               removeStopWords: true
               order: 2
               localClasses:
-                - name: Articulo
+                - name: Article
                   attributes:
-                    - titulo
                     - title
-                    - name
                   mappers:
                     - remoteAttribute: "doi"
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                      localAttribute: "title"
+                - name: Book
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: BookChapter
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: BookSection
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: DoctoralThesis
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: MasterThesis
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
                 - name: Documento
                   attributes:
-                    - titulo
                     - title
                   mapperAttribute:
                     - remoteAttribute: "doi"
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                      localAttribute: "title"
     - name: CROSSREF
       connections:
         - connectionType: API
@@ -184,22 +261,62 @@ lod-data-sources:
               order: 1
               paramType: URI
               localClasses:
-                - name: Articulo
+                - name: Article
                   attributes:
                     - doi
                   mappers:
                     - remoteAttribute: "DOI"
                       localAttribute: "doi"
                     - remoteAttribute: "title"
-                      localAttribute: "name"
+                      localAttribute: "title"
+                - name: Book
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+                - name: BookChapter
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+                - name: BookSection
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+                - name: DoctoralThesis
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+                - name: MasterThesis
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
                 - name: Documento
                   attributes:
                     - doi
                   mappers:
-                    - remoteAttribute: "prism:doi"
+                    - remoteAttribute: "DOI"
                       localAttribute: "doi"
-                    - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
     - name: WIKIDATA
       connections:
         - connectionType: SPARQL
@@ -221,3 +338,46 @@ lod-data-sources:
                   mappers:
                     - remoteAttribute: "wde:P496"
                       localAttribute: "ORCID"
+    - name: ORCID
+      connections:
+        - connectionType: API
+          def: true
+          baseURL: https://pub.orcid.org/v3.0
+          apiKey:
+          mappings:
+          - remoteName: ORCID
+            remoteAttribute: "q"
+            suffixURL: /expanded-search
+            query:
+            identifier: true
+            order: 1
+            paramType: SPARQL
+            localClasses:
+              - name: Person
+                attributes:
+                  - ORCID
+                mappers:
+                  - remoteAttribute: "mOrcid"
+                    localAttribute: "ORCID"
+          - remoteName: ORCID>
+            remoteAttribute: "q"
+            suffixURL: /expanded-search
+            query:
+            identifier: false
+            order: 1
+            paramType: SPARQL
+            localClasses:
+              - name: Person
+                attributes:
+                  - name
+                  - firstName
+                  - surname
+                mappers:
+                  - remoteAttribute: "mOrcid"
+                    localAttribute: "ORCID"
+                  - remoteAttribute: "mName"
+                    localAttribute: "name"
+                  - remoteAttribute: "mFirstName"
+                    localAttribute: "firstName"
+                  - remoteAttribute: "mSurname"
+                    localAttribute: "surname"

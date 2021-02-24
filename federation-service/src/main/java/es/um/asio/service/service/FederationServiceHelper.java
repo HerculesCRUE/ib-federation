@@ -27,7 +27,7 @@ public class FederationServiceHelper {
     HttpRequestHelper httpRequestHelper;
 
     @Async("threadPoolTaskExecutor")
-    public CompletableFuture<JsonObject> executeQueryPaginated(String authorization, String nodeName,URL url, String q, Integer pageSize, Integer timeout, Integer limit)  {
+    public CompletableFuture<JsonObject> executeQueryPaginated(String name,String authorization, String nodeName,URL url, String q, Integer pageSize, Integer timeout, Integer limit)  {
         JsonObject jResponse = new JsonObject();
         int offset = 0;
         JsonObject jQueryResponse = null;
@@ -38,7 +38,9 @@ public class FederationServiceHelper {
         int nulls = 0;
         int total = 0;
         do {
-            String query = q + String.format(" LIMIT %d OFFSET %d ",(limit == null || ((total+pageSize)<=limit))?pageSize:(limit-total),offset);
+            int l = (limit == null || ((total+pageSize)<=limit))?pageSize:(limit-total);
+            int o = offset;
+            String query = q + String.format(" LIMIT %d OFFSET %d ",l,offset);
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/x-www-form-urlencoded");
             headers.put("Accept", "application/json");
@@ -53,9 +55,12 @@ public class FederationServiceHelper {
                 JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
                 jQueryResponse = jeResponse.getAsJsonObject();
                 total += ( jQueryResponse.has("results") && jQueryResponse.get("results").getAsJsonObject().has("bindings"))?jQueryResponse.get("results").getAsJsonObject().get("bindings").getAsJsonArray().size():0;
-                logger.info(String.format("Limit: %d, Offset: %d, Results: %d, Total: %d",
-                        pageSize,
-                        offset+pageSize,
+                logger.info(query);
+                logger.info(String.format("%s Node: %s Limit: %d, Offset: %d, Results: %d, Total: %d",
+                        name,
+                        nodeName,
+                        l,
+                        offset,
                         ( jQueryResponse.has("results") && jQueryResponse.get("results").getAsJsonObject().has("bindings"))?jQueryResponse.get("results").getAsJsonObject().get("bindings").getAsJsonArray().size():0,
                         total
                     )
@@ -75,8 +80,8 @@ public class FederationServiceHelper {
             } catch (Exception e) {
                 fails++;
             }
-            offset += pageSize;
-        } while (!isFinishedPagination(jQueryResponse,pageSize) && (limit == null || jResponse.get("results").getAsJsonObject().get("bindings").getAsJsonArray().size() <= limit));
+            offset += l;
+        } while (!isFinishedPagination(jQueryResponse,pageSize) && (limit == null || jResponse.get("results").getAsJsonObject().get("bindings").getAsJsonArray().size() < limit));
 
         jStats.addProperty("node",nodeName);
         jStats.addProperty("url",url.toString());
@@ -100,7 +105,7 @@ public class FederationServiceHelper {
     }
 
     @Async("threadPoolTaskExecutor")
-    public CompletableFuture<JsonObject> executeQuery(String authorization,String nodeName,URL url, String q, Integer timeout, Integer limit){
+    public CompletableFuture<JsonObject> executeQuery(String name,String authorization,String nodeName,URL url, String q, Integer timeout, Integer limit){
         Map<String, String> headers = new HashMap<>();
         JsonObject jStats = new JsonObject();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
