@@ -269,14 +269,18 @@ public class ORCIDHandler implements LODHandler {
     private JsonObject removeValueAttributesAndAddLinks(JsonObject jObject) {
         JsonObject jObjectCopy = new JsonObject();
         for (Map.Entry<String, JsonElement> jAttr :jObject.entrySet()) { // para todos los atributos
+            String key = jAttr.getKey();
+            if (key.equals("ORCID") || key.equals("name") || key.equals("firstName") || key.equals("surname")) {
+                key = "@"+jAttr.getKey();
+            }
             if (jAttr.getValue().isJsonPrimitive()) {
-                jObjectCopy.add(jAttr.getKey(),jAttr.getValue());
+                jObjectCopy.add(key,jAttr.getValue());
             } else {
                 if (jAttr.getValue().isJsonObject()) {
                     if (jAttr.getValue().getAsJsonObject().has("value")) {
-                        jObjectCopy.add(jAttr.getKey(),jAttr.getValue().getAsJsonObject().get("value"));
+                        jObjectCopy.add(key,jAttr.getValue().getAsJsonObject().get("value"));
                     } else { // Si es un objeto anidado
-                        jObjectCopy.add(jAttr.getKey(), removeValueAttributesAndAddLinks(jAttr.getValue().getAsJsonObject()));
+                        jObjectCopy.add(key, removeValueAttributesAndAddLinks(jAttr.getValue().getAsJsonObject()));
                     }
                 } else if (jAttr.getValue().isJsonArray()) { // Es una lista
                     JsonArray jArray = new JsonArray();
@@ -287,9 +291,9 @@ public class ORCIDHandler implements LODHandler {
                             jArray.add(removeValueAttributesAndAddLinks(jeItem.getAsJsonObject()));
                         }
                     }
-                    jObjectCopy.add(jAttr.getKey(),jArray);
+                    jObjectCopy.add(key,jArray);
                 } else if (!jAttr.getValue().isJsonNull()){
-                    System.out.println("que coño es?");
+                    System.out.println("Error in parse attribute:"+jAttr.getValue().toString());
                 }
             }
         }

@@ -364,7 +364,7 @@ lod-data-sources:
             suffixURL: /expanded-search
             query:
             identifier: false
-            order: 1
+            order: 2
             paramType: SPARQL
             localClasses:
               - name: Person
@@ -381,3 +381,44 @@ lod-data-sources:
                     localAttribute: "firstName"
                   - remoteAttribute: "mSurname"
                     localAttribute: "surname"
+    - name: DOAJ
+      connections:
+        - connectionType: API
+          def: true
+          baseURL: https://doaj.org/api/v2
+          apiKey:
+          mappings:
+            - remoteName: DOAJ
+              remoteAttribute: "title:"
+              suffixURL: /search/articles/
+              query:
+              identifier: false
+              order: 1
+              paramType: URI
+              localClasses:
+                - name: Article
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+            - remoteName: DOAJ
+              remoteAttribute: "bibjson.eissn:"
+              suffixURL: /search/journals/
+              query:
+              identifier: true
+              order: 2
+              paramType: URI
+              localClasses:
+                - name: Journal
+                  attributes:
+                    - eissn
+                  mappers:
+                    - remoteAttribute: "eissn"
+                      localAttribute: "eissn"
+                - name: Magazine
+                  attributes:
+                    - eissn
+                  mappers:
+                    - remoteAttribute: "eissn"
+                      localAttribute: "eissn"
