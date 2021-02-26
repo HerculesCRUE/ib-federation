@@ -42,8 +42,9 @@ import java.util.Map;
 <span class="nc" id="L42">                response.append(responseLine.trim());</span>
             }
         }
-<span class="nc" id="L45">        JsonObject jResponse = new Gson().fromJson(response.toString(), JsonObject.class);</span>
-<span class="nc" id="L46">        return jResponse;</span>
+<span class="nc" id="L45">        con.disconnect();</span>
+<span class="nc" id="L46">        JsonObject jResponse = new Gson().fromJson(response.toString(), JsonObject.class);</span>
+<span class="nc" id="L47">        return jResponse;</span>
     }
 
 }

@@ -23,9 +23,6 @@ public class PubMedHandler implements LODHandler {
 
     public static final String DATASET = "PUBMED";
 
-    @Autowired
-    TextHandlerServiceImp textHandlerServiceImp;
-
     @Override
     public Set<TripleObjectLink> findLink(TripleObjectSimplified tos, LodDataSet.Dataset dataset, TextHandlerServiceImp textHandlerService) {
         Set<TripleObjectLink> result = new HashSet<>();

@@ -84,10 +84,14 @@ public class TripleObjectSimplified {
     }
 
     public void addAttribute(String key, String value) {
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (key.equals(&quot;id&quot;)) {</span>
-<span class="nc" id="L88">            key = &quot;localId&quot;;</span>
-        }
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        attributes.put(key, Utils.isValidString(value)?value:null);</span>
-<span class="nc" id="L91">    }</span>
+        try {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (key.equals(&quot;id&quot;)) {</span>
+<span class="nc" id="L89">                key = &quot;localId&quot;;</span>
+            }
+<span class="nc bnc" id="L91" title="All 2 branches missed.">            attributes.put(key, Utils.isValidString(value)?value:null);</span>
+<span class="nc" id="L92">        } catch (Exception e ) {</span>
+<span class="nc" id="L93">            System.out.println();</span>
+<span class="nc" id="L94">        }</span>
+<span class="nc" id="L95">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

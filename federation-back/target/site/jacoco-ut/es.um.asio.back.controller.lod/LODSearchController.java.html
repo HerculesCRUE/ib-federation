@@ -63,12 +63,11 @@ import java.util.Set;
             @RequestParam(required = true, defaultValue = &quot;SCOPUS&quot;) @Validated(Create.class) final String dataSets,
             @RequestBody final Object obj
     )  {
-<span class="nc" id="L66">        System.out.println();</span>
-<span class="nc" id="L67">        List&lt;String&gt; datasets = Arrays.asList(dataSets.trim().split(&quot;,&quot;));</span>
-<span class="nc" id="L68">        Gson gson = new Gson();</span>
-<span class="nc" id="L69">        JsonObject jTripleObject = gson.fromJson(gson.toJson(obj), JsonObject.class);</span>
-<span class="nc" id="L70">        TripleObjectSimplified tos = new TripleObjectSimplified(jTripleObject);</span>
-<span class="nc" id="L71">        return lodHandlerService.findLinksInHandlers(datasets,tos);</span>
+<span class="nc" id="L66">        List&lt;String&gt; datasets = Arrays.asList(dataSets.trim().split(&quot;,&quot;));</span>
+<span class="nc" id="L67">        Gson gson = new Gson();</span>
+<span class="nc" id="L68">        JsonObject jTripleObject = gson.fromJson(gson.toJson(obj), JsonObject.class);</span>
+<span class="nc" id="L69">        TripleObjectSimplified tos = new TripleObjectSimplified(jTripleObject);</span>
+<span class="nc" id="L70">        return lodHandlerService.findLinksInHandlers(datasets,tos);</span>
     }
 
     /**
