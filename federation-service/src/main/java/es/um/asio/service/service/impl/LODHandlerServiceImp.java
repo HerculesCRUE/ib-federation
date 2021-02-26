@@ -54,7 +54,10 @@ public class LODHandlerServiceImp implements LODHandlerService {
         SCOPUS("SCOPUS", new SCOPUSHandler()),
         CROSSREF("CROSSREF", new CrossRefHandler()),
         WIKIDATA("WIKIDATA", new WikidataHandler()),
-        ORCID("ORCID", new ORCIDHandler());
+        ORCID("ORCID", new ORCIDHandler()),
+        DOAJ("DOAJ", new DOAJHandler()),
+        PUBMED("PUBMED", new PubMedHandler()),
+        DBLP("DBLP", new DBLPHandler());
 
         private String name;
         private LODHandler handler;
@@ -66,7 +69,7 @@ public class LODHandlerServiceImp implements LODHandlerService {
 
         public static DatasetEnum findByName(String name) {
             for (DatasetEnum dse : DatasetEnum.values()) {
-                if(dse.getName().equals(name))
+                if(dse.getName().toUpperCase().equals(name))
                     return dse;
             }
             return null;

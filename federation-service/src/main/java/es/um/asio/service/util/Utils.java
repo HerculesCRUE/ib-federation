@@ -2,8 +2,12 @@ package es.um.asio.service.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import es.um.asio.service.repository.SparqlProxyHandler;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.XML;
 import org.jsoup.Connection;
 
 import java.io.BufferedReader;
@@ -59,6 +63,47 @@ public class Utils {
         con.disconnect();
         JsonElement jResponse = new Gson().fromJson(response.toString(), JsonElement.class);
         return jResponse;
+    }
+
+    public static JsonElement doRequestXML(URL url, Connection.Method method, Map<String,String> headers, Map<String,String> params, Map<String,String> queryParams,boolean encode) throws IOException {
+        if (queryParams!=null) {
+            url = buildQueryParams(url,queryParams, encode);
+        }
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod(method.toString());
+        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        if (headers!=null) {
+            for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
+                con.setRequestProperty(headerEntry.getKey(),headerEntry.getValue());
+            }
+        }
+        if (params!=null) {
+            for (Map.Entry<String, String> paramEntry : params.entrySet()) {
+                con.setRequestProperty(paramEntry.getKey(),paramEntry.getValue());
+            }
+        }
+        con.setDoOutput(true);
+        StringBuilder response;
+        try(BufferedReader br = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), "utf-8"))) {
+            response = new StringBuilder();
+            String responseLine;
+            while ((responseLine = br.readLine()) != null) {
+                response.append(responseLine.trim());
+            }
+        }
+        con.disconnect();
+        JsonElement jResponse = castXMLtoJsonElement(response.toString());
+        return jResponse;
+    }
+
+    private static JsonElement castXMLtoJsonElement(String xml) {
+        try {
+            JsonElement jObject = new Gson().fromJson(XML.toJSONObject(xml).toString(),JsonElement.class);
+            return jObject;
+        } catch (JSONException je) {
+            return null;
+        }
     }
 
     private static URL buildQueryParams(URL baseURL, Map<String,String> queryParams,boolean encode) throws MalformedURLException, UnsupportedEncodingException {
@@ -132,6 +177,10 @@ public class Utils {
             return Integer.valueOf(m.group(1));
         }
         return null;
+    }
+
+    public static String stringNormalized(String str) {
+        return StringUtils.stripAccents(str);
     }
 
 

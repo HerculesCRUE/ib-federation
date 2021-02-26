@@ -75,10 +75,10 @@ public class ORCIDHandler implements LODHandler {
                         List<String> localAttributes = lc.getAttributes();
                         Object value = "";
                         if (tos.getAttributeValue(tos.getAttributes(), "name") != null) {
-                            value = tos.getAttributeValue(tos.getAttributes(), localAttributes);
+                            value = tos.getAttributeValue(tos.getAttributes(), "name");
                         } else {
-                            Object firstName = tos.getAttributeValue(tos.getAttributes(), localAttributes);
-                            Object lastName = tos.getAttributeValue(tos.getAttributes(), localAttributes);
+                            Object firstName = tos.getAttributeValue(tos.getAttributes(), "firstName");
+                            Object lastName = tos.getAttributeValue(tos.getAttributes(), "surname");
                             if (firstName != null) {
                                 value = firstName.toString();
                             }
