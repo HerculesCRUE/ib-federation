@@ -49,7 +49,5 @@ _federation-back/src/main/java/es/um/asio/back/controller/datafetcher/DataFetche
 `federation-service/src/main/java/es/um/asio/service/repository/lod/connectors/SCOPUSHandler.java,a\9\a9fcd8d627df61d899e709cbbef5256bb80840aa
 J
 federation-service/pom.xml,9\b\9b6a9466214b6897f4840e14f50877ab3b7e4393
-t
-Dfederation-service/src/test/java/es/um/asio/service/test/Test_1.java,9\7\97de04e7afa7b7ad16e82b9efd44c4d60baefdd0
 s
 Cfederation-service/src/main/java/es/um/asio/service/util/Utils.java,d\4\d4e56575d04304054ab63a76dfda49c30debda45
