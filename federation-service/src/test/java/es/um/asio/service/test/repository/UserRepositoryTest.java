@@ -32,6 +32,7 @@ public class UserRepositoryTest {
      */
     @Autowired
     private UserRepository userRepository;
+
     
     @Test
     public void whenFindByUsername_thenReturnUser() {

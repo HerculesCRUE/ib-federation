@@ -12,11 +12,11 @@ import es.um.asio.service.service.DataFetcherService;
 import es.um.asio.service.service.HttpRequestHelper;
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.service.ServiceDiscoveryService;
+import es.um.asio.service.util.Utils;
 import org.jsoup.Connection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import util.Utils;
 
 
 import java.io.BufferedReader;
@@ -50,259 +50,301 @@ import java.util.Date;
     @Value(&quot;${app.default-request-timeout}&quot;)
     Integer defaultTimeout;
 
+    @Value(&quot;${app.trellis-host}&quot;)
+    String trellisHost;
+
     @Override
     public Set&lt;String&gt; getObjectsUris(String nodeName, String service, String tripleStore) throws IOException {
-<span class="nc" id="L55">        Set&lt;String&gt; objects = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L56">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (node!=null) {</span>
-<span class="nc" id="L58">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (serv!=null) {</span>
-<span class="nc" id="L60">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">                if (type != null) {</span>
-<span class="nc" id="L62">                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());</span>
-<span class="nc" id="L63">                    String query = &quot;query=SELECT DISTINCT ?object &quot; +</span>
+<span class="nc" id="L58">        Set&lt;String&gt; objects = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L59">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (node!=null) {</span>
+<span class="nc" id="L61">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (serv!=null) {</span>
+<span class="nc" id="L63">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                if (type != null) {</span>
+<span class="nc" id="L65">                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());</span>
+<span class="nc" id="L66">                    String query = &quot;SELECT DISTINCT ?object &quot; +</span>
                             &quot;WHERE { &quot; +
                             &quot;?subject &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt;  ?object . &quot; +
                             &quot; FILTER regex(str(?object),\&quot;^http://hercules.org/um/*/*/\&quot;)&quot; +
                             &quot;}&quot;;
-<span class="nc" id="L68">                    JsonObject jResponse = doRequest(url, query);</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">                    for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
-<span class="nc" id="L70">                        JsonObject jItem = jeItem.getAsJsonObject();</span>
-<span class="nc bnc" id="L71" title="All 2 branches missed.">                        if (jItem.has(&quot;object&quot;)) {</span>
-<span class="nc" id="L72">                            JsonObject jObject = jItem.get(&quot;object&quot;).getAsJsonObject();</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">                            if (jObject.has(&quot;value&quot;)) {</span>
-<span class="nc" id="L74">                                objects.add(jObject.get(&quot;value&quot;).getAsString());</span>
+<span class="nc" id="L71">                    Map&lt;String,String&gt; queryParam = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L72">                    queryParam.put(&quot;nodeTimeout&quot;,String.valueOf(defaultTimeout));</span>
+<span class="nc" id="L73">                    queryParam.put(&quot;pageSize&quot;,&quot;50000&quot;);</span>
+<span class="nc" id="L74">                    queryParam.put(&quot;query&quot;,query);</span>
+<span class="nc" id="L75">                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);</span>
+
+<span class="nc bnc" id="L77" title="All 6 branches missed.">                    if (jeResponse != null &amp;&amp; !jeResponse.isJsonNull() &amp;&amp; jeResponse.isJsonObject()) {</span>
+<span class="nc" id="L78">                        JsonObject jResponse = jeResponse.getAsJsonObject();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
+<span class="nc" id="L80">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                            if (jItem.has(&quot;object&quot;)) {</span>
+<span class="nc" id="L82">                                JsonObject jObject = jItem.get(&quot;object&quot;).getAsJsonObject();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                                if (jObject.has(&quot;value&quot;)) {</span>
+<span class="nc" id="L84">                                    objects.add(jObject.get(&quot;value&quot;).getAsString());</span>
+                                }
                             }
-                        }
-<span class="nc" id="L77">                    }</span>
+<span class="nc" id="L87">                        }</span>
+                    }
                 }
             }
         }
-<span class="nc" id="L81">        return objects;</span>
+<span class="nc" id="L92">        return objects;</span>
     }
 
 
     @Override
     public Set&lt;TripleObjectSimplified&gt; getTripleObjectSimplified(String nodeName, String service, String tripleStore, String className) throws URISyntaxException, IOException {
-<span class="nc" id="L87">        Map&lt;String,TripleObjectSimplified&gt; objects = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L88">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (node!=null) {</span>
-<span class="nc" id="L90">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
-<span class="nc" id="L91">            DataSourceRepository.Node.Service serviceTrellis = node.getServiceByName(&quot;trellis&quot;);</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (serv!=null) {</span>
-<span class="nc" id="L93">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                if (type != null) {</span>
+<span class="nc" id="L98">        Map&lt;String,TripleObjectSimplified&gt; objects = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L99">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (node!=null) {</span>
+<span class="nc" id="L101">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
+<span class="nc" id="L102">            DataSourceRepository.Node.Service serviceTrellis = node.getServiceByName(&quot;trellis&quot;);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (serv!=null) {</span>
+<span class="nc" id="L104">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                if (type != null) {</span>
                     // Get data
-<span class="nc" id="L96">                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());</span>
-<span class="nc" id="L97">                    String query = &quot;query=SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\&quot;^http[s]*://.*/&quot;+normalizeClassName(className)+&quot;/.*\&quot; )) %26%26 ( ?p != &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt; ) ) }&quot;;</span>
-<span class="nc" id="L98">                    String s = normalizeClassName(className);</span>
-<span class="nc" id="L99">                    JsonObject jResponse = doRequest(url, query);</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">                    if (jResponse!=null) {</span>
-<span class="nc" id="L101">                        JsonArray jVarsArray = jResponse.get(&quot;head&quot;).getAsJsonObject().get(&quot;vars&quot;).getAsJsonArray();</span>
-<span class="nc" id="L102">                        String subjectVar = jVarsArray.get(0).getAsString();</span>
-<span class="nc" id="L103">                        String predicateVar = jVarsArray.get(1).getAsString();</span>
-<span class="nc" id="L104">                        String objectVar = jVarsArray.get(2).getAsString();</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
-<span class="nc" id="L106">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
-<span class="nc" id="L107">                            JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();</span>
-<span class="nc" id="L108">                            JsonObject jPredicate = jItem.get(predicateVar).getAsJsonObject();</span>
-<span class="nc" id="L109">                            JsonObject jObject = jItem.get(objectVar).getAsJsonObject();</span>
-<span class="nc" id="L110">                            URIComponent uriComponent = schemaService.getURIComponentFromCanonicalLocalURI(jSubject.get(&quot;value&quot;).getAsString());</span>
+<span class="nc" id="L107">                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());</span>
+<span class="nc" id="L108">                    String query = &quot;SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\&quot;^http[s]*://.*/&quot;+normalizeClassName(className)+&quot;/.*\&quot; ))  &amp;&amp; ( regex(str(?s),\&quot;^http[s]*://.*/rec/.*\&quot; ))&amp;&amp; ( ?p != &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt; ) ) }&quot;;</span>
+<span class="nc" id="L109">                    String s = normalizeClassName(className);</span>
+
+<span class="nc" id="L111">                    Map&lt;String,String&gt; queryParam = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L112">                    queryParam.put(&quot;nodeTimeout&quot;,String.valueOf(defaultTimeout));</span>
+<span class="nc" id="L113">                    queryParam.put(&quot;pageSize&quot;,&quot;50000&quot;);</span>
+<span class="nc" id="L114">                    queryParam.put(&quot;query&quot;,query);</span>
+<span class="nc" id="L115">                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);</span>
+
+
+<span class="nc bnc" id="L118" title="All 6 branches missed.">                    if (jeResponse != null &amp;&amp; !jeResponse.isJsonNull() &amp;&amp; jeResponse.isJsonObject()) {</span>
+<span class="nc" id="L119">                        JsonObject jResponse = jeResponse.getAsJsonObject();</span>
+<span class="nc" id="L120">                        JsonArray jVarsArray = jResponse.get(&quot;head&quot;).getAsJsonObject().get(&quot;vars&quot;).getAsJsonArray();</span>
+<span class="nc" id="L121">                        String subjectVar = jVarsArray.get(0).getAsString();</span>
+<span class="nc" id="L122">                        String predicateVar = jVarsArray.get(1).getAsString();</span>
+<span class="nc" id="L123">                        String objectVar = jVarsArray.get(2).getAsString();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
+<span class="nc" id="L125">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
+<span class="nc" id="L126">                            JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();</span>
+<span class="nc" id="L127">                            JsonObject jPredicate = jItem.get(predicateVar).getAsJsonObject();</span>
+<span class="nc" id="L128">                            JsonObject jObject = jItem.get(objectVar).getAsJsonObject();</span>
+<span class="nc" id="L129">                            URIComponent uriComponent = schemaService.getURIComponentFromCanonicalLocalURI(jSubject.get(&quot;value&quot;).getAsString());</span>
                             TripleObjectSimplified tripleObjectSimplified;
-<span class="nc bnc" id="L112" title="All 2 branches missed.">                            if (objects.containsKey(uriComponent.getReference())) {</span>
-<span class="nc" id="L113">                                tripleObjectSimplified = objects.get(uriComponent.getReference());</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                            if (objects.containsKey(uriComponent.getReference())) {</span>
+<span class="nc" id="L132">                                tripleObjectSimplified = objects.get(uriComponent.getReference());</span>
                             } else {
-<span class="nc" id="L115">                                tripleObjectSimplified = new TripleObjectSimplified(nodeName,tripleStore,className,uriComponent.getReference());</span>
-<span class="nc" id="L116">                                objects.put(tripleObjectSimplified.getId(),tripleObjectSimplified);</span>
+<span class="nc" id="L134">                                tripleObjectSimplified = new TripleObjectSimplified(nodeName,tripleStore,className,uriComponent.getReference());</span>
+<span class="nc" id="L135">                                objects.put(tripleObjectSimplified.getId(),tripleObjectSimplified);</span>
                             }
-<span class="nc" id="L118">                            String predicate = schemaService.getURIComponentFromCanonicalLocalURI(jPredicate.get(&quot;value&quot;).getAsString()).getConcept();</span>
-<span class="nc" id="L119">                            String value = jObject.get(&quot;value&quot;).getAsString();</span>
-<span class="nc" id="L120">                            tripleObjectSimplified.addAttribute(predicate,value);</span>
-<span class="nc" id="L121">                        }</span>
+<span class="nc" id="L137">                            String predicate = schemaService.getURIComponentFromCanonicalLocalURI(jPredicate.get(&quot;value&quot;).getAsString()).getConcept();</span>
+<span class="nc" id="L138">                            String value = jObject.get(&quot;value&quot;).getAsString();</span>
+<span class="nc" id="L139">                            tripleObjectSimplified.addAttribute(predicate,value);</span>
+<span class="nc" id="L140">                        }</span>
                     }
 
                     // Get Metadata and merge
-<span class="nc" id="L125">                    Map&lt;String, Map&lt;String,String&gt;&gt; metadata = getMetadata(nodeName,service,tripleStore,className);</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">                    for (Map.Entry&lt;String, Map&lt;String, String&gt;&gt; mdEntry : metadata.entrySet()) {</span>
-<span class="nc" id="L127">                        String id = mdEntry.getKey();</span>
-<span class="nc" id="L128">                        String uri = String.valueOf(mdEntry.getValue().get(&quot;uri&quot;));</span>
-<span class="nc bnc" id="L129" title="All 4 branches missed.">                        if (uri.contains(&quot;trellis:data&quot;) &amp;&amp; serviceTrellis !=null) {</span>
-<span class="nc" id="L130">                            uri = uri.replace(&quot;trellis:data&quot;,serviceTrellis.buildBaseURL());</span>
+<span class="nc" id="L144">                    Map&lt;String, Map&lt;String,String&gt;&gt; metadata = getMetadata(nodeName,service,tripleStore,className);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                    for (Map.Entry&lt;String, Map&lt;String, String&gt;&gt; mdEntry : metadata.entrySet()) {</span>
+<span class="nc" id="L146">                        String id = mdEntry.getKey();</span>
+<span class="nc" id="L147">                        String uri = String.valueOf(mdEntry.getValue().get(&quot;uri&quot;));</span>
+<span class="nc bnc" id="L148" title="All 4 branches missed.">                        if (uri.contains(&quot;trellis:data&quot;) &amp;&amp; trellisHost !=null) {</span>
+<span class="nc" id="L149">                            uri = uri.replace(&quot;trellis:data&quot;,serviceTrellis.buildBaseURL());</span>
                         }
-<span class="nc" id="L132">                        Long lastModification = Long.valueOf(mdEntry.getValue().get(&quot;lastModification&quot;));</span>
-<span class="nc" id="L133">                        TripleObjectSimplified tos = objects.get(id);</span>
-<span class="nc" id="L134">                        tos.setLocalURI(uri);</span>
-<span class="nc" id="L135">                        tos.setLastModification(lastModification);</span>
-<span class="nc" id="L136">                    }</span>
+<span class="nc" id="L151">                        Long lastModification = Long.valueOf(mdEntry.getValue().get(&quot;lastModification&quot;));</span>
+<span class="nc" id="L152">                        TripleObjectSimplified tos = objects.get(id);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                        if (tos!=null) {</span>
+<span class="nc" id="L154">                            tos.setLocalURI(uri);</span>
+<span class="nc" id="L155">                            tos.setLastModification(lastModification);</span>
+                        }
+<span class="nc" id="L157">                    }</span>
                 }
             }
         }
-<span class="nc" id="L140">        return new HashSet&lt;&gt;(objects.values());</span>
+<span class="nc" id="L161">        return new HashSet&lt;&gt;(objects.values());</span>
     }
 
     @Override
     public TripleObjectSimplified findTripleObjectSimplifiedByURI(String nodeName, String service, String tripleStore, String className, String uri) throws URISyntaxException, IOException {
-<span class="nc" id="L145">        TripleObjectSimplified tos = null;</span>
-<span class="nc" id="L146">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (node!=null) {</span>
-<span class="nc" id="L148">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
-<span class="nc" id="L149">            DataSourceRepository.Node.Service serviceTrellis = node.getServiceByName(&quot;trellis&quot;);</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">            if (serv!=null) {</span>
-<span class="nc" id="L151">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">                if (type != null) {</span>
+<span class="nc" id="L166">        TripleObjectSimplified tos = null;</span>
+<span class="nc" id="L167">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (node!=null) {</span>
+<span class="nc" id="L169">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
+<span class="nc" id="L170">            DataSourceRepository.Node.Service serviceTrellis = node.getServiceByName(&quot;trellis&quot;);</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            if (serv!=null) {</span>
+<span class="nc" id="L172">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                if (type != null) {</span>
                     // Get data
-<span class="nc" id="L154">                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());</span>
-<span class="nc" id="L155">                    String query = &quot;query=SELECT ?subject ?predicate ?object WHERE { ?subject ?predicate ?object . FILTER regex(str(?subject),\&quot;&quot;+uri+&quot;\&quot;) }&quot;;</span>
-<span class="nc" id="L156">                    JsonObject jResponse = doRequest(url, query);</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">                    if (jResponse!=null) {</span>
-<span class="nc" id="L158">                        JsonArray jVarsArray = jResponse.get(&quot;head&quot;).getAsJsonObject().get(&quot;vars&quot;).getAsJsonArray();</span>
-<span class="nc" id="L159">                        String subjectVar = jVarsArray.get(0).getAsString();</span>
-<span class="nc" id="L160">                        String predicateVar = jVarsArray.get(1).getAsString();</span>
-<span class="nc" id="L161">                        String objectVar = jVarsArray.get(2).getAsString();</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
-<span class="nc" id="L163">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
-<span class="nc" id="L164">                            JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();</span>
-<span class="nc" id="L165">                            JsonObject jPredicate = jItem.get(predicateVar).getAsJsonObject();</span>
-<span class="nc" id="L166">                            JsonObject jObject = jItem.get(objectVar).getAsJsonObject();</span>
-<span class="nc" id="L167">                            URIComponent uriComponent = schemaService.getURIComponentFromCanonicalLocalURI(jSubject.get(&quot;value&quot;).getAsString());</span>
-<span class="nc bnc" id="L168" title="All 2 branches missed.">                            if (tos == null) {</span>
-<span class="nc" id="L169">                                tos = new TripleObjectSimplified(nodeName,tripleStore,className,uriComponent.getReference());</span>
+<span class="nc" id="L175">                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());</span>
+<span class="nc" id="L176">                    String query = &quot;SELECT ?subject ?predicate ?object WHERE { ?subject ?predicate ?object . FILTER regex(str(?subject),\&quot;&quot;+uri+&quot;\&quot;) }&quot;;</span>
+
+<span class="nc" id="L178">                    Map&lt;String,String&gt; queryParam = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L179">                    queryParam.put(&quot;nodeTimeout&quot;,String.valueOf(defaultTimeout));</span>
+<span class="nc" id="L180">                    queryParam.put(&quot;pageSize&quot;,&quot;50000&quot;);</span>
+<span class="nc" id="L181">                    queryParam.put(&quot;query&quot;,query);</span>
+<span class="nc" id="L182">                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);</span>
+
+
+<span class="nc bnc" id="L185" title="All 6 branches missed.">                    if (jeResponse != null &amp;&amp; !jeResponse.isJsonNull() &amp;&amp; jeResponse.isJsonObject()) {</span>
+<span class="nc" id="L186">                        JsonObject jResponse = jeResponse.getAsJsonObject();</span>
+<span class="nc" id="L187">                        JsonArray jVarsArray = jResponse.get(&quot;head&quot;).getAsJsonObject().get(&quot;vars&quot;).getAsJsonArray();</span>
+<span class="nc" id="L188">                        String subjectVar = jVarsArray.get(0).getAsString();</span>
+<span class="nc" id="L189">                        String predicateVar = jVarsArray.get(1).getAsString();</span>
+<span class="nc" id="L190">                        String objectVar = jVarsArray.get(2).getAsString();</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
+<span class="nc" id="L192">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
+<span class="nc" id="L193">                            JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();</span>
+<span class="nc" id="L194">                            JsonObject jPredicate = jItem.get(predicateVar).getAsJsonObject();</span>
+<span class="nc" id="L195">                            JsonObject jObject = jItem.get(objectVar).getAsJsonObject();</span>
+<span class="nc" id="L196">                            URIComponent uriComponent = schemaService.getURIComponentFromCanonicalLocalURI(jSubject.get(&quot;value&quot;).getAsString());</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">                            if (tos == null) {</span>
+<span class="nc" id="L198">                                tos = new TripleObjectSimplified(nodeName,tripleStore,className,uriComponent.getReference());</span>
                             }
-<span class="nc" id="L171">                            String predicate = schemaService.getURIComponentFromCanonicalLocalURI(jPredicate.get(&quot;value&quot;).getAsString()).getConcept();</span>
-<span class="nc" id="L172">                            String value = jObject.get(&quot;value&quot;).getAsString();</span>
-<span class="nc bnc" id="L173" title="All 2 branches missed.">                            if (predicate!=null)</span>
-<span class="nc" id="L174">                                tos.addAttribute(predicate,value);</span>
-<span class="nc" id="L175">                        }</span>
+<span class="nc" id="L200">                            String predicate = schemaService.getURIComponentFromCanonicalLocalURI(jPredicate.get(&quot;value&quot;).getAsString()).getConcept();</span>
+<span class="nc" id="L201">                            String value = jObject.get(&quot;value&quot;).getAsString();</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">                            if (predicate!=null)</span>
+<span class="nc" id="L203">                                tos.addAttribute(predicate,value);</span>
+<span class="nc" id="L204">                        }</span>
                     }
 
                     // Get Metadata and merge
-<span class="nc bnc" id="L179" title="All 2 branches missed.">                    if (tos!=null) {</span>
-<span class="nc" id="L180">                        Map&lt;String, Map&lt;String, String&gt;&gt; metadata = getMetadataByInstance(nodeName, service, tripleStore, className, tos.getId());</span>
-<span class="nc bnc" id="L181" title="All 4 branches missed.">                        if (metadata!=null &amp;&amp; metadata.size()&gt;0) {</span>
-<span class="nc bnc" id="L182" title="All 2 branches missed.">                            for (Map.Entry&lt;String, Map&lt;String, String&gt;&gt; mdEntry : metadata.entrySet()) {</span>
-<span class="nc" id="L183">                                String id = mdEntry.getKey();</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">                                if (id.equals(tos.getId())) {</span>
-<span class="nc" id="L185">                                    String uriAux = String.valueOf(mdEntry.getValue().get(&quot;uri&quot;));</span>
-<span class="nc bnc" id="L186" title="All 4 branches missed.">                                    if (uriAux.contains(&quot;trellis:data&quot;) &amp;&amp; serviceTrellis != null) {</span>
-<span class="nc" id="L187">                                        uriAux = uriAux.replace(&quot;trellis:data&quot;, serviceTrellis.buildBaseURL());</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                    if (tos!=null) {</span>
+<span class="nc" id="L209">                        Map&lt;String, Map&lt;String, String&gt;&gt; metadata = getMetadataByInstance(nodeName, service, tripleStore, className, tos.getId());</span>
+<span class="nc bnc" id="L210" title="All 4 branches missed.">                        if (metadata!=null &amp;&amp; metadata.size()&gt;0) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                            for (Map.Entry&lt;String, Map&lt;String, String&gt;&gt; mdEntry : metadata.entrySet()) {</span>
+<span class="nc" id="L212">                                String id = mdEntry.getKey();</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">                                if (id.equals(tos.getId())) {</span>
+<span class="nc" id="L214">                                    String uriAux = String.valueOf(mdEntry.getValue().get(&quot;uri&quot;));</span>
+<span class="nc bnc" id="L215" title="All 4 branches missed.">                                    if (uriAux.contains(&quot;trellis:data&quot;) &amp;&amp; serviceTrellis != null) {</span>
+<span class="nc" id="L216">                                        uriAux = uriAux.replace(&quot;trellis:data&quot;, serviceTrellis.buildBaseURL());</span>
                                     }
-<span class="nc" id="L189">                                    Long lastModification = Long.valueOf(mdEntry.getValue().get(&quot;lastModification&quot;));</span>
-<span class="nc" id="L190">                                    tos.setLocalURI(uriAux);</span>
-<span class="nc" id="L191">                                    tos.setLastModification(lastModification);</span>
+<span class="nc" id="L218">                                    Long lastModification = Long.valueOf(mdEntry.getValue().get(&quot;lastModification&quot;));</span>
+<span class="nc" id="L219">                                    tos.setLocalURI(uriAux);</span>
+<span class="nc" id="L220">                                    tos.setLastModification(lastModification);</span>
                                 }
-<span class="nc" id="L193">                            }</span>
+<span class="nc" id="L222">                            }</span>
                         }
                     }
                 }
             }
         }
-<span class="nc" id="L199">        return tos;</span>
+<span class="nc" id="L228">        return tos;</span>
     }
 
     private Map&lt;String, Map&lt;String,String&gt;&gt; getMetadata(String nodeName, String service, String tripleStore, String className) throws IOException {
-<span class="nc" id="L203">        Map&lt;String, Map&lt;String,String&gt;&gt;  metadata  = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L204">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (node!=null) {</span>
-<span class="nc" id="L206">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
-<span class="nc bnc" id="L207" title="All 2 branches missed.">            if (serv!=null) {</span>
-<span class="nc" id="L208">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">                if (type != null) {</span>
+<span class="nc" id="L232">        Map&lt;String, Map&lt;String,String&gt;&gt;  metadata  = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L233">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (node!=null) {</span>
+<span class="nc" id="L235">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">            if (serv!=null) {</span>
+<span class="nc" id="L237">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">                if (type != null) {</span>
                     // Get data
-<span class="nc" id="L211">                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());</span>
-<span class="nc" id="L212">                    String query = &quot;query=SELECT ?subject ?object\n&quot; +</span>
+<span class="nc" id="L240">                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());</span>
+<span class="nc" id="L241">                    String query = &quot;SELECT ?subject ?object\n&quot; +</span>
                             &quot;WHERE {\n&quot; +
                             &quot;?subject ?p &lt;http://www.w3.org/ns/ldp#RDFSource&gt; .\n&quot; +
                             &quot;?subject &lt;http://purl.org/dc/terms/modified&gt; ?object .\n&quot; +
-<span class="nc" id="L216">                            &quot;FILTER regex(str(?subject),\&quot;^.*/&quot;+normalizeClassName(className)+&quot;/.*\&quot;)\n&quot; +</span>
+<span class="nc" id="L245">                            &quot;FILTER regex(str(?subject),\&quot;^.*/&quot;+normalizeClassName(className)+&quot;/.*\&quot;)\n&quot; +</span>
                             &quot;}&quot;;
-<span class="nc" id="L218">                    JsonObject jResponse = doRequest(url, query);</span>
-<span class="nc bnc" id="L219" title="All 2 branches missed.">                    if (jResponse!=null) {</span>
-<span class="nc" id="L220">                        JsonArray jVarsArray = jResponse.get(&quot;head&quot;).getAsJsonObject().get(&quot;vars&quot;).getAsJsonArray();</span>
-<span class="nc" id="L221">                        String subjectVar = jVarsArray.get(0).getAsString();</span>
-<span class="nc" id="L222">                        String objectVar = jVarsArray.get(1).getAsString();</span>
-<span class="nc bnc" id="L223" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
-<span class="nc" id="L224">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
-<span class="nc" id="L225">                            JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();</span>
-<span class="nc" id="L226">                            JsonObject jObject = jItem.get(objectVar).getAsJsonObject();</span>
-<span class="nc" id="L227">                            String uri = jSubject.get(&quot;value&quot;).getAsString();</span>
-<span class="nc" id="L228">                            String[] uriChunks = uri.split(&quot;/&quot;);</span>
-<span class="nc" id="L229">                            String id = uriChunks[uriChunks.length-1];</span>
-<span class="nc" id="L230">                            Date modified = Utils.getDate(jObject.get(&quot;value&quot;).getAsString());</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">                            if (!metadata.containsKey(id))</span>
-<span class="nc" id="L232">                                metadata.put(id,new HashMap&lt;&gt;());</span>
-<span class="nc" id="L233">                            metadata.get(id).put(&quot;uri&quot;,uri);</span>
-<span class="nc" id="L234">                            metadata.get(id).put(&quot;lastModification&quot;,String.valueOf(modified.getTime()));</span>
-<span class="nc" id="L235">                        }</span>
+<span class="nc" id="L247">                    Map&lt;String,String&gt; queryParam = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L248">                    queryParam.put(&quot;nodeTimeout&quot;,String.valueOf(defaultTimeout));</span>
+<span class="nc" id="L249">                    queryParam.put(&quot;pageSize&quot;,&quot;50000&quot;);</span>
+<span class="nc" id="L250">                    queryParam.put(&quot;query&quot;,query);</span>
+<span class="nc" id="L251">                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);</span>
+
+<span class="nc bnc" id="L253" title="All 6 branches missed.">                    if (jeResponse != null &amp;&amp; !jeResponse.isJsonNull() &amp;&amp; jeResponse.isJsonObject()) {</span>
+<span class="nc" id="L254">                        JsonObject jResponse = jeResponse.getAsJsonObject();</span>
+<span class="nc" id="L255">                        JsonArray jVarsArray = jResponse.get(&quot;head&quot;).getAsJsonObject().get(&quot;vars&quot;).getAsJsonArray();</span>
+<span class="nc" id="L256">                        String subjectVar = jVarsArray.get(0).getAsString();</span>
+<span class="nc" id="L257">                        String objectVar = jVarsArray.get(1).getAsString();</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
+<span class="nc" id="L259">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
+<span class="nc" id="L260">                            JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();</span>
+<span class="nc" id="L261">                            JsonObject jObject = jItem.get(objectVar).getAsJsonObject();</span>
+<span class="nc" id="L262">                            String uri = jSubject.get(&quot;value&quot;).getAsString();</span>
+<span class="nc" id="L263">                            String[] uriChunks = uri.split(&quot;/&quot;);</span>
+<span class="nc" id="L264">                            String id = uriChunks[uriChunks.length-1];</span>
+<span class="nc" id="L265">                            Date modified = util.Utils.getDate(jObject.get(&quot;value&quot;).getAsString());</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">                            if (!metadata.containsKey(id))</span>
+<span class="nc" id="L267">                                metadata.put(id,new HashMap&lt;&gt;());</span>
+<span class="nc" id="L268">                            metadata.get(id).put(&quot;uri&quot;,uri);</span>
+<span class="nc" id="L269">                            metadata.get(id).put(&quot;lastModification&quot;,String.valueOf(modified.getTime()));</span>
+<span class="nc" id="L270">                        }</span>
                     }
                 }
             }
         }
-<span class="nc" id="L240">        return metadata;</span>
+<span class="nc" id="L275">        return metadata;</span>
     }
 
     private Map&lt;String, Map&lt;String,String&gt;&gt; getMetadataByInstance(String nodeName, String service, String tripleStore, String className, String idInstance) throws IOException {
-<span class="nc" id="L244">        Map&lt;String, Map&lt;String,String&gt;&gt;  metadata  = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L245">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
-<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (node!=null) {</span>
-<span class="nc" id="L247">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
-<span class="nc bnc" id="L248" title="All 2 branches missed.">            if (serv!=null) {</span>
-<span class="nc" id="L249">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
-<span class="nc bnc" id="L250" title="All 2 branches missed.">                if (type != null) {</span>
+<span class="nc" id="L279">        Map&lt;String, Map&lt;String,String&gt;&gt;  metadata  = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L280">        DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (node!=null) {</span>
+<span class="nc" id="L282">            DataSourceRepository.Node.Service serv = node.getServiceByName(service);</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">            if (serv!=null) {</span>
+<span class="nc" id="L284">                DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                if (type != null) {</span>
                     // Get data
-<span class="nc" id="L252">                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());</span>
-<span class="nc" id="L253">                    String query = &quot;query=SELECT ?subject ?object\n&quot; +</span>
+<span class="nc" id="L287">                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());</span>
+<span class="nc" id="L288">                    String query = &quot;SELECT ?subject ?object\n&quot; +</span>
                             &quot;WHERE {\n&quot; +
                             &quot;?subject ?p &lt;http://www.w3.org/ns/ldp#RDFSource&gt; .\n&quot; +
                             &quot;?subject &lt;http://purl.org/dc/terms/modified&gt; ?object .\n&quot; +
-                            &quot;  FILTER ((regex(str(?subject),\&quot;^.*&quot;+className+&quot;.*\&quot;)) %26%26 (regex(str(?subject),\&quot;^.*&quot;+idInstance+&quot;.*\&quot;)))\n&quot; +
+                            &quot;  FILTER ((regex(str(?subject),\&quot;^.*&quot;+className+&quot;.*\&quot;)) &amp;&amp; (regex(str(?subject),\&quot;^.*&quot;+idInstance+&quot;.*\&quot;)))\n&quot; +
                             &quot;}&quot;;
-<span class="nc" id="L259">                    JsonObject jResponse = doRequest(url, query);</span>
-<span class="nc bnc" id="L260" title="All 2 branches missed.">                    if (jResponse!=null) {</span>
-<span class="nc" id="L261">                        JsonArray jVarsArray = jResponse.get(&quot;head&quot;).getAsJsonObject().get(&quot;vars&quot;).getAsJsonArray();</span>
-<span class="nc" id="L262">                        String subjectVar = jVarsArray.get(0).getAsString();</span>
-<span class="nc" id="L263">                        String objectVar = jVarsArray.get(1).getAsString();</span>
-<span class="nc bnc" id="L264" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
-<span class="nc" id="L265">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
-<span class="nc" id="L266">                            JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();</span>
-<span class="nc" id="L267">                            JsonObject jObject = jItem.get(objectVar).getAsJsonObject();</span>
-<span class="nc" id="L268">                            String uri = jSubject.get(&quot;value&quot;).getAsString();</span>
-<span class="nc" id="L269">                            String[] uriChunks = uri.split(&quot;/&quot;);</span>
-<span class="nc" id="L270">                            String id = uriChunks[uriChunks.length-1];</span>
-<span class="nc" id="L271">                            Date modified = Utils.getDate(jObject.get(&quot;value&quot;).getAsString());</span>
-<span class="nc bnc" id="L272" title="All 2 branches missed.">                            if (!metadata.containsKey(id))</span>
-<span class="nc" id="L273">                                metadata.put(id,new HashMap&lt;&gt;());</span>
-<span class="nc" id="L274">                            metadata.get(id).put(&quot;uri&quot;,uri);</span>
-<span class="nc" id="L275">                            metadata.get(id).put(&quot;lastModification&quot;,String.valueOf(modified.getTime()));</span>
-<span class="nc" id="L276">                        }</span>
+
+<span class="nc" id="L295">                    Map&lt;String,String&gt; queryParam = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L296">                    queryParam.put(&quot;nodeTimeout&quot;,String.valueOf(defaultTimeout));</span>
+<span class="nc" id="L297">                    queryParam.put(&quot;pageSize&quot;,&quot;50000&quot;);</span>
+<span class="nc" id="L298">                    queryParam.put(&quot;query&quot;,query);</span>
+<span class="nc" id="L299">                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);</span>
+
+<span class="nc bnc" id="L301" title="All 6 branches missed.">                    if (jeResponse != null &amp;&amp; !jeResponse.isJsonNull() &amp;&amp; jeResponse.isJsonObject()) {</span>
+<span class="nc" id="L302">                        JsonObject jResponse = jeResponse.getAsJsonObject();</span>
+<span class="nc" id="L303">                        JsonArray jVarsArray = jResponse.get(&quot;head&quot;).getAsJsonObject().get(&quot;vars&quot;).getAsJsonArray();</span>
+<span class="nc" id="L304">                        String subjectVar = jVarsArray.get(0).getAsString();</span>
+<span class="nc" id="L305">                        String objectVar = jVarsArray.get(1).getAsString();</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">                        for (JsonElement jeItem : getJsonItems(jResponse)) {</span>
+<span class="nc" id="L307">                            JsonObject jItem = jeItem.getAsJsonObject();</span>
+<span class="nc" id="L308">                            JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();</span>
+<span class="nc" id="L309">                            JsonObject jObject = jItem.get(objectVar).getAsJsonObject();</span>
+<span class="nc" id="L310">                            String uri = jSubject.get(&quot;value&quot;).getAsString();</span>
+<span class="nc" id="L311">                            String[] uriChunks = uri.split(&quot;/&quot;);</span>
+<span class="nc" id="L312">                            String id = uriChunks[uriChunks.length-1];</span>
+<span class="nc" id="L313">                            Date modified = util.Utils.getDate(jObject.get(&quot;value&quot;).getAsString());</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">                            if (!metadata.containsKey(id))</span>
+<span class="nc" id="L315">                                metadata.put(id,new HashMap&lt;&gt;());</span>
+<span class="nc" id="L316">                            metadata.get(id).put(&quot;uri&quot;,uri);</span>
+<span class="nc" id="L317">                            metadata.get(id).put(&quot;lastModification&quot;,String.valueOf(modified.getTime()));</span>
+<span class="nc" id="L318">                        }</span>
                     }
                 }
             }
         }
-<span class="nc" id="L281">        return metadata;</span>
+<span class="nc" id="L323">        return metadata;</span>
     }
 
-    private JsonObject doRequest(URL url, String query) throws IOException {
-<span class="nc" id="L285">        Map&lt;String,String&gt; headers = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L286">        headers.put(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);</span>
-<span class="nc" id="L287">        headers.put(&quot;Accept&quot;, &quot;application/json&quot;);</span>
-<span class="nc" id="L288">        return httpRequestHelper.doQueryRequest(url,query, Connection.Method.GET, headers, defaultTimeout);</span>
-    }
+/*    private JsonObject doRequest(URL url, String query) throws IOException {
+        Map&lt;String,String&gt; headers = new HashMap&lt;&gt;();
+        headers.put(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);
+        headers.put(&quot;Accept&quot;, &quot;application/json&quot;);
+        return httpRequestHelper.doQueryRequest(url,query, Connection.Method.GET, headers, defaultTimeout);
+    }*/
 
     private JsonArray getJsonItems(JsonObject jResults) {
-<span class="nc bnc" id="L292" title="All 4 branches missed.">        if (jResults!=null &amp;&amp; jResults.has(&quot;results&quot;))</span>
-<span class="nc bnc" id="L293" title="All 2 branches missed.">            if (jResults.get(&quot;results&quot;).getAsJsonObject().has(&quot;bindings&quot;))</span>
-<span class="nc" id="L294">                return jResults.get(&quot;results&quot;).getAsJsonObject().get(&quot;bindings&quot;).getAsJsonArray();</span>
-<span class="nc" id="L295">        return new JsonArray();</span>
+<span class="nc bnc" id="L334" title="All 4 branches missed.">        if (jResults!=null &amp;&amp; jResults.has(&quot;results&quot;))</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">            if (jResults.get(&quot;results&quot;).getAsJsonObject().has(&quot;bindings&quot;))</span>
+<span class="nc" id="L336">                return jResults.get(&quot;results&quot;).getAsJsonObject().get(&quot;bindings&quot;).getAsJsonArray();</span>
+<span class="nc" id="L337">        return new JsonArray();</span>
     }
 
     private String normalizeClassName(String className) {
-<span class="nc" id="L299">        String [] chunkedClassName = className.split(&quot;\\-&quot;);</span>
-<span class="nc" id="L300">        String [] chunkedClassNameRegex = new String[chunkedClassName.length];</span>
-<span class="nc bnc" id="L301" title="All 2 branches missed.">        for (int i = 0; i &lt; chunkedClassName.length ; i++) {</span>
-<span class="nc" id="L302">            char first = chunkedClassName[i].charAt(0);</span>
-<span class="nc" id="L303">            chunkedClassNameRegex[i] = String.format(&quot;[%s|%s]%s&quot;,Character.toLowerCase(first),Character.toUpperCase(first),chunkedClassName[i].substring(1));</span>
+<span class="nc" id="L341">        String [] chunkedClassName = className.split(&quot;\\-&quot;);</span>
+<span class="nc" id="L342">        String [] chunkedClassNameRegex = new String[chunkedClassName.length];</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        for (int i = 0; i &lt; chunkedClassName.length ; i++) {</span>
+<span class="nc" id="L344">            char first = chunkedClassName[i].charAt(0);</span>
+<span class="nc" id="L345">            chunkedClassNameRegex[i] = String.format(&quot;[%s|%s]%s&quot;,Character.toLowerCase(first),Character.toUpperCase(first),chunkedClassName[i].substring(1));</span>
         }
-<span class="nc" id="L305">        return String.join(&quot;(\\\\-)*&quot;,chunkedClassNameRegex);</span>
+<span class="nc" id="L347">        return String.join(&quot;(\\\\-)*&quot;,chunkedClassNameRegex);</span>
     }
 
 }

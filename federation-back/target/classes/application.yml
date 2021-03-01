@@ -1,5 +1,13 @@
 ---
 app:
+  host: http://localhost
+  port: 9328
+  node: um
+  name: Federation
+  healthEndpoint: /management/health
+  tripleStores: fuseki
+  service-discovery-host: http://localhost:9329
+  trellis-host: http://localhost
   default-request-timeout: 60000
   persistence:
     datasource:
@@ -80,7 +88,7 @@ management:
     web:
       base-path: /management
   server:
-    port: 9328
+    port: ${app.port}
   health:
     mail:
       enabled: false
@@ -95,54 +103,15 @@ management:
 server:
   port: ${management.server.port}
 
-data-sources:
-  nodes:
-    - nodeName: um
-      services:
-        - name: sparql-proxy
-          baseUri: http://herc-iz-front-desa.atica.um.es
-          port: 8080
-          user:
-          password:
-          types:
-            - name: sparql
-              suffixURL: /trellis/sparql
-              user:
-              password:
-        - name: uris-factory
-          baseUri: http://localhost
-          port: 9326
-          user:
-          password:
-        - name: trellis
-          baseUri: http://herc-iz-front-desa.atica.um.es
-          port:
-          user: admin
-          password: admin
-    - nodeName: um2
-      services:
-        - name: sparql-proxy
-          baseUri: http://herc-iz-front-desa.atica.um.es
-          port: 8080
-          user:
-          password:
-          types:
-            - name: sparql
-              suffixURL: /trellis/sparql
-              user:
-              password:
-        - name: uris-factory
-          baseUri: http://localhost
-          port: 8080
-          user:
-          password:
-        - name: trellis
-          baseUri: http://herc-iz-front-desa.atica.um.es
-          port:
-          user: admin
-          password: admin
+datasource-sparql:
+  nodeName: um
+  connectors:
+    - type: fuseki
+      host: http://localhost
+      port: 3030
+      suffixURL: /trellis/query
+      queryParamName: query
 
-service-discovery-host: http://localhost:9329
 
 lod-data-sources:
   datasets:
@@ -159,14 +128,54 @@ lod-data-sources:
               identifier: true
               order: 1
               localClasses:
-                - name: Articulo
+                - name: Article
                   attributes:
                     - doi
                   mappers:
                     - remoteAttribute: "prism:doi"
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                      localAttribute: "title"
+                - name: Book
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: BookChapter
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: BookSection
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: DoctoralThesis
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: MasterThesis
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
                 - name: Documento
                   attributes:
                     - doi
@@ -174,7 +183,7 @@ lod-data-sources:
                     - remoteAttribute: "prism:doi"
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                      localAttribute: "title"
             - remoteName: SCOPUS
               remoteAttribute: TITLE-ABS-KEY
               suffixURL: search/scopus
@@ -182,25 +191,62 @@ lod-data-sources:
               removeStopWords: true
               order: 2
               localClasses:
-                - name: Articulo
+                - name: Article
                   attributes:
-                    - titulo
                     - title
-                    - name
                   mappers:
                     - remoteAttribute: "doi"
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                      localAttribute: "title"
+                - name: Book
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: BookChapter
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: BookSection
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: DoctoralThesis
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
+                - name: MasterThesis
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "prism:doi"
+                      localAttribute: "doi"
+                    - remoteAttribute: "dc:title"
+                      localAttribute: "title"
                 - name: Documento
                   attributes:
-                    - titulo
                     - title
                   mapperAttribute:
                     - remoteAttribute: "doi"
                       localAttribute: "doi"
                     - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                      localAttribute: "title"
     - name: CROSSREF
       connections:
         - connectionType: API
@@ -215,22 +261,62 @@ lod-data-sources:
               order: 1
               paramType: URI
               localClasses:
-                - name: Articulo
+                - name: Article
                   attributes:
                     - doi
                   mappers:
                     - remoteAttribute: "DOI"
                       localAttribute: "doi"
                     - remoteAttribute: "title"
-                      localAttribute: "name"
+                      localAttribute: "title"
+                - name: Book
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+                - name: BookChapter
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+                - name: BookSection
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+                - name: DoctoralThesis
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+                - name: MasterThesis
+                  attributes:
+                    - doi
+                  mappers:
+                    - remoteAttribute: "DOI"
+                      localAttribute: "doi"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
                 - name: Documento
                   attributes:
                     - doi
                   mappers:
-                    - remoteAttribute: "prism:doi"
+                    - remoteAttribute: "DOI"
                       localAttribute: "doi"
-                    - remoteAttribute: "dc:title"
-                      localAttribute: "name"
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
     - name: WIKIDATA
       connections:
         - connectionType: SPARQL
@@ -252,3 +338,135 @@ lod-data-sources:
                   mappers:
                     - remoteAttribute: "wde:P496"
                       localAttribute: "ORCID"
+    - name: ORCID
+      connections:
+        - connectionType: API
+          def: true
+          baseURL: https://pub.orcid.org/v3.0
+          apiKey:
+          mappings:
+          - remoteName: ORCID
+            remoteAttribute: "q"
+            suffixURL: /expanded-search
+            query:
+            identifier: true
+            order: 1
+            paramType: SPARQL
+            localClasses:
+              - name: Person
+                attributes:
+                  - ORCID
+                mappers:
+                  - remoteAttribute: "mOrcid"
+                    localAttribute: "ORCID"
+          - remoteName: ORCID>
+            remoteAttribute: "q"
+            suffixURL: /expanded-search
+            query:
+            identifier: false
+            order: 2
+            paramType: SPARQL
+            localClasses:
+              - name: Person
+                attributes:
+                  - name
+                  - firstName
+                  - surname
+                mappers:
+                  - remoteAttribute: "mOrcid"
+                    localAttribute: "ORCID"
+                  - remoteAttribute: "mName"
+                    localAttribute: "name"
+                  - remoteAttribute: "mFirstName"
+                    localAttribute: "firstName"
+                  - remoteAttribute: "mSurname"
+                    localAttribute: "surname"
+    - name: DOAJ
+      connections:
+        - connectionType: API
+          def: true
+          baseURL: https://doaj.org/api/v2
+          apiKey:
+          mappings:
+            - remoteName: DOAJ
+              remoteAttribute: "title:$var$"
+              suffixURL: /search/articles
+              query:
+              identifier: false
+              order: 1
+              paramType: URI
+              localClasses:
+                - name: Article
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+            - remoteName: DOAJ
+              remoteAttribute: "bibjson.eissn:$var$"
+              suffixURL: /search/journals
+              query:
+              identifier: true
+              order: 2
+              paramType: URI
+              localClasses:
+                - name: Journal
+                  attributes:
+                    - eissn
+                  mappers:
+                    - remoteAttribute: "eissn"
+                      localAttribute: "eissn"
+                - name: Magazine
+                  attributes:
+                    - eissn
+                  mappers:
+                    - remoteAttribute: "eissn"
+                      localAttribute: "eissn"
+    - name: PUBMED
+      connections:
+        - connectionType: API
+          def: true
+          baseURL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils
+          apiKey: 17425bf8f4968d2b8498e99c4ec18ce9db09
+          mappings:
+            - remoteName: PUBMED
+              remoteAttribute: "title"
+              suffixURL: /esearch.fcgi
+              query:
+              identifier: false
+              order: 1
+              paramType: QUERY
+              localClasses:
+                - name: Article
+                  attributes:
+                    - title
+                  mappers:
+                    - remoteAttribute: "title"
+                      localAttribute: "title"
+    - name: DBLP
+      connections:
+        - connectionType: API
+          def: true
+          baseURL: https://dblp.org
+          apiKey:
+          mappings:
+            - remoteName: DBLP
+              remoteAttribute: "q"
+              suffixURL: /search/author/api
+              query:
+              identifier: true
+              order: 1
+              paramType: SPARQL
+              localClasses:
+                - name: Person
+                  attributes:
+                    - name
+                    - firstName
+                    - surname
+                  mappers:
+                    - remoteAttribute: "name"
+                      localAttribute: "name"
+                    - remoteAttribute: "firstName"
+                      localAttribute: "firstName"
+                    - remoteAttribute: "surname"
+                      localAttribute: "surname"

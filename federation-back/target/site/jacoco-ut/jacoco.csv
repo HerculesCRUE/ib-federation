@@ -2,11 +2,12 @@ GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_
 Archetype - Java JPA Rest API - Back,es.um.asio.back.config.properties,CorsProperties,60,0,0,0,10,0,12,0,12,0
 Archetype - Java JPA Rest API - Back,es.um.asio.back.solr,SolrBackConfig,3,0,0,0,1,0,1,0,1,0
 Archetype - Java JPA Rest API - Back,es.um.asio.back.controller.datafetcher,DataFetcherController,27,0,0,0,4,0,4,0,4,0
-Archetype - Java JPA Rest API - Back,es.um.asio.back.controller.federation,FederationController,66,0,6,0,8,0,6,0,3,0
-Archetype - Java JPA Rest API - Back,es.um.asio.back,Application,8,0,0,0,3,0,2,0,2,0
+Archetype - Java JPA Rest API - Back,es.um.asio.back.controller.federation,FederationController,76,0,6,0,10,0,6,0,3,0
+Archetype - Java JPA Rest API - Back,es.um.asio.back,Application,13,0,0,0,5,0,3,0,3,0
 Archetype - Java JPA Rest API - Back,es.um.asio.back.config,SwaggerConfig,42,0,0,0,16,0,3,0,3,0
 Archetype - Java JPA Rest API - Back,es.um.asio.back.config,WebMvcConfig,29,0,0,0,8,0,2,0,2,0
 Archetype - Java JPA Rest API - Back,es.um.asio.back.controller.security,UserController,14,54,2,0,3,12,2,9,1,9
 Archetype - Java JPA Rest API - Back,es.um.asio.back.filter,SimpleCORSFilter,96,0,14,0,22,0,9,0,2,0
-Archetype - Java JPA Rest API - Back,es.um.asio.back.controller.lod,LODSearchController,34,0,0,0,7,0,2,0,2,0
+Archetype - Java JPA Rest API - Back,es.um.asio.back.controller.endpointSPARL,EndPointSPARQL,53,0,4,0,5,0,5,0,3,0
+Archetype - Java JPA Rest API - Back,es.um.asio.back.controller.lod,LODSearchController,32,0,0,0,6,0,2,0,2,0
 Archetype - Java JPA Rest API - Back,es.um.asio.back.solr.controller,IndexController,12,0,0,0,5,0,3,0,3,0

@@ -42,10 +42,10 @@ import java.util.Set;
     public Set&lt;String&gt; getAllObjects(
         @ApiParam(name = &quot;node&quot;, value = &quot;Node of data&quot;, defaultValue = &quot;um&quot;, required = true)
         @RequestParam(required = true, defaultValue = &quot;um&quot;) @Validated(Create.class) final String node,
-        @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;sparql-proxy&quot;, required = true)
-        @RequestParam(required = true, defaultValue = &quot;sparql-proxy&quot;) @Validated(Create.class) final String endpointSPARQService,
-        @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;sparql&quot;, required = true)
-        @RequestParam(required = true, defaultValue = &quot;sparql&quot;) @Validated(Create.class) final String tripleStore
+        @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;Federation&quot;, required = true)
+        @RequestParam(required = true, defaultValue = &quot;Federation&quot;) @Validated(Create.class) final String endpointSPARQService,
+        @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;fuseki&quot;, required = true)
+        @RequestParam(required = true, defaultValue = &quot;fuseki&quot;) @Validated(Create.class) final String tripleStore
     ) throws URISyntaxException, IOException {
 <span class="nc" id="L50">        return dataFetcherService.getObjectsUris(</span>
                 node,endpointSPARQService,tripleStore
@@ -57,10 +57,10 @@ import java.util.Set;
     public Set&lt;TripleObjectSimplified&gt; getAllInstances(
             @ApiParam(name = &quot;node&quot;, value = &quot;Node of data&quot;, defaultValue = &quot;um&quot;, required = true)
             @RequestParam(required = true, defaultValue = &quot;um&quot;) @Validated(Create.class) final String node,
-            @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;sparql-proxy&quot;, required = true)
-            @RequestParam(required = true, defaultValue = &quot;sparql-proxy&quot;) @Validated(Create.class) final String endpointSPARQService,
-            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;sparql&quot;, required = true)
-            @RequestParam(required = true, defaultValue = &quot;sparql&quot;) @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;Federation&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;Federation&quot;) @Validated(Create.class) final String endpointSPARQService,
+            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;fuseki&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;fuseki&quot;) @Validated(Create.class) final String tripleStore,
             @ApiParam(name = &quot;className&quot;, value = &quot;The class of instances&quot;, required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className
     ) throws URISyntaxException, IOException {
@@ -74,10 +74,10 @@ import java.util.Set;
     public TripleObjectSimplified getFindInstanceByURI(
             @ApiParam(name = &quot;node&quot;, value = &quot;Node of data&quot;, defaultValue = &quot;um&quot;, required = true)
             @RequestParam(required = true, defaultValue = &quot;um&quot;) @Validated(Create.class) final String node,
-            @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;sparql-proxy&quot;, required = true)
-            @RequestParam(required = true, defaultValue = &quot;sparql-proxy&quot;) @Validated(Create.class) final String endpointSPARQService,
-            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;sparql&quot;, required = true)
-            @RequestParam(required = true, defaultValue = &quot;sparql&quot;) @Validated(Create.class) final String tripleStore,
+            @ApiParam(name = &quot;service&quot;, value = &quot;Service of SPARQL&quot;, defaultValue = &quot;Federation&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;Federation&quot;) @Validated(Create.class) final String endpointSPARQService,
+            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;fuseki&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;fuseki&quot;) @Validated(Create.class) final String tripleStore,
             @ApiParam(name = &quot;className&quot;, value = &quot;The class of instances&quot;, required = true)
             @RequestParam(required = true) @Validated(Create.class) final String className,
             @ApiParam(name = &quot;uri&quot;, value = &quot;URI of subject&quot;, required = true)

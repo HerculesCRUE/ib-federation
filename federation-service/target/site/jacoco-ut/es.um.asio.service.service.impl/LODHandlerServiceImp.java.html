@@ -3,17 +3,18 @@
 import es.um.asio.service.config.LodDataSet;
 import es.um.asio.service.model.TripleObjectLink;
 import es.um.asio.service.model.TripleObjectSimplified;
-import es.um.asio.service.repository.lod.connectors.LODHandler;
-import es.um.asio.service.repository.lod.connectors.SCOPUSHandler;
+import es.um.asio.service.repository.lod.connectors.*;
 import es.um.asio.service.service.LODHandlerService;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-<span class="nc" id="L16">public class LODHandlerServiceImp implements LODHandlerService {</span>
+<span class="nc" id="L17">public class LODHandlerServiceImp implements LODHandlerService {</span>
 
     @Autowired
     LodDataSet lds;
@@ -21,48 +22,57 @@ import java.util.*;
     @Autowired
     TextHandlerServiceImp textHandlerService;
 
+<span class="nc" id="L25">    private final Logger logger = LoggerFactory.getLogger(LODHandlerServiceImp.class);</span>
+
     @Override
     public Set&lt;TripleObjectLink&gt; findLinksInHandlers(List&lt;String&gt; dataSets, TripleObjectSimplified tos) {
-<span class="nc" id="L26">        Set&lt;TripleObjectLink&gt; results = new HashSet&lt;&gt;();</span>
-<span class="nc bnc" id="L27" title="All 2 branches missed.">        for (String dataset : dataSets) {</span>
-<span class="nc" id="L28">            Optional&lt;LodDataSet.Dataset&gt; ods = lds.getDatasetByName(dataset);</span>
-<span class="nc bnc" id="L29" title="All 2 branches missed.">            if (ods.get()!=null) { // Si contiene datos</span>
-<span class="nc" id="L30">                DatasetEnum dse = DatasetEnum.findByName(dataset);</span>
+<span class="nc" id="L29">        Set&lt;TripleObjectLink&gt; results = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        for (String dataset : dataSets) {</span>
+<span class="nc" id="L31">            Optional&lt;LodDataSet.Dataset&gt; ods = lds.getDatasetByName(dataset);</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">            if (ods.get()!=null) { // Si contiene datos</span>
+<span class="nc" id="L33">                DatasetEnum dse = DatasetEnum.findByName(dataset);</span>
                 try {
-<span class="nc" id="L32">                    LodDataSet.Dataset pds = ods.get().getPrunedDatasetByClassName(tos.getClassName());</span>
-<span class="nc bnc" id="L33" title="All 4 branches missed.">                    if (dse != null &amp;&amp; pds.getConnections().size() &gt; 0) {</span>
-<span class="nc" id="L34">                        LODHandler handler = dse.getHandler();</span>
-<span class="nc" id="L35">                        results = handler.findLink(tos, pds,textHandlerService);</span>
-<span class="nc" id="L36">                        return results;</span>
+<span class="nc" id="L35">                    LodDataSet.Dataset pds = ods.get().getPrunedDatasetByClassName(tos.getClassName());</span>
+<span class="nc bnc" id="L36" title="All 4 branches missed.">                    if (dse != null &amp;&amp; pds.getConnections().size() &gt; 0) {</span>
+<span class="nc" id="L37">                        LODHandler handler = dse.getHandler();</span>
+<span class="nc" id="L38">                        Set&lt;TripleObjectLink&gt; resultsAux = handler.findLink(tos, pds,textHandlerService);</span>
+<span class="nc" id="L39">                        results.addAll(resultsAux);</span>
+<span class="nc" id="L40">                        logger.info(&quot;In dataset {} for Class {} --&gt; found {} similarities objects for TripleObject with id {}&quot;,dse.getName(),tos.getClassName(),results.size(),tos.getId());</span>
                     }
-<span class="nc" id="L38">                } catch (Exception e) {</span>
-<span class="nc" id="L39">                    e.printStackTrace();</span>
-<span class="nc" id="L40">                    System.out.println();</span>
-<span class="nc" id="L41">                }</span>
+<span class="nc" id="L42">                } catch (Exception e) {</span>
+<span class="nc" id="L43">                    e.printStackTrace();</span>
+<span class="nc" id="L44">                }</span>
 
             }
-<span class="nc" id="L44">        }</span>
-<span class="nc" id="L45">        return results;</span>
+<span class="nc" id="L47">        }</span>
+<span class="nc" id="L48">        logger.info(&quot;Founds {} similarities objects for TripleObject with id {}&quot;,results.size(),tos.getId());</span>
+<span class="nc" id="L49">        return results;</span>
     }
 
-<span class="nc" id="L48">    @Getter</span>
+<span class="nc" id="L52">    @Getter</span>
     public enum DatasetEnum {
-<span class="nc" id="L50">        SCOPUS(&quot;SCOPUS&quot;, new SCOPUSHandler());</span>
+<span class="nc" id="L54">        SCOPUS(&quot;SCOPUS&quot;, new SCOPUSHandler()),</span>
+<span class="nc" id="L55">        CROSSREF(&quot;CROSSREF&quot;, new CrossRefHandler()),</span>
+<span class="nc" id="L56">        WIKIDATA(&quot;WIKIDATA&quot;, new WikidataHandler()),</span>
+<span class="nc" id="L57">        ORCID(&quot;ORCID&quot;, new ORCIDHandler()),</span>
+<span class="nc" id="L58">        DOAJ(&quot;DOAJ&quot;, new DOAJHandler()),</span>
+<span class="nc" id="L59">        PUBMED(&quot;PUBMED&quot;, new PubMedHandler()),</span>
+<span class="nc" id="L60">        DBLP(&quot;DBLP&quot;, new DBLPHandler());</span>
 
-<span class="nc" id="L52">        private String name;</span>
-<span class="nc" id="L53">        private LODHandler handler;</span>
+<span class="nc" id="L62">        private String name;</span>
+<span class="nc" id="L63">        private LODHandler handler;</span>
 
-<span class="nc" id="L55">        DatasetEnum(String name, LODHandler handler) {</span>
-<span class="nc" id="L56">            this.name = name;</span>
-<span class="nc" id="L57">            this.handler = handler;</span>
-<span class="nc" id="L58">        }</span>
+<span class="nc" id="L65">        DatasetEnum(String name, LODHandler handler) {</span>
+<span class="nc" id="L66">            this.name = name;</span>
+<span class="nc" id="L67">            this.handler = handler;</span>
+<span class="nc" id="L68">        }</span>
 
         public static DatasetEnum findByName(String name) {
-<span class="nc bnc" id="L61" title="All 2 branches missed.">            for (DatasetEnum dse : DatasetEnum.values()) {</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">                if(dse.getName().equals(name))</span>
-<span class="nc" id="L63">                    return dse;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            for (DatasetEnum dse : DatasetEnum.values()) {</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                if(dse.getName().toUpperCase().equals(name))</span>
+<span class="nc" id="L73">                    return dse;</span>
             }
-<span class="nc" id="L65">            return null;</span>
+<span class="nc" id="L75">            return null;</span>
         }
 
     }

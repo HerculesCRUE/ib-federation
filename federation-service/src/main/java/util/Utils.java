@@ -9,11 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.joda.time.DateTime;
 
 public class Utils {
 
@@ -181,22 +183,30 @@ public class Utils {
     }
 
     public static boolean isDate(String s) {
+
+
         String regex = "[0-9]{2,4}(/|-|\\.)[0-9]{2,4}(/|-|\\.)[0-9]{2,4}((\\s|T)[0-5][0-9]:[0-5][0-9]:[0-5][0-9](Z|\\.[0-9]||\\.[0-9]{2,3})?)?";
         return s.matches(regex);
     }
 
     public static Date getDate(String s) {
-        for (Locale l : locales) {
-            for (String f: dateFormats) {
-                DateFormat sdf = new SimpleDateFormat(f,l);
-                try {
-                    return sdf.parse(s);
-                } catch (Exception e) {
-                    continue;
+        try {
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            Date d = formatter.parse(s);
+            return d;
+        } catch (Exception e) {
+            for (Locale l : locales) {
+                for (String f: dateFormats) {
+                    DateFormat sdf = new SimpleDateFormat(f,l);
+                    try {
+                        return sdf.parse(s);
+                    } catch (Exception e2) {
+                        continue;
+                    }
                 }
             }
+            return null;
         }
-        return null;
     }
 
     public static boolean isObject(String s) {

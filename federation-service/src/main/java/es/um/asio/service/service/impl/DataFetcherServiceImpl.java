@@ -12,11 +12,11 @@ import es.um.asio.service.service.DataFetcherService;
 import es.um.asio.service.service.HttpRequestHelper;
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.service.ServiceDiscoveryService;
+import es.um.asio.service.util.Utils;
 import org.jsoup.Connection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import util.Utils;
 
 
 import java.io.BufferedReader;
@@ -50,6 +50,9 @@ public class DataFetcherServiceImpl implements DataFetcherService {
     @Value("${app.default-request-timeout}")
     Integer defaultTimeout;
 
+    @Value("${app.trellis-host}")
+    String trellisHost;
+
     @Override
     public Set<String> getObjectsUris(String nodeName, String service, String tripleStore) throws IOException {
         Set<String> objects = new HashSet<>();
@@ -59,19 +62,27 @@ public class DataFetcherServiceImpl implements DataFetcherService {
             if (serv!=null) {
                 DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);
                 if (type != null) {
-                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());
-                    String query = "query=SELECT DISTINCT ?object " +
+                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
+                    String query = "SELECT DISTINCT ?object " +
                             "WHERE { " +
                             "?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  ?object . " +
                             " FILTER regex(str(?object),\"^http://hercules.org/um/*/*/\")" +
                             "}";
-                    JsonObject jResponse = doRequest(url, query);
-                    for (JsonElement jeItem : getJsonItems(jResponse)) {
-                        JsonObject jItem = jeItem.getAsJsonObject();
-                        if (jItem.has("object")) {
-                            JsonObject jObject = jItem.get("object").getAsJsonObject();
-                            if (jObject.has("value")) {
-                                objects.add(jObject.get("value").getAsString());
+                    Map<String,String> queryParam = new HashMap<>();
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
+                    queryParam.put("query",query);
+                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
+
+                    if (jeResponse != null && !jeResponse.isJsonNull() && jeResponse.isJsonObject()) {
+                        JsonObject jResponse = jeResponse.getAsJsonObject();
+                        for (JsonElement jeItem : getJsonItems(jResponse)) {
+                            JsonObject jItem = jeItem.getAsJsonObject();
+                            if (jItem.has("object")) {
+                                JsonObject jObject = jItem.get("object").getAsJsonObject();
+                                if (jObject.has("value")) {
+                                    objects.add(jObject.get("value").getAsString());
+                                }
                             }
                         }
                     }
@@ -93,11 +104,19 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                 DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);
                 if (type != null) {
                     // Get data
-                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());
-                    String query = "query=SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\"^http[s]*://.*/"+normalizeClassName(className)+"/.*\" )) %26%26 ( ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ) }";
+                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
+                    String query = "SELECT ?s ?p ?o WHERE { ?s ?p  ?o . FILTER ( ( regex(str(?s),\"^http[s]*://.*/"+normalizeClassName(className)+"/.*\" ))  && ( regex(str(?s),\"^http[s]*://.*/rec/.*\" ))&& ( ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ) }";
                     String s = normalizeClassName(className);
-                    JsonObject jResponse = doRequest(url, query);
-                    if (jResponse!=null) {
+
+                    Map<String,String> queryParam = new HashMap<>();
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
+                    queryParam.put("query",query);
+                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
+
+
+                    if (jeResponse != null && !jeResponse.isJsonNull() && jeResponse.isJsonObject()) {
+                        JsonObject jResponse = jeResponse.getAsJsonObject();
                         JsonArray jVarsArray = jResponse.get("head").getAsJsonObject().get("vars").getAsJsonArray();
                         String subjectVar = jVarsArray.get(0).getAsString();
                         String predicateVar = jVarsArray.get(1).getAsString();
@@ -126,13 +145,15 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                     for (Map.Entry<String, Map<String, String>> mdEntry : metadata.entrySet()) {
                         String id = mdEntry.getKey();
                         String uri = String.valueOf(mdEntry.getValue().get("uri"));
-                        if (uri.contains("trellis:data") && serviceTrellis !=null) {
+                        if (uri.contains("trellis:data") && trellisHost !=null) {
                             uri = uri.replace("trellis:data",serviceTrellis.buildBaseURL());
                         }
                         Long lastModification = Long.valueOf(mdEntry.getValue().get("lastModification"));
                         TripleObjectSimplified tos = objects.get(id);
-                        tos.setLocalURI(uri);
-                        tos.setLastModification(lastModification);
+                        if (tos!=null) {
+                            tos.setLocalURI(uri);
+                            tos.setLastModification(lastModification);
+                        }
                     }
                 }
             }
@@ -151,10 +172,18 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                 DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);
                 if (type != null) {
                     // Get data
-                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());
-                    String query = "query=SELECT ?subject ?predicate ?object WHERE { ?subject ?predicate ?object . FILTER regex(str(?subject),\""+uri+"\") }";
-                    JsonObject jResponse = doRequest(url, query);
-                    if (jResponse!=null) {
+                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
+                    String query = "SELECT ?subject ?predicate ?object WHERE { ?subject ?predicate ?object . FILTER regex(str(?subject),\""+uri+"\") }";
+
+                    Map<String,String> queryParam = new HashMap<>();
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
+                    queryParam.put("query",query);
+                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
+
+
+                    if (jeResponse != null && !jeResponse.isJsonNull() && jeResponse.isJsonObject()) {
+                        JsonObject jResponse = jeResponse.getAsJsonObject();
                         JsonArray jVarsArray = jResponse.get("head").getAsJsonObject().get("vars").getAsJsonArray();
                         String subjectVar = jVarsArray.get(0).getAsString();
                         String predicateVar = jVarsArray.get(1).getAsString();
@@ -208,15 +237,21 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                 DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);
                 if (type != null) {
                     // Get data
-                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());
-                    String query = "query=SELECT ?subject ?object\n" +
+                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
+                    String query = "SELECT ?subject ?object\n" +
                             "WHERE {\n" +
                             "?subject ?p <http://www.w3.org/ns/ldp#RDFSource> .\n" +
                             "?subject <http://purl.org/dc/terms/modified> ?object .\n" +
                             "FILTER regex(str(?subject),\"^.*/"+normalizeClassName(className)+"/.*\")\n" +
                             "}";
-                    JsonObject jResponse = doRequest(url, query);
-                    if (jResponse!=null) {
+                    Map<String,String> queryParam = new HashMap<>();
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
+                    queryParam.put("query",query);
+                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
+
+                    if (jeResponse != null && !jeResponse.isJsonNull() && jeResponse.isJsonObject()) {
+                        JsonObject jResponse = jeResponse.getAsJsonObject();
                         JsonArray jVarsArray = jResponse.get("head").getAsJsonObject().get("vars").getAsJsonArray();
                         String subjectVar = jVarsArray.get(0).getAsString();
                         String objectVar = jVarsArray.get(1).getAsString();
@@ -227,7 +262,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                             String uri = jSubject.get("value").getAsString();
                             String[] uriChunks = uri.split("/");
                             String id = uriChunks[uriChunks.length-1];
-                            Date modified = Utils.getDate(jObject.get("value").getAsString());
+                            Date modified = util.Utils.getDate(jObject.get("value").getAsString());
                             if (!metadata.containsKey(id))
                                 metadata.put(id,new HashMap<>());
                             metadata.get(id).put("uri",uri);
@@ -249,15 +284,22 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                 DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);
                 if (type != null) {
                     // Get data
-                    URL url = new URL(serv.buildBaseURL() + type.getSuffixURL());
-                    String query = "query=SELECT ?subject ?object\n" +
+                    URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
+                    String query = "SELECT ?subject ?object\n" +
                             "WHERE {\n" +
                             "?subject ?p <http://www.w3.org/ns/ldp#RDFSource> .\n" +
                             "?subject <http://purl.org/dc/terms/modified> ?object .\n" +
-                            "  FILTER ((regex(str(?subject),\"^.*"+className+".*\")) %26%26 (regex(str(?subject),\"^.*"+idInstance+".*\")))\n" +
+                            "  FILTER ((regex(str(?subject),\"^.*"+className+".*\")) && (regex(str(?subject),\"^.*"+idInstance+".*\")))\n" +
                             "}";
-                    JsonObject jResponse = doRequest(url, query);
-                    if (jResponse!=null) {
+
+                    Map<String,String> queryParam = new HashMap<>();
+                    queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
+                    queryParam.put("pageSize","50000");
+                    queryParam.put("query",query);
+                    JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
+
+                    if (jeResponse != null && !jeResponse.isJsonNull() && jeResponse.isJsonObject()) {
+                        JsonObject jResponse = jeResponse.getAsJsonObject();
                         JsonArray jVarsArray = jResponse.get("head").getAsJsonObject().get("vars").getAsJsonArray();
                         String subjectVar = jVarsArray.get(0).getAsString();
                         String objectVar = jVarsArray.get(1).getAsString();
@@ -268,7 +310,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                             String uri = jSubject.get("value").getAsString();
                             String[] uriChunks = uri.split("/");
                             String id = uriChunks[uriChunks.length-1];
-                            Date modified = Utils.getDate(jObject.get("value").getAsString());
+                            Date modified = util.Utils.getDate(jObject.get("value").getAsString());
                             if (!metadata.containsKey(id))
                                 metadata.put(id,new HashMap<>());
                             metadata.get(id).put("uri",uri);
@@ -281,12 +323,12 @@ public class DataFetcherServiceImpl implements DataFetcherService {
         return metadata;
     }
 
-    private JsonObject doRequest(URL url, String query) throws IOException {
+/*    private JsonObject doRequest(URL url, String query) throws IOException {
         Map<String,String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         headers.put("Accept", "application/json");
         return httpRequestHelper.doQueryRequest(url,query, Connection.Method.GET, headers, defaultTimeout);
-    }
+    }*/
 
     private JsonArray getJsonItems(JsonObject jResults) {
         if (jResults!=null && jResults.has("results"))

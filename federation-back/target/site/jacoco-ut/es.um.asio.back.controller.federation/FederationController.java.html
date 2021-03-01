@@ -36,8 +36,9 @@ import java.util.List;
     @PostMapping(Mappings.ALL)
     @ApiOperation(&quot;Execute federate SPARQL query in all nodes registered&quot;)
     public String executeQueryInAllNodes(
-            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;sparql&quot;, required = true)
-            @RequestParam(required = true, defaultValue = &quot;sparql&quot;) @Validated(Create.class) final String tripleStore,
+            @RequestHeader( value = &quot;Authorization&quot;, required = false) final String authorization,
+            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;fuseki&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;fuseki&quot;) @Validated(Create.class) final String tripleStore,
             @ApiParam(name = &quot;nodeTimeout&quot;, value = &quot;Node Timeout&quot;, defaultValue = &quot;60000&quot;, required = false)
             @RequestParam(required = false) final String nodeTimeout,
             @ApiParam(name = &quot;pageSize&quot;, value = &quot;pageSize&quot;, defaultValue = &quot;1000&quot;, required = false)
@@ -45,15 +46,17 @@ import java.util.List;
             @ApiParam(name = &quot;query&quot;, value = &quot;Query to execute in nodes&quot;, required = true)
             @RequestParam(required = true, defaultValue = &quot;SELECT ?a ?b ?c WHERE {?a ?b ?c}&quot;) final String query
     ) throws IOException, URISyntaxException, JSONException {
-<span class="nc bnc" id="L48" title="All 2 branches missed.">        JsonObject jResponse = federationService.executeQueryInAllNodes(query,tripleStore,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );</span>
-<span class="nc" id="L49">        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);</span>
+<span class="nc" id="L49">        Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        JsonObject jResponse = federationService.executeQueryInAllNodes(authorization,query,tripleStore,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout), limit);</span>
+<span class="nc" id="L51">        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);</span>
     }
 
     @PostMapping(Mappings.NODES_LIST)
     @ApiOperation(&quot;Execute federate SPARQL query in nodes of list in param nodeList (coma separated)&quot;)
     public String executeQueryInNodesList(
-            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;sparql&quot;, required = true)
-            @RequestParam(required = true, defaultValue = &quot;sparql&quot;) @Validated(Create.class) final String tripleStore,
+            @RequestHeader( value = &quot;Authorization&quot;, required = false) final String authorization,
+            @ApiParam(name = &quot;tripleStore&quot;, value = &quot;Triple Store of data&quot;, defaultValue = &quot;fuseki&quot;, required = true)
+            @RequestParam(required = true, defaultValue = &quot;fuseki&quot;) @Validated(Create.class) final String tripleStore,
             @ApiParam(name = &quot;nodeTimeout&quot;, value = &quot;Node Timeout&quot;, defaultValue = &quot;60000&quot;, required = false)
             @RequestParam(required = false) final String nodeTimeout,
             @ApiParam(name = &quot;pageSize&quot;, value = &quot;pageSize&quot;, defaultValue = &quot;1000&quot;, required = false, type = &quot;Integer&quot;)
@@ -63,13 +66,13 @@ import java.util.List;
             @ApiParam(name = &quot;query&quot;, value = &quot;Query to execute in nodes&quot;, required = true)
             @RequestParam(required = true, defaultValue = &quot;SELECT ?a ?b ?c WHERE {?a ?b ?c}&quot;) final String query
     ) throws IOException, URISyntaxException, JSONException {
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (!Utils.isValidString(nodeList)) {</span>
-<span class="nc" id="L67">            throw new CustomFederationException(&quot;nodes list can not be null&quot;);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (!Utils.isValidString(nodeList)) {</span>
+<span class="nc" id="L70">            throw new CustomFederationException(&quot;nodes list can not be null&quot;);</span>
         }
-<span class="nc" id="L69">        List&lt;String&gt; nodes = Arrays.asList(nodeList.replaceAll(&quot; &quot;,&quot;&quot;).split(&quot;,&quot;));</span>
-
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        JsonObject jResponse = federationService.executeQueryInNodesList(query,tripleStore,nodes,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );</span>
-<span class="nc" id="L72">        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);</span>
+<span class="nc" id="L72">        List&lt;String&gt; nodes = Arrays.asList(nodeList.replaceAll(&quot; &quot;,&quot;&quot;).split(&quot;,&quot;));</span>
+<span class="nc" id="L73">        Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        JsonObject jResponse = federationService.executeQueryInNodesList(authorization,query,tripleStore,nodes,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout),limit );</span>
+<span class="nc" id="L75">        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);</span>
     }
 
     /**

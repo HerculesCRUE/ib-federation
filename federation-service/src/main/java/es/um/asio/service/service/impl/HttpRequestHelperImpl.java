@@ -42,6 +42,7 @@ public class HttpRequestHelperImpl implements HttpRequestHelper {
                 response.append(responseLine.trim());
             }
         }
+        con.disconnect();
         JsonObject jResponse = new Gson().fromJson(response.toString(), JsonObject.class);
         return jResponse;
     }

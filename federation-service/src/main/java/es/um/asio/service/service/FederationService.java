@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface FederationService {
 
-    public JsonObject executeQueryInNodesList(String query, String tripleStore,List<String> nodeList, Integer pageSize, Integer nodeTimeout) throws URISyntaxException, IOException;
+    public JsonObject executeQueryInNodesList(String authorization, String query, String tripleStore,List<String> nodeList, Integer pageSize, Integer nodeTimeout, Integer limit) throws URISyntaxException, IOException;
 
-    JsonObject executeQueryInAllNodes(String query, String tripleStore, Integer pageSize, Integer nodeTimeout) throws URISyntaxException, IOException;
+    JsonObject executeQueryInAllNodes(String authorization, String query, String tripleStore, Integer pageSize, Integer nodeTimeout, Integer limit) throws URISyntaxException, IOException;
 }

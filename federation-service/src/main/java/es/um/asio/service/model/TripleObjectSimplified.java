@@ -84,9 +84,13 @@ public class TripleObjectSimplified {
     }
 
     public void addAttribute(String key, String value) {
-        if (key.equals("id")) {
-            key = "localId";
+        try {
+            if (key.equals("id")) {
+                key = "localId";
+            }
+            attributes.put(key, Utils.isValidString(value)?value:null);
+        } catch (Exception e ) {
+            System.out.println();
         }
-        attributes.put(key, Utils.isValidString(value)?value:null);
     }
 }

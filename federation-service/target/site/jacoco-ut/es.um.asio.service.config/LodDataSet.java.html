@@ -207,77 +207,91 @@ public class LodDataSet implements Cloneable{
 <span class="nc" id="L207">                private String remoteName;</span>
 <span class="nc" id="L208">                private String remoteAttribute;</span>
 <span class="nc" id="L209">                private String suffixURL;</span>
-<span class="nc" id="L210">                private boolean identifier;</span>
-<span class="nc" id="L211">                private boolean removeStopWords = false;</span>
-<span class="nc" id="L212">                private int order;</span>
-<span class="nc" id="L213">                private List&lt;LocalClass&gt; localClasses = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L210">                private String query;</span>
+<span class="nc" id="L211">                private boolean identifier;</span>
+<span class="nc" id="L212">                private boolean removeStopWords = false;</span>
+<span class="nc" id="L213">                private int order;</span>
+<span class="nc" id="L214">                private ParamType paramType;</span>
+<span class="nc" id="L215">                private List&lt;LocalClass&gt; localClasses = new ArrayList&lt;&gt;();</span>
+
+                public void setParamType(String paramType) {
+<span class="nc" id="L218">                    this.paramType = ParamType.valueOf(paramType);</span>
+<span class="nc" id="L219">                }</span>
 
                 public Optional&lt;LocalClass&gt; getLocalClassByName(String localClassName) {
-<span class="nc" id="L216">                    LocalClass localClass = null;</span>
-<span class="nc bnc" id="L217" title="All 2 branches missed.">                    for (LocalClass lc : localClasses) {</span>
-<span class="nc bnc" id="L218" title="All 2 branches missed.">                        if (lc.getName().equalsIgnoreCase(localClassName)) {</span>
-<span class="nc" id="L219">                            localClass = lc;</span>
-<span class="nc" id="L220">                            break;</span>
+<span class="nc" id="L222">                    LocalClass localClass = null;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">                    for (LocalClass lc : localClasses) {</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">                        if (lc.getName().equalsIgnoreCase(localClassName)) {</span>
+<span class="nc" id="L225">                            localClass = lc;</span>
+<span class="nc" id="L226">                            break;</span>
                         }
-<span class="nc" id="L222">                    }</span>
-<span class="nc" id="L223">                    return Optional.ofNullable(localClass);</span>
+<span class="nc" id="L228">                    }</span>
+<span class="nc" id="L229">                    return Optional.ofNullable(localClass);</span>
                 }
 
 
                 @Override
                 public Object clone() throws CloneNotSupportedException {
-<span class="nc" id="L229">                    Mapping mapping = new Mapping();</span>
-<span class="nc" id="L230">                    mapping.remoteName = getRemoteName();</span>
-<span class="nc" id="L231">                    mapping.remoteAttribute = getRemoteAttribute();</span>
-<span class="nc" id="L232">                    mapping.suffixURL = getSuffixURL();</span>
-<span class="nc" id="L233">                    mapping.identifier = identifier;</span>
-<span class="nc" id="L234">                    mapping.removeStopWords = removeStopWords;</span>
-<span class="nc" id="L235">                    mapping.order = order;</span>
-<span class="nc" id="L236">                    mapping.localClasses = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L237" title="All 2 branches missed.">                    for ( LocalClass lc : getLocalClasses()) {</span>
-<span class="nc" id="L238">                        mapping.localClasses.add((LocalClass) lc.clone());</span>
-<span class="nc" id="L239">                    }</span>
-<span class="nc" id="L240">                    return mapping;</span>
+<span class="nc" id="L235">                    Mapping mapping = new Mapping();</span>
+<span class="nc" id="L236">                    mapping.remoteName = getRemoteName();</span>
+<span class="nc" id="L237">                    mapping.remoteAttribute = getRemoteAttribute();</span>
+<span class="nc" id="L238">                    mapping.suffixURL = getSuffixURL();</span>
+<span class="nc" id="L239">                    mapping.query = getQuery();</span>
+<span class="nc" id="L240">                    mapping.identifier = identifier;</span>
+<span class="nc" id="L241">                    mapping.removeStopWords = removeStopWords;</span>
+<span class="nc" id="L242">                    mapping.order = order;</span>
+<span class="nc" id="L243">                    mapping.paramType = paramType;</span>
+<span class="nc" id="L244">                    mapping.localClasses = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                    for ( LocalClass lc : getLocalClasses()) {</span>
+<span class="nc" id="L246">                        mapping.localClasses.add((LocalClass) lc.clone());</span>
+<span class="nc" id="L247">                    }</span>
+<span class="nc" id="L248">                    return mapping;</span>
                 }
 
-<span class="nc" id="L243">                @AllArgsConstructor</span>
-<span class="nc" id="L244">                @NoArgsConstructor</span>
+<span class="nc" id="L251">                @AllArgsConstructor</span>
                 @Getter
-<span class="nc" id="L246">                @Setter</span>
+                public static enum ParamType implements Cloneable{
+<span class="nc" id="L254">                    URI,QUERY,SPARQL</span>
+                }
+
+<span class="nc" id="L257">                @AllArgsConstructor</span>
+<span class="nc" id="L258">                @NoArgsConstructor</span>
+                @Getter
+<span class="nc" id="L260">                @Setter</span>
                 public static class LocalClass implements Cloneable{
-<span class="nc" id="L248">                    private String name;</span>
-<span class="nc" id="L249">                    private List&lt;String&gt; attributes = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L250">                    private List&lt;Mapper&gt; mappers = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L262">                    private String name;</span>
+<span class="nc" id="L263">                    private List&lt;String&gt; attributes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L264">                    private List&lt;Mapper&gt; mappers = new ArrayList&lt;&gt;();</span>
 
                     @Override
                     public Object clone() throws CloneNotSupportedException {
-<span class="nc" id="L254">                        LocalClass localClass = new LocalClass();</span>
-<span class="nc" id="L255">                        localClass.name = getName();</span>
-<span class="nc" id="L256">                        localClass.attributes = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L257">                        localClass.mappers = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L258" title="All 2 branches missed.">                        for (String att:attributes) {</span>
-<span class="nc" id="L259">                            localClass.attributes.add(String.valueOf(att));</span>
-<span class="nc" id="L260">                        }</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">                        for (Mapper ma:mappers) {</span>
-<span class="nc" id="L262">                            localClass.mappers.add(ma);</span>
-<span class="nc" id="L263">                        }</span>
-<span class="nc" id="L264">                        return localClass;</span>
+<span class="nc" id="L268">                        LocalClass localClass = new LocalClass();</span>
+<span class="nc" id="L269">                        localClass.name = getName();</span>
+<span class="nc" id="L270">                        localClass.attributes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L271">                        localClass.mappers = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">                        for (String att:attributes) {</span>
+<span class="nc" id="L273">                            localClass.attributes.add(String.valueOf(att));</span>
+<span class="nc" id="L274">                        }</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">                        for (Mapper ma:mappers) {</span>
+<span class="nc" id="L276">                            localClass.mappers.add(ma);</span>
+<span class="nc" id="L277">                        }</span>
+<span class="nc" id="L278">                        return localClass;</span>
                     }
 
-<span class="nc" id="L267">                    @AllArgsConstructor</span>
-<span class="nc" id="L268">                    @NoArgsConstructor</span>
+<span class="nc" id="L281">                    @AllArgsConstructor</span>
+<span class="nc" id="L282">                    @NoArgsConstructor</span>
                     @Getter
-<span class="nc" id="L270">                    @Setter</span>
+<span class="nc" id="L284">                    @Setter</span>
                     public static class Mapper implements Cloneable {
-<span class="nc" id="L272">                        private String remoteAttribute;</span>
-<span class="nc" id="L273">                        private String localAttribute;</span>
+<span class="nc" id="L286">                        private String remoteAttribute;</span>
+<span class="nc" id="L287">                        private String localAttribute;</span>
 
                         @Override
                         public Object clone() throws CloneNotSupportedException {
-<span class="nc" id="L277">                            Mapper mapper = new Mapper();</span>
-<span class="nc" id="L278">                            mapper.remoteAttribute = String.valueOf(getRemoteAttribute());</span>
-<span class="nc" id="L279">                            mapper.localAttribute = String.valueOf(getLocalAttribute());</span>
-<span class="nc" id="L280">                            return mapper;</span>
+<span class="nc" id="L291">                            Mapper mapper = new Mapper();</span>
+<span class="nc" id="L292">                            mapper.remoteAttribute = String.valueOf(getRemoteAttribute());</span>
+<span class="nc" id="L293">                            mapper.localAttribute = String.valueOf(getLocalAttribute());</span>
+<span class="nc" id="L294">                            return mapper;</span>
                         }
                     }
 
