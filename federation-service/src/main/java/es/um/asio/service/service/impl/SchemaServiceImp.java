@@ -53,22 +53,26 @@ public class SchemaServiceImp implements SchemaService {
     }
 
     private String getSchemaFromUrisFactory(String relativePath, String defaultSchema){
-        DataSourceRepository.Node node = serviceDiscoveryService.getNode("um");
-        if (node!=null) {
-            DataSourceRepository.Node.Service service = node.getServiceByName("uris-factory");
-            if (service!=null) {
-                try {
-                    URL url = new URL(service.buildBaseURL() + relativePath);
-                    String res = doRequest(url);
-                    if (res != null && !res.equals("")) {
-                        return res;
-                    }
-                } catch (Exception e) {
+        try {
+            DataSourceRepository.Node node = serviceDiscoveryService.getNode("um");
+            if (node != null) {
+                DataSourceRepository.Node.Service service = node.getServiceByName("uris-factory");
+                if (service != null) {
+                    try {
+                        URL url = new URL(service.buildBaseURL() + relativePath);
+                        String res = doRequest(url);
+                        if (res != null && !res.equals("")) {
+                            return res;
+                        }
+                    } catch (Exception e) {
 
+                    }
                 }
             }
+            return defaultSchema;
+        } catch (Exception e) {
+            return defaultSchema;
         }
-        return defaultSchema;
     }
 
     private String doRequest(URL url) throws IOException {
