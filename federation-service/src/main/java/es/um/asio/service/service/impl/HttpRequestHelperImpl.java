@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import es.um.asio.service.service.HttpRequestHelper;
 import org.jsoup.Connection;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;

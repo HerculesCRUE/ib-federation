@@ -7,7 +7,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 
 @Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(User.class)
-public abstract class User_ extends com.izertis.libraries.audit.model.Auditable_ {
+public abstract class User_ extends es.um.asio.audit.model.Auditable_ {
 
 	public static volatile SingularAttribute<User, String> passwordRecoveryHash;
 	public static volatile SingularAttribute<User, String> country;

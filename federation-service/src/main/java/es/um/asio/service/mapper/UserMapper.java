@@ -2,6 +2,7 @@ package es.um.asio.service.mapper;
 
 import java.util.List;
 
+import es.um.asio.audit.abstractions.search.PageImplHelper;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -9,7 +10,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.data.domain.Page;
 
-import com.izertis.abstractions.search.PageImplHelper;
 import es.um.asio.service.dto.UserDto;
 import es.um.asio.service.mapper.decorator.UserMapperDecorator;
 import es.um.asio.service.model.User;

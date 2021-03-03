@@ -1,6 +1,6 @@
 package es.um.asio.service.mapper;
 
-import com.izertis.abstractions.search.PageImplHelper;
+import es.um.asio.audit.abstractions.search.PageImplHelper;
 import es.um.asio.service.dto.UserDto;
 import es.um.asio.service.model.Role;
 import es.um.asio.service.model.User;
@@ -28,10 +28,6 @@ public class UserMapperImpl_ implements UserMapper {
 
         UserDto userDto = new UserDto();
 
-        userDto.setCreatedBy( entity.getCreatedBy() );
-        userDto.setCreatedDate( entity.getCreatedDate() );
-        userDto.setLastModifiedBy( entity.getLastModifiedBy() );
-        userDto.setLastModifiedDate( entity.getLastModifiedDate() );
         userDto.setId( entity.getId() );
         userDto.setName( entity.getName() );
         userDto.setEmail( entity.getEmail() );
@@ -92,10 +88,6 @@ public class UserMapperImpl_ implements UserMapper {
 
         User user = new User();
 
-        user.setCreatedDate( dto.getCreatedDate() );
-        user.setLastModifiedDate( dto.getLastModifiedDate() );
-        user.setCreatedBy( dto.getCreatedBy() );
-        user.setLastModifiedBy( dto.getLastModifiedBy() );
         user.setId( dto.getId() );
         user.setName( dto.getName() );
         user.setEmail( dto.getEmail() );
@@ -138,10 +130,6 @@ public class UserMapperImpl_ implements UserMapper {
             return null;
         }
 
-        entity.setCreatedDate( dto.getCreatedDate() );
-        entity.setLastModifiedDate( dto.getLastModifiedDate() );
-        entity.setCreatedBy( dto.getCreatedBy() );
-        entity.setLastModifiedBy( dto.getLastModifiedBy() );
         entity.setId( dto.getId() );
         entity.setName( dto.getName() );
         entity.setEmail( dto.getEmail() );

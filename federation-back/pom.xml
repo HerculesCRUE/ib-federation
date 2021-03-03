@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>es.um.asio</groupId>
 		<artifactId>federation</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>2.0.0</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -22,13 +22,19 @@
 		<dependency>
 			<groupId>es.um.asio</groupId>
 			<artifactId>federation-service</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>2.0.0</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+		</dependency>
+
+<!--		<dependency>
 			<groupId>com.izertis.libraries</groupId>
 			<artifactId>izertis-oauth-starter-jdk11</artifactId>
-		</dependency>
+		</dependency>-->
 
 		<dependency>
 			<groupId>io.springfox</groupId>

@@ -14,7 +14,12 @@ es\um\asio\service\repository\RepositoryConfig.class
 es\um\asio\service\repository\lod\connectors\LODHandler.class
 es\um\asio\service\model\URIComponent.class
 es\um\asio\service\ServiceConfig.class
+<<<<<<< HEAD
 es\um\asio\service\solr\indexer\UserIndexerImpl.class
+=======
+es\um\asio\service\model\Role$AnonymousAuthority.class
+es\um\asio\service\proxy\impl\UserProxyImpl.class
+>>>>>>> master
 es\um\asio\service\service\FederationService.class
 es\um\asio\service\mapper\UserMapperImpl_.class
 es\um\asio\service\service\FederationServiceHelper.class
@@ -32,8 +37,13 @@ es\um\asio\service\util\Utils.class
 es\um\asio\service\config\LodDataSet$Dataset$Connection$Mapping$LocalClass.class
 es\um\asio\service\model\TripleObjectSimplified.class
 es\um\asio\service\mapper\decorator\UserMapperDecorator.class
+<<<<<<< HEAD
 es\um\asio\service\solr\SolrConfig.class
 es\um\asio\service\solr\mapper\BaseSolrMapper.class
+=======
+es\um\asio\service\service\impl\LODHandlerServiceImp.class
+es\um\asio\service\service\DataFetcherService.class
+>>>>>>> master
 es\um\asio\service\config\properties\PersistenceProperties.class
 es\um\asio\service\model\CustomObject.class
 es\um\asio\service\service\impl\ServiceDiscoveryHandlerImp.class
@@ -82,20 +92,28 @@ es\um\asio\service\model\CustomRDF.class
 es\um\asio\service\util\JpaConstants.class
 es\um\asio\service\exceptions\CustomFederationException.class
 es\um\asio\service\service\impl\HttpRequestHelperImpl.class
+<<<<<<< HEAD
 es\um\asio\service\repository\lod\connectors\WikidataHandler.class
 es\um\asio\service\solr\model\UserSolr.class
+=======
+>>>>>>> master
 es\um\asio\service\service\impl\DataFetcherServiceImpl.class
 es\um\asio\service\model\TripleObjectLink.class
 es\um\asio\service\dto\UserDto.class
 es\um\asio\service\repository\lod\connectors\SCOPUSHandler.class
 es\um\asio\service\repository\UserRepository.class
+<<<<<<< HEAD
+=======
+es\um\asio\service\service\ServiceDiscoveryService.class
+>>>>>>> master
 es\um\asio\service\config\LodDataSet.class
 util\AttributeType.class
 es\um\asio\service\service\impl\LODHandlerServiceImp$DatasetEnum.class
 es\um\asio\service\config\properties\DatasourceProperties.class
-es\um\asio\service\solr\mapper\UserSolrMapper.class
-es\um\asio\service\solr\repository\impl\UserSolrRepositoryImpl.class
 es\um\asio\service\model\Role$AdministratorAuthority.class
 es\um\asio\service\config\SpringAsyncConfig.class
 es\um\asio\service\service\UserService.class
+<<<<<<< HEAD
 es\um\asio\service\solr\mapper\decorator\UserSolrMapperDecorator.class
+=======
+>>>>>>> master

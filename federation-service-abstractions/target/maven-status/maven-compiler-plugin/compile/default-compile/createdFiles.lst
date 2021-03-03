@@ -1,0 +1,6 @@
+es\um\asio\audit\abstractions\service\DeleteService.class
+es\um\asio\audit\abstractions\exception\NoSuchEntityException.class
+es\um\asio\audit\abstractions\service\SaveService.class
+es\um\asio\audit\abstractions\filter\EntityFilter.class
+es\um\asio\audit\abstractions\search\PageImplHelper.class
+es\um\asio\audit\abstractions\service\QueryService.class

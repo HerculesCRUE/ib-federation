@@ -22,9 +22,9 @@
                 <pattern>%m</pattern>
             </fullPatternLayout>
             <staticField>app_name:back</staticField>
-            <staticField>os_arch:amd64</staticField>
-            <staticField>os_name:Windows 10</staticField>
-            <staticField>os_version:10.0</staticField>
+            <staticField>os_arch:${os.arch}</staticField>
+            <staticField>os_name:${os.name}</staticField>
+            <staticField>os_version:${os.version}</staticField>
         </layout>
     </appender>
     

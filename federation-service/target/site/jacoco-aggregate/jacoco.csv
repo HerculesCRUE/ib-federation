@@ -1,0 +1,11 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Archetype - Java JPA Rest API - Service/federation-jpa-abstractions,es.um.asio.abstractions.filter,AbstractJpaSpecification,37,0,0,0,5,0,4,0,4,0
+Archetype - Java JPA Rest API - Service/federation-service-abstractions,es.um.asio.audit.abstractions.exception,NoSuchEntityException,16,0,0,0,8,0,4,0,4,0
+Archetype - Java JPA Rest API - Service/federation-service-abstractions,es.um.asio.audit.abstractions.search,PageImplHelper,23,0,0,0,9,0,5,0,5,0
+Archetype - Java JPA Rest API - Service/federation-audit,es.um.asio.audit.autoconfigure.properties,AuditProperties,5,0,0,0,2,0,2,0,2,0
+Archetype - Java JPA Rest API - Service/federation-audit,es.um.asio.audit.aware,UserAuditorAware,17,0,4,0,5,0,4,0,2,0
+Archetype - Java JPA Rest API - Service/federation-audit,es.um.asio.audit.autoconfigure,AuditAutoConfiguration,3,0,0,0,1,0,1,0,1,0
+Archetype - Java JPA Rest API - Service/federation-audit,es.um.asio.audit,AuditConfiguration,3,0,0,0,1,0,1,0,1,0
+Archetype - Java JPA Rest API - Service/federation-audit,es.um.asio.audit.model,Auditable,75,0,8,0,11,0,14,0,10,0
+Archetype - Java JPA Rest API - Service/federation-audit,es.um.asio.audit.model,Auditable_,3,0,0,0,1,0,1,0,1,0
+Archetype - Java JPA Rest API - Service/federation-audit,es.um.asio.audit.dto,AuditableDto,5,0,0,0,2,0,2,0,2,0

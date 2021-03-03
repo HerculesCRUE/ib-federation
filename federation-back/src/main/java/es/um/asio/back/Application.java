@@ -12,7 +12,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 
-import es.um.asio.back.solr.SolrBackConfig;
 import es.um.asio.service.ServiceConfig;
 import org.springframework.context.event.EventListener;
 
@@ -20,7 +19,7 @@ import java.util.Collections;
 
 @SpringBootApplication
 @EnableAutoConfiguration
-@Import({ ServiceConfig.class, SolrBackConfig.class })
+@Import({ ServiceConfig.class })
 @ComponentScan(excludeFilters = { @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "*..solr..*") })
 public class Application {
 

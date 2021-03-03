@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import java.util.List;
 import java.util.Optional;
 
+import es.um.asio.audit.abstractions.search.PageImplHelper;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.izertis.abstractions.search.PageImplHelper;
 import es.um.asio.service.filter.UserFilter;
 import es.um.asio.service.model.User;
 import es.um.asio.service.repository.UserRepository;

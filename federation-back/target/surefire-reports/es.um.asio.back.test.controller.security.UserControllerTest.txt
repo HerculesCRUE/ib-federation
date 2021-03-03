@@ -1,4 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: es.um.asio.back.test.controller.security.UserControllerTest
 -------------------------------------------------------------------------------
+<<<<<<< HEAD
 Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.71 s - in es.um.asio.back.test.controller.security.UserControllerTest
+=======
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.58 s - in es.um.asio.back.test.controller.security.UserControllerTest
+>>>>>>> master
