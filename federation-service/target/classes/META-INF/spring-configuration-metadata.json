@@ -1,0 +1,120 @@
+{
+  "groups": [
+    {
+      "name": "app.persistence",
+      "type": "es.um.asio.service.config.properties.PersistenceProperties",
+      "sourceType": "es.um.asio.service.config.properties.PersistenceProperties"
+    },
+    {
+      "name": "app.persistence.datasource",
+      "type": "es.um.asio.service.config.properties.DatasourceProperties",
+      "sourceType": "es.um.asio.service.config.properties.PersistenceProperties",
+      "sourceMethod": "getDatasource()"
+    },
+    {
+      "name": "app.persistence.jpa",
+      "type": "es.um.asio.service.config.properties.JpaProperties",
+      "sourceType": "es.um.asio.service.config.properties.PersistenceProperties",
+      "sourceMethod": "getJpa()"
+    },
+    {
+      "name": "data-sources",
+      "type": "es.um.asio.service.config.DataSourceRepository",
+      "sourceType": "es.um.asio.service.config.DataSourceRepository"
+    },
+    {
+      "name": "datasource-sparql",
+      "type": "es.um.asio.service.config.properties.DataSourceSPARQL",
+      "sourceType": "es.um.asio.service.config.properties.DataSourceSPARQL"
+    },
+    {
+      "name": "lod-data-sources",
+      "type": "es.um.asio.service.config.LodDataSet",
+      "sourceType": "es.um.asio.service.config.LodDataSet"
+    }
+  ],
+  "properties": [
+    {
+      "name": "app.persistence.datasource.driver-class-name",
+      "type": "java.lang.String",
+      "description": "JDBC driver class name.",
+      "sourceType": "es.um.asio.service.config.properties.DatasourceProperties"
+    },
+    {
+      "name": "app.persistence.datasource.jndi-name",
+      "type": "java.lang.String",
+      "description": "JNDI name of the datasource.",
+      "sourceType": "es.um.asio.service.config.properties.DatasourceProperties"
+    },
+    {
+      "name": "app.persistence.datasource.password",
+      "type": "java.lang.String",
+      "description": "Password for the database.",
+      "sourceType": "es.um.asio.service.config.properties.DatasourceProperties"
+    },
+    {
+      "name": "app.persistence.datasource.url",
+      "type": "java.lang.String",
+      "description": "URL of the database",
+      "sourceType": "es.um.asio.service.config.properties.DatasourceProperties"
+    },
+    {
+      "name": "app.persistence.datasource.username",
+      "type": "java.lang.String",
+      "description": "Username for the database.",
+      "sourceType": "es.um.asio.service.config.properties.DatasourceProperties"
+    },
+    {
+      "name": "app.persistence.jpa.dialect",
+      "type": "java.lang.String",
+      "description": "JPA dialect for the database.",
+      "sourceType": "es.um.asio.service.config.properties.JpaProperties"
+    },
+    {
+      "name": "app.persistence.jpa.generate-ddl",
+      "type": "java.lang.Boolean",
+      "description": "Whether to initialize the schema on startup.",
+      "sourceType": "es.um.asio.service.config.properties.JpaProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "app.persistence.jpa.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional native properties to set on the JPA provider.",
+      "sourceType": "es.um.asio.service.config.properties.JpaProperties"
+    },
+    {
+      "name": "app.persistence.jpa.show-sql",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable logging of SQL statements.",
+      "sourceType": "es.um.asio.service.config.properties.JpaProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "data-sources.nodes",
+      "type": "java.util.List<es.um.asio.service.config.DataSourceRepository$Node>",
+      "sourceType": "es.um.asio.service.config.DataSourceRepository"
+    },
+    {
+      "name": "datasource-sparql.connectors",
+      "type": "java.util.List<es.um.asio.service.config.properties.DataSourceSPARQL$Connector>",
+      "sourceType": "es.um.asio.service.config.properties.DataSourceSPARQL"
+    },
+    {
+      "name": "datasource-sparql.node-name",
+      "type": "java.lang.String",
+      "sourceType": "es.um.asio.service.config.properties.DataSourceSPARQL"
+    },
+    {
+      "name": "lod-data-sources.dataset-names",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "es.um.asio.service.config.LodDataSet"
+    },
+    {
+      "name": "lod-data-sources.datasets",
+      "type": "java.util.List<es.um.asio.service.config.LodDataSet$Dataset>",
+      "sourceType": "es.um.asio.service.config.LodDataSet"
+    }
+  ],
+  "hints": []
+}

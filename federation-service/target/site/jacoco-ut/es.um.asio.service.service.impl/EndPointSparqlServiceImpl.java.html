@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EndPointSparqlServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.service.impl</a> &gt; <span class="el_source">EndPointSparqlServiceImpl.java</span></div><h1>EndPointSparqlServiceImpl.java</h1><pre class="source lang-java linenums">package es.um.asio.service.service.impl;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import es.um.asio.service.config.properties.DataSourceSPARQL;
+import es.um.asio.service.exceptions.CustomFederationException;
+import es.um.asio.service.model.CustomObject;
+import es.um.asio.service.model.Node;
+import es.um.asio.service.model.constants.Constants;
+import es.um.asio.service.service.EndPointSparqlService;
+import es.um.asio.service.service.FederationServiceHelper;
+import es.um.asio.service.util.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+@Service
+<span class="nc" id="L27">public class EndPointSparqlServiceImpl implements EndPointSparqlService  {</span>
+
+    @Autowired
+    FederationServiceHelper federationServiceHelper;
+
+    @Autowired
+    DataSourceSPARQL dataSourceSPARQL;
+
+    @Override
+    public JsonObject executeQuery(String authorization, String query, String tripleStore, Integer pageSize, Integer nodeTimeout) throws URISyntaxException, IOException {
+
+<span class="nc" id="L38">        DataSourceSPARQL.Connector connector = dataSourceSPARQL.getConnectorByType(tripleStore);</span>
+<span class="nc" id="L39">        Integer limit = null;</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (connector == null) {</span>
+<span class="nc" id="L41">            throw new CustomFederationException(&quot;Type of triplestore &quot;+tripleStore+&quot; not is a valid tyoe&quot;);</span>
+        } else {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (pageSize != null) {</span>
+<span class="nc" id="L44">                limit = Utils.extractLimitInSPARQL(query);</span>
+<span class="nc" id="L45">                query = query.replaceAll(&quot;(?i)limit\\s+(\\d+)&quot;, &quot;&quot;);</span>
+<span class="nc" id="L46">                query = query.replaceAll(&quot;(?i)offset\\s+(\\d+)&quot;, &quot;&quot;);</span>
+            }
+            //query = connector.getQueryParamName()+&quot;=&quot; + query;
+<span class="nc" id="L49">            JsonObject jFederatedResponse = doExecuteQuery(authorization,connector, query, pageSize, nodeTimeout, limit);</span>
+<span class="nc" id="L50">            return jFederatedResponse;</span>
+        }
+    }
+
+    private JsonObject doExecuteQuery(String authorization, DataSourceSPARQL.Connector connector, String query, Integer pageSize, Integer nodeTimeout, Integer limit) throws IOException {
+        // Populate futures
+        CompletableFuture&lt;JsonObject&gt; future;
+<span class="nc" id="L57">        String url = connector.buildQueryURL(true);</span>
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (pageSize!=null) //(String nodeName,URL url, String q, Integer pageSize, Integer timeout)</span>
+<span class="nc" id="L60">            future = federationServiceHelper.executeQueryPaginated(&quot;EndPoint&quot;,authorization,dataSourceSPARQL.getNodeName(),new URL(url),query,pageSize,nodeTimeout,limit);</span>
+        else
+<span class="nc" id="L62">            future = federationServiceHelper.executeQuery(&quot;EndPoint&quot;,authorization,dataSourceSPARQL.getNodeName(),new URL(url),query,nodeTimeout,limit);</span>
+
+<span class="nc" id="L64">        JsonObject jResponse = future.join();</span>
+
+<span class="nc" id="L66">        return jResponse;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

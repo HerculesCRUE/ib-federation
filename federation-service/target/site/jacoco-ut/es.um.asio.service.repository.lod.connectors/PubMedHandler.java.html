@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PubMedHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.repository.lod.connectors</a> &gt; <span class="el_source">PubMedHandler.java</span></div><h1>PubMedHandler.java</h1><pre class="source lang-java linenums">package es.um.asio.service.repository.lod.connectors;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import es.um.asio.service.config.LodDataSet;
+import es.um.asio.service.model.TripleObjectLink;
+import es.um.asio.service.model.TripleObjectSimplified;
+import es.um.asio.service.service.impl.TextHandlerServiceImp;
+import es.um.asio.service.util.Utils;
+import org.jsoup.Connection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.*;
+
+@Repository
+<span class="fc" id="L22">public class PubMedHandler implements LODHandler {</span>
+
+    public static final String DATASET = &quot;PUBMED&quot;;
+
+    @Override
+    public Set&lt;TripleObjectLink&gt; findLink(TripleObjectSimplified tos, LodDataSet.Dataset dataset, TextHandlerServiceImp textHandlerService) {
+<span class="nc" id="L28">        Set&lt;TripleObjectLink&gt; result = new HashSet&lt;&gt;();</span>
+        try {
+<span class="nc" id="L30">            boolean isCompleted = false;</span>
+<span class="nc" id="L31">            LodDataSet.Dataset prunedDataset =</span>
+<span class="nc" id="L32">                    dataset.getPrunedDatasetSortedFilteredByConnectionType(</span>
+<span class="nc" id="L33">                            Arrays.asList(new LodDataSet.Dataset.Connection.ConnectionType [] {</span>
+                                    LodDataSet.Dataset.Connection.ConnectionType.API
+                            }
+                            )
+                    );
+<span class="nc bnc" id="L38" title="All 2 branches missed.">            for (LodDataSet.Dataset.Connection con : prunedDataset.getConnections()) {</span>
+<span class="nc" id="L39">                result = handleAPIRequest(con,tos, textHandlerService);</span>
+<span class="nc" id="L40">                return result;</span>
+            }
+<span class="nc" id="L42">        } catch (CloneNotSupportedException e) {</span>
+<span class="nc" id="L43">            e.printStackTrace();</span>
+<span class="nc" id="L44">        }</span>
+
+<span class="nc" id="L46">        return result;</span>
+    }
+
+    private Set&lt;TripleObjectLink&gt; handleAPIRequest(LodDataSet.Dataset.Connection con, TripleObjectSimplified tos,TextHandlerServiceImp textHandlerService) {
+<span class="nc" id="L50">        Set&lt;TripleObjectLink&gt; results = new HashSet&lt;&gt;();</span>
+        try {
+<span class="nc" id="L52">            LodDataSet.Dataset.Connection connection = con.getPrunedConnectionByTripleObjectSimplified(tos);</span>
+<span class="nc" id="L53">            String apiKey = connection.getApiKey();</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">            for (LodDataSet.Dataset.Connection.Mapping mapping : connection.getSortedMappings()) {</span>
+<span class="nc" id="L55">                URL url = buildURL(Arrays.asList(new String[] {</span>
+<span class="nc" id="L56">                        connection.getBaseURL(),</span>
+<span class="nc" id="L57">                        mapping.getSuffixURL()</span>
+                }));
+<span class="nc bnc" id="L59" title="All 2 branches missed.">                for (LodDataSet.Dataset.Connection.Mapping.LocalClass lc : mapping.getLocalClasses()) {</span>
+<span class="nc" id="L60">                    List&lt;String&gt; localAttributes = lc.getAttributes();</span>
+<span class="nc" id="L61">                    Object value = tos.getAttributeValue(tos.getAttributes(),localAttributes);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                    if (Utils.isPrimitive(value)) {</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">                        if (!mapping.isIdentifier())</span>
+<span class="nc" id="L64">                            value = textHandlerService.removeStopWords(value.toString());</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                        if (mapping.getParamType() == LodDataSet.Dataset.Connection.Mapping.ParamType.QUERY) {</span>
+                            try {
+<span class="nc" id="L67">                                Map&lt;String,String&gt; qParams = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L68">                                qParams.put(&quot;term&quot;,value.toString());</span>
+<span class="nc" id="L69">                                qParams.put(&quot;field&quot;,mapping.getRemoteAttribute());</span>
+<span class="nc" id="L70">                                qParams.put(&quot;sort&quot;,&quot;relevance&quot;);</span>
+<span class="nc" id="L71">                                qParams.put(&quot;retmax&quot;,&quot;3&quot;);</span>
+<span class="nc" id="L72">                                qParams.put(&quot;api_key&quot;,con.getApiKey());</span>
+<span class="nc" id="L73">                                JsonElement jResponse = Utils.doRequestXML(url, Connection.Method.GET, null, null, qParams, true);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">                                if (</span>
+                                        jResponse!=null &amp;&amp;
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                                        jResponse.isJsonObject() &amp;&amp;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                                        jResponse.getAsJsonObject().has(&quot;eSearchResult&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                                        jResponse.getAsJsonObject().get(&quot;eSearchResult&quot;).getAsJsonObject().has(&quot;IdList&quot;)</span>
+                                ) {
+<span class="nc" id="L80">                                    List&lt;String&gt; ids = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                                    if (jResponse.getAsJsonObject().get(&quot;eSearchResult&quot;).getAsJsonObject().get(&quot;IdList&quot;).isJsonArray()) {</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                                        for (JsonElement jeItem : jResponse.getAsJsonObject().get(&quot;eSearchResult&quot;).getAsJsonObject().get(&quot;IdList&quot;).getAsJsonArray()) {</span>
+<span class="nc bnc" id="L83" title="All 6 branches missed.">                                            if (!jeItem.isJsonNull() &amp;&amp; jeItem.isJsonObject() &amp;&amp; jeItem.getAsJsonObject().has(&quot;id&quot;)) {</span>
+<span class="nc" id="L84">                                                String id = jeItem.getAsJsonObject().get(&quot;Id&quot;).getAsString();</span>
+<span class="nc" id="L85">                                                ids.add(id);</span>
+                                            }
+<span class="nc" id="L87">                                        }</span>
+                                    } else {
+<span class="nc" id="L89">                                        ids.add(jResponse.getAsJsonObject().get(&quot;eSearchResult&quot;).getAsJsonObject().get(&quot;IdList&quot;).getAsJsonObject().get(&quot;Id&quot;).getAsString());</span>
+                                    }
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                                    if (!ids.isEmpty()) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                                        for (String id : ids) {</span>
+<span class="nc" id="L93">                                            url = buildURL(Arrays.asList(new String[] {</span>
+<span class="nc" id="L94">                                                    connection.getBaseURL(),</span>
+                                                    &quot;/efetch.fcgi&quot;
+                                            }));
+<span class="nc" id="L97">                                            qParams = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L98">                                            qParams.put(&quot;db&quot;,&quot;pubmed&quot;);</span>
+<span class="nc" id="L99">                                            qParams.put(&quot;id&quot;,id);</span>
+<span class="nc" id="L100">                                            qParams.put(&quot;retmode&quot;,&quot;xml&quot;);</span>
+<span class="nc" id="L101">                                            qParams.put(&quot;api_key&quot;,con.getApiKey());</span>
+<span class="nc" id="L102">                                            jResponse = Utils.doRequestXML(url, Connection.Method.GET, null, null, qParams, true);</span>
+<span class="nc" id="L103">                                            Set&lt;TripleObjectLink&gt; resultsAux = parseResult(id,url.toString()+&quot;?db=pubmed&amp;id=&quot;+id+&quot;&amp;retmode=xml&quot;,tos, DATASET, con.getBaseURL(), mapping.getRemoteName(), lc.getName(), jResponse.getAsJsonObject(), lc.getMappers());</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">                                            if (resultsAux != null &amp;&amp; resultsAux.size() &gt; 0) {</span>
+<span class="nc" id="L105">                                                results.addAll(resultsAux);</span>
+                                            }
+<span class="nc" id="L107">                                        }</span>
+<span class="nc" id="L108">                                        return results;</span>
+                                    }
+                                }
+<span class="nc" id="L111">                            } catch (Exception e) {</span>
+<span class="nc" id="L112">                                continue;</span>
+<span class="nc" id="L113">                            }</span>
+                        }
+                    } else {
+                        continue;
+                    }
+<span class="nc" id="L118">                }</span>
+<span class="nc" id="L119">            }</span>
+<span class="nc" id="L120">        } catch (Exception e) {</span>
+<span class="nc" id="L121">            e.printStackTrace();</span>
+<span class="nc" id="L122">        }</span>
+<span class="nc" id="L123">        return results;</span>
+    }
+
+
+    private String buildContentQuery(String remoteAttribute, String value, boolean isIdentifier, boolean removeStopwords,TextHandlerServiceImp textHandlerService) throws UnsupportedEncodingException {
+<span class="nc bnc" id="L128" title="All 4 branches missed.">        if (!isIdentifier &amp;&amp; removeStopwords) {</span>
+<span class="nc" id="L129">            value = value.replaceAll(&quot;-&quot;,&quot; &quot;);</span>
+<span class="nc" id="L130">            value = textHandlerService.removeStopWords(value);</span>
+<span class="nc" id="L131">            String [] chunks  = value.split(&quot;  *&quot;);</span>
+<span class="nc" id="L132">            value = String.join(&quot; AND &quot;,value.split(&quot;  *&quot;));</span>
+            //value = URLEncoder.encode(value, StandardCharsets.UTF_8);
+        }
+<span class="nc" id="L135">        String formatStr = String.format(&quot;%s(%s)&quot;, remoteAttribute, value);</span>
+<span class="nc" id="L136">        return formatStr;</span>
+    }
+
+    private URL buildURL(List&lt;String&gt; urlChunks) throws MalformedURLException {
+<span class="nc" id="L140">        StringBuffer sb = new StringBuffer();</span>
+<span class="nc" id="L141">        List&lt;String&gt; urlCheckedChunks = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        for (String chunk: urlChunks) {</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            if (!Utils.isValidString(chunk))</span>
+<span class="nc" id="L144">                continue;</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (chunk.startsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L146">                urlCheckedChunks.add(chunk.substring(1));</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            } else if (chunk.endsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L148">                urlCheckedChunks.add(chunk.substring(0,chunk.length()-1));</span>
+            } else {
+<span class="nc" id="L150">                urlCheckedChunks.add(chunk);</span>
+            }
+
+<span class="nc" id="L153">        }</span>
+<span class="nc" id="L154">        return new URL(String.join(&quot;/&quot;,urlCheckedChunks));</span>
+    }
+
+    private Set&lt;TripleObjectLink&gt; parseResult(String id , String url,TripleObjectSimplified tos,String datasetName, String baseURL, String remoteName, String localClassName, JsonObject jResponse, List&lt;LodDataSet.Dataset.Connection.Mapping.LocalClass.Mapper&gt; mappers) {
+<span class="nc" id="L158">        Set&lt;TripleObjectLink&gt; tripleObjectLinks = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (jResponse.has(&quot;PubmedArticleSet&quot;)) {</span>
+
+<span class="nc" id="L161">            JsonObject jResponses = jResponse.get(&quot;PubmedArticleSet&quot;).getAsJsonObject();</span>
+<span class="nc" id="L162">            jResponses = jResponses.get(&quot;PubmedArticle&quot;).getAsJsonObject();</span>
+
+<span class="nc" id="L164">            JsonObject jMessage = jResponses;</span>
+<span class="nc" id="L165">            if (</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                    jMessage.has(&quot;MedlineCitation&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                    jMessage.get(&quot;MedlineCitation&quot;).getAsJsonObject().has(&quot;Article&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                    jMessage.get(&quot;MedlineCitation&quot;).getAsJsonObject().get(&quot;Article&quot;).getAsJsonObject().has(&quot;ArticleTitle&quot;)</span>
+            ) {
+<span class="nc" id="L170">                jMessage.addProperty(&quot;title&quot;,jMessage.get(&quot;MedlineCitation&quot;).getAsJsonObject().get(&quot;Article&quot;).getAsJsonObject().get(&quot;ArticleTitle&quot;).getAsString());</span>
+            }
+<span class="nc" id="L172">            JsonObject jPrefixes = new JsonObject();</span>
+<span class="nc" id="L173">            jPrefixes.addProperty(&quot;default&quot;, baseURL+&quot;/&quot;);</span>
+<span class="nc" id="L174">            JsonArray jLinks = new JsonArray();</span>
+<span class="nc" id="L175">            JsonObject jLink = new JsonObject();</span>
+<span class="nc" id="L176">            jLink.addProperty(&quot;type&quot;, &quot;self&quot;);</span>
+<span class="nc" id="L177">            jLink.addProperty(&quot;link&quot;, url);</span>
+<span class="nc" id="L178">            jLinks.add(jLink);</span>
+<span class="nc" id="L179">            TripleObjectLink tol = new TripleObjectLink(datasetName, baseURL, remoteName, localClassName);</span>
+<span class="nc" id="L180">            tol.setOrigin(tos);</span>
+<span class="nc" id="L181">            tol.populatePrefixes(jPrefixes);</span>
+<span class="nc" id="L182">            tol.setId(id);</span>
+<span class="nc" id="L183">            tol.populateMapper(mappers);</span>
+<span class="nc" id="L184">            tol.populateLinks(jLinks);</span>
+<span class="nc" id="L185">            tol.populateAttributes(removeDateParts(jMessage));</span>
+<span class="nc" id="L186">            tripleObjectLinks.add(tol);</span>
+        }
+<span class="nc" id="L188">        return tripleObjectLinks;</span>
+    }
+
+    private JsonObject removeDateParts(JsonObject jObject) {
+<span class="nc" id="L192">        JsonObject jObjectCopy = new JsonObject();</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (Map.Entry&lt;String, JsonElement&gt; jAttr :jObject.entrySet()) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (jAttr.getValue().isJsonPrimitive()) {</span>
+<span class="nc" id="L195">                jObjectCopy.add(jAttr.getKey(),jAttr.getValue());</span>
+            } else {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">                if (jAttr.getKey().contains(&quot;date-parts&quot;)) {</span>
+<span class="nc" id="L198">                    continue;</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                } else if (jAttr.getValue().isJsonObject()) {</span>
+<span class="nc" id="L200">                    jObjectCopy.add(jAttr.getKey(),removeDateParts(jAttr.getValue().getAsJsonObject()));</span>
+                } else { // Es una lista
+<span class="nc" id="L202">                    jObjectCopy.add(jAttr.getKey(),jAttr.getValue());</span>
+                }
+            }
+<span class="nc" id="L205">        }</span>
+<span class="nc" id="L206">        return jObjectCopy;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

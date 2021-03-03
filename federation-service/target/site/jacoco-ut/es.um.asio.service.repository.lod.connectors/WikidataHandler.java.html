@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WikidataHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Archetype - Java JPA Rest API - Service</a> &gt; <a href="index.source.html" class="el_package">es.um.asio.service.repository.lod.connectors</a> &gt; <span class="el_source">WikidataHandler.java</span></div><h1>WikidataHandler.java</h1><pre class="source lang-java linenums">package es.um.asio.service.repository.lod.connectors;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import es.um.asio.service.config.LodDataSet;
+import es.um.asio.service.model.TripleObjectLink;
+import es.um.asio.service.model.TripleObjectSimplified;
+import es.um.asio.service.service.impl.TextHandlerServiceImp;
+import es.um.asio.service.util.Utils;
+import org.jsoup.Connection;
+import org.springframework.stereotype.Repository;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+
+@Repository
+<span class="fc" id="L20">public class WikidataHandler implements LODHandler {</span>
+
+    public static final String DATASET = &quot;WIKIDATA&quot;;
+
+    @Override
+    public Set&lt;TripleObjectLink&gt; findLink(TripleObjectSimplified tos, LodDataSet.Dataset dataset, TextHandlerServiceImp textHandlerService) {
+<span class="nc" id="L26">        Set&lt;TripleObjectLink&gt; result = new HashSet&lt;&gt;();</span>
+        try {
+<span class="nc" id="L28">            boolean isCompleted = false;</span>
+<span class="nc" id="L29">            LodDataSet.Dataset prunedDataset =</span>
+<span class="nc" id="L30">                    dataset.getPrunedDatasetSortedFilteredByConnectionType(</span>
+<span class="nc" id="L31">                            Arrays.asList(new LodDataSet.Dataset.Connection.ConnectionType [] {</span>
+                                    LodDataSet.Dataset.Connection.ConnectionType.SPARQL
+                            }
+                            )
+                    );
+<span class="nc bnc" id="L36" title="All 2 branches missed.">            for (LodDataSet.Dataset.Connection con : prunedDataset.getConnections()) {</span>
+<span class="nc" id="L37">                result = handleAPIRequest(con,tos, textHandlerService);</span>
+<span class="nc" id="L38">                return result;</span>
+            }
+<span class="nc" id="L40">        } catch (CloneNotSupportedException e) {</span>
+<span class="nc" id="L41">            e.printStackTrace();</span>
+<span class="nc" id="L42">        }</span>
+
+<span class="nc" id="L44">        return result;</span>
+    }
+
+    private Set&lt;TripleObjectLink&gt; handleAPIRequest(LodDataSet.Dataset.Connection con, TripleObjectSimplified tos,TextHandlerServiceImp textHandlerService) {
+<span class="nc" id="L48">        Set&lt;TripleObjectLink&gt; results = new HashSet&lt;&gt;();</span>
+        try {
+<span class="nc" id="L50">            LodDataSet.Dataset.Connection connection = con.getPrunedConnectionByTripleObjectSimplified(tos);</span>
+<span class="nc" id="L51">            String apiKey = connection.getApiKey();</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            for (LodDataSet.Dataset.Connection.Mapping mapping : connection.getSortedMappings()) {</span>
+<span class="nc" id="L53">                URL url = buildURL(Arrays.asList(new String[] {</span>
+<span class="nc" id="L54">                        connection.getBaseURL(),</span>
+<span class="nc" id="L55">                        mapping.getSuffixURL()</span>
+                }));
+<span class="nc bnc" id="L57" title="All 2 branches missed.">                for (LodDataSet.Dataset.Connection.Mapping.LocalClass lc : mapping.getLocalClasses()) {</span>
+<span class="nc" id="L58">                    List&lt;String&gt; localAttributes = lc.getAttributes();</span>
+<span class="nc" id="L59">                    Object value = tos.getAttributeValue(tos.getAttributes(),localAttributes);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                    if (Utils.isPrimitive(value)) {</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">                        if (mapping.getParamType() == LodDataSet.Dataset.Connection.Mapping.ParamType.SPARQL) {</span>
+                            try {
+<span class="nc" id="L63">                                Map&lt;String,String&gt; queryParam = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L64">                                String regex = &quot;\\$&quot;+mapping.getRemoteAttribute()+&quot;\\$&quot;;</span>
+<span class="nc" id="L65">                                String q = mapping.getQuery().replaceAll(regex,value.toString());</span>
+<span class="nc" id="L66">                                queryParam.put(&quot;query&quot;, q);</span>
+<span class="nc" id="L67">                                Map&lt;String,String&gt; headers = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L68">                                headers.put(&quot;Accept&quot;,&quot;application/json&quot;);</span>
+<span class="nc" id="L69">                                headers.put(&quot;Host&quot;,&quot;query.wikidata.org&quot;);</span>
+<span class="nc" id="L70">                                JsonElement jResponse = Utils.doRequest(url, Connection.Method.GET, headers, null, queryParam, false);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                                if (jResponse!=null) {</span>
+<span class="nc" id="L72">                                    results = parseResult(tos,DATASET,con.getBaseURL(),mapping.getRemoteName(),lc.getName(),jResponse.getAsJsonObject(),lc.getMappers());</span>
+<span class="nc bnc" id="L73" title="All 4 branches missed.">                                    if (results!=null &amp;&amp; results.size()&gt;0) {</span>
+<span class="nc" id="L74">                                        return results;</span>
+                                    }
+                                }
+<span class="nc" id="L77">                            } catch (Exception e) {</span>
+<span class="nc" id="L78">                                continue;</span>
+<span class="nc" id="L79">                            }</span>
+                        }
+                    } else {
+                        continue;
+                    }
+<span class="nc" id="L84">                }</span>
+<span class="nc" id="L85">            }</span>
+<span class="nc" id="L86">        } catch (Exception e) {</span>
+<span class="nc" id="L87">            e.printStackTrace();</span>
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">        return results;</span>
+    }
+
+
+    private URL buildURL(List&lt;String&gt; urlChunks) throws MalformedURLException {
+<span class="nc" id="L94">        StringBuffer sb = new StringBuffer();</span>
+<span class="nc" id="L95">        List&lt;String&gt; urlCheckedChunks = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        for (String chunk: urlChunks) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (!Utils.isValidString(chunk))</span>
+<span class="nc" id="L98">                continue;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (chunk.startsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L100">                urlCheckedChunks.add(chunk.substring(1));</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            } else if (chunk.endsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L102">                urlCheckedChunks.add(chunk.substring(0,chunk.length()-1));</span>
+            } else {
+<span class="nc" id="L104">                urlCheckedChunks.add(chunk);</span>
+            }
+
+<span class="nc" id="L107">        }</span>
+<span class="nc" id="L108">        return new URL(String.join(&quot;/&quot;,urlCheckedChunks));</span>
+    }
+
+    private Set&lt;TripleObjectLink&gt; parseResult(TripleObjectSimplified tos,String datasetName, String baseURL, String remoteName, String localClassName, JsonObject jResponse, List&lt;LodDataSet.Dataset.Connection.Mapping.LocalClass.Mapper&gt; mappers) {
+
+<span class="nc" id="L113">        final String DEFAULT_URI = &quot;http://www.wikidata.org/entity/&quot;;</span>
+<span class="nc" id="L114">        final String DEFAULT_PREFIX = &quot;wde&quot;;</span>
+
+<span class="nc" id="L116">        Set&lt;TripleObjectLink&gt; tripleObjectLinks = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (jResponse.has(&quot;results&quot;)) {</span>
+
+<span class="nc" id="L119">            JsonObject jResults = jResponse.get(&quot;results&quot;).getAsJsonObject();</span>
+
+<span class="nc" id="L121">            JsonObject jPrefixes = new JsonObject();</span>
+<span class="nc" id="L122">            jPrefixes.addProperty(DEFAULT_PREFIX,DEFAULT_URI);</span>
+<span class="nc" id="L123">            jPrefixes.addProperty(&quot;skos&quot;,DEFAULT_URI);</span>
+<span class="nc" id="L124">            Set&lt;String&gt; objectLinks = new HashSet&lt;&gt;();</span>
+
+            // Atributos de la entidad
+<span class="nc" id="L127">            JsonObject jAttributes = new JsonObject();</span>
+
+<span class="nc bnc" id="L129" title="All 4 branches missed.">            if (jResults.has(&quot;bindings&quot;) &amp;&amp; jResults.get(&quot;bindings&quot;).isJsonArray()) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                for (JsonElement jeAtt: jResults.get(&quot;bindings&quot;).getAsJsonArray()) {</span>
+<span class="nc" id="L131">                    JsonObject jAtt = jeAtt.getAsJsonObject();</span>
+                    // Añado el enlace
+<span class="nc bnc" id="L133" title="All 6 branches missed.">                    if (jAtt.has(&quot;company&quot;) &amp;&amp; jAtt.get(&quot;company&quot;).isJsonObject() &amp;&amp; jAtt.get(&quot;company&quot;).getAsJsonObject().has(&quot;value&quot;)) {</span>
+<span class="nc" id="L134">                        objectLinks.add(jAtt.get(&quot;company&quot;).getAsJsonObject().get(&quot;value&quot;).getAsString());</span>
+                    }
+                    // Propiedad
+<span class="nc" id="L137">                    String uri = null;</span>
+<span class="nc bnc" id="L138" title="All 6 branches missed.">                    if (jAtt.has(&quot;wd&quot;) &amp;&amp; jAtt.get(&quot;wd&quot;).isJsonObject() &amp;&amp; jAtt.get(&quot;wd&quot;).getAsJsonObject().has(&quot;value&quot;)) {</span>
+<span class="nc" id="L139">                        uri = jAtt.get(&quot;wd&quot;).getAsJsonObject().get(&quot;value&quot;).getAsString().replace(DEFAULT_URI,DEFAULT_PREFIX+&quot;:&quot;);</span>
+                    }
+<span class="nc" id="L141">                    String value = null;</span>
+<span class="nc bnc" id="L142" title="All 6 branches missed.">                    if (jAtt.has(&quot;ps_Label&quot;) &amp;&amp; jAtt.get(&quot;ps_Label&quot;).isJsonObject() &amp;&amp; jAtt.get(&quot;ps_Label&quot;).getAsJsonObject().has(&quot;value&quot;)) {</span>
+<span class="nc" id="L143">                        value = jAtt.get(&quot;ps_Label&quot;).getAsJsonObject().get(&quot;value&quot;).getAsString();</span>
+                    }
+<span class="nc bnc" id="L145" title="All 4 branches missed.">                    if (Utils.isValidString(uri) &amp;&amp; Utils.isValidString(value)) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                        if (jAttributes.has(uri)) {</span>
+<span class="nc" id="L147">                            String oldValue = jAttributes.get(uri).getAsString();</span>
+<span class="nc" id="L148">                            jAttributes.addProperty(uri,oldValue+&quot;,&quot;+value);</span>
+<span class="nc" id="L149">                        } else {</span>
+<span class="nc" id="L150">                            jAttributes.addProperty(uri,value);</span>
+                        }
+                    }
+                    // Valor
+<span class="nc" id="L154">                }</span>
+            }
+
+
+
+<span class="nc" id="L159">            JsonArray jLinks = new JsonArray();</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            for (String link : objectLinks) {</span>
+<span class="nc" id="L161">                JsonObject jLink = new JsonObject();</span>
+<span class="nc" id="L162">                jLink.addProperty(&quot;type&quot;,&quot;self&quot;);</span>
+<span class="nc" id="L163">                jLink.addProperty(&quot;link&quot;,link);</span>
+<span class="nc" id="L164">                jLinks.add(jLink);</span>
+<span class="nc" id="L165">            }</span>
+<span class="nc" id="L166">            TripleObjectLink tol = new TripleObjectLink(datasetName,baseURL,remoteName,localClassName);</span>
+<span class="nc" id="L167">            tol.setOrigin(tos);</span>
+<span class="nc" id="L168">            tol.populatePrefixes(jPrefixes);</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (jLinks.size()&gt;0) {</span>
+<span class="nc" id="L170">                String uriId = jLinks.get(0).getAsJsonObject().get(&quot;link&quot;).getAsString();</span>
+<span class="nc" id="L171">                String[] uriIdParts = uriId.split(&quot;/&quot;);</span>
+<span class="nc" id="L172">                String id = null;</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                for (int i = uriIdParts.length-1; i &gt;= 0 ; i--) {</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">                    if (Utils.isValidString(uriIdParts[i])) {</span>
+<span class="nc" id="L175">                        id = uriIdParts[i];</span>
+<span class="nc" id="L176">                        break;</span>
+                    }
+                }
+<span class="nc" id="L179">                tol.setId(id);</span>
+            }
+<span class="nc" id="L181">            tol.populateMapper(mappers);</span>
+<span class="nc" id="L182">            tol.populateLinks(jLinks);</span>
+<span class="nc" id="L183">            tol.populateAttributes(jAttributes);</span>
+<span class="nc" id="L184">            tripleObjectLinks.add(tol);</span>
+
+        }
+<span class="nc" id="L187">        return tripleObjectLinks;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
