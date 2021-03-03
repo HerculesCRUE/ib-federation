@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: es.um.asio.service.test.service.UserServiceTest
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s - in es.um.asio.service.test.service.UserServiceTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s - in es.um.asio.service.test.service.UserServiceTest

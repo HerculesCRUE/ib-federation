@@ -29,4 +29,4 @@ hs_err_pid*
 /federation-back/target/generated-sources/
 /federation-back/target/generated-test-sources/
 /federation-service/target/generated-test-sources/
-.idea/
+/.idea/

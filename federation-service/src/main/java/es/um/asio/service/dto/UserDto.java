@@ -8,11 +8,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 
+import es.um.asio.audit.dto.AuditableDto;
 import es.um.asio.service.model.Role;
 import es.um.asio.service.util.ValidationConstants;
 import es.um.asio.service.validation.group.Create;
 import es.um.asio.service.validation.group.Update;
-import com.izertis.libraries.audit.dto.AuditableDto;
 
 import lombok.Getter;
 import lombok.Setter;
