@@ -1,17 +1,12 @@
 package es.um.asio.back.test.controller.security;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Optional;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.um.asio.audit.abstractions.exception.NoSuchEntityException;
+import es.um.asio.audit.abstractions.search.PageImplHelper;
+import es.um.asio.back.controller.security.UserController;
+import es.um.asio.service.dto.UserDto;
+import es.um.asio.service.filter.UserFilter;
+import es.um.asio.service.proxy.UserProxy;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,19 +19,23 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.izertis.abstractions.exception.NoSuchEntityException;
-import com.izertis.abstractions.search.PageImplHelper;
-import es.um.asio.back.controller.security.UserController;
-import es.um.asio.service.dto.UserDto;
-import es.um.asio.service.filter.UserFilter;
-import es.um.asio.service.proxy.UserProxy;
+import java.util.Optional;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(UserController.class)
+@ActiveProfiles("dev")
 public class UserControllerTest {
 
     /**
@@ -56,7 +55,7 @@ public class UserControllerTest {
      */
     @Autowired
     private ObjectMapper objectMapper;
-    
+
     @TestConfiguration
     static class UserProxyTestConfiguration {
         @Bean
@@ -131,11 +130,11 @@ public class UserControllerTest {
         // @formatter:off
 
         this.mvc.perform(get("/user/list").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0].username", is("user1")))
-            .andExpect(jsonPath("$[1].username", is("user2")));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].username", is("user1")))
+                .andExpect(jsonPath("$[1].username", is("user2")));
 
         // @formatter:on
 
@@ -146,12 +145,12 @@ public class UserControllerTest {
         // @formatter:off
 
         this.mvc.perform(get("/user/search").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.totalElements", is(2)))
-            .andExpect(jsonPath("$.content", hasSize(2)))
-            .andExpect(jsonPath("$.content[0].username", is("user1")))
-            .andExpect(jsonPath("$.content[1].username", is("user2")));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements", is(2)))
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].username", is("user1")))
+                .andExpect(jsonPath("$.content[1].username", is("user2")));
 
         // @formatter:on
     }
@@ -161,14 +160,14 @@ public class UserControllerTest {
         // @formatter:off
 
         this.mvc.perform(get("/user/1").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.username", is("user1")));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username", is("user1")));
 
         this.mvc.perform(get("/user/2").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.username", is("user2")));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username", is("user2")));
 
         // @formatter:on
     }
@@ -178,8 +177,8 @@ public class UserControllerTest {
         // @formatter:off
 
         this.mvc.perform(get("/user/3").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isNotFound());
+                .andDo(print())
+                .andExpect(status().isNotFound());
 
         // @formatter:on
     }
@@ -189,8 +188,8 @@ public class UserControllerTest {
         // @formatter:off
 
         this.mvc.perform(put("/user/1/disable").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .andDo(print())
+                .andExpect(status().isOk());
 
         // @formatter:on
     }
@@ -200,8 +199,8 @@ public class UserControllerTest {
         // @formatter:off
 
         this.mvc.perform(put("/user/1/enable").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .andDo(print())
+                .andExpect(status().isOk());
 
         // @formatter:on
     }
@@ -217,10 +216,10 @@ public class UserControllerTest {
                 .content(this.objectMapper.writeValueAsString(user))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id", is("1")))
-            .andExpect(jsonPath("$.username", is(user.getUsername())));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is("1")))
+                .andExpect(jsonPath("$.username", is(user.getUsername())));
 
         // @formatter:on
     }
@@ -237,10 +236,10 @@ public class UserControllerTest {
                 .content(this.objectMapper.writeValueAsString(user))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id", is(user.getId())))
-            .andExpect(jsonPath("$.username", is(user.getUsername())));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(user.getId())))
+                .andExpect(jsonPath("$.username", is(user.getUsername())));
 
         // @formatter:on
     }
@@ -257,8 +256,8 @@ public class UserControllerTest {
                 .content(this.objectMapper.writeValueAsString(user))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isNotFound());
+                .andDo(print())
+                .andExpect(status().isNotFound());
 
         // @formatter:on
     }

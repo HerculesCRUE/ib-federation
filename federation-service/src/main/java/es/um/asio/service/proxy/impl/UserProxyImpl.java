@@ -3,12 +3,12 @@ package es.um.asio.service.proxy.impl;
 import java.util.List;
 import java.util.Optional;
 
+import es.um.asio.audit.abstractions.exception.NoSuchEntityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.izertis.abstractions.exception.NoSuchEntityException;
 import es.um.asio.service.dto.UserDto;
 import es.um.asio.service.filter.UserFilter;
 import es.um.asio.service.mapper.UserMapper;

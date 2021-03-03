@@ -3,7 +3,7 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for Archetype - Java JPA Rest API" enabled="true">
+      <profile name="Annotation profile for UM - ASIO - FEDERATION" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -22,7 +22,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/springframework/spring-context/4.0.3.RELEASE/spring-context-4.0.3.RELEASE.jar" />
           <entry name="$MAVEN_REPOSITORY$/joda-time/joda-time/2.9/joda-time-2.9.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.12/lombok-1.18.12.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/hibernate/hibernate-jpamodelgen/5.4.22.Final/hibernate-jpamodelgen-5.4.22.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/hibernate/hibernate-jpamodelgen/5.4.10.Final/hibernate-jpamodelgen-5.4.10.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar" />
           <entry name="$MAVEN_REPOSITORY$/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar" />
@@ -33,19 +33,29 @@
           <entry name="$MAVEN_REPOSITORY$/com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar" />
         </processorPath>
         <module name="federation-service" />
+        <module name="federation-audit" />
         <module name="federation-back" />
+        <module name="federation-service-abstractions" />
+        <module name="federation-jpa-abstractions" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="federation" target="11" />
+      <module name="federation-audit" target="11" />
       <module name="federation-back" target="11" />
+      <module name="federation-jpa-abstractions" target="11" />
       <module name="federation-service" target="11" />
+      <module name="federation-service-abstractions" target="11" />
+      <module name="federation-test" target="11" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="federation-audit" options="-parameters -Amapstruct.defaultComponentModel=spring -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.suppressGeneratorVersionInfoComment=true" />
       <module name="federation-back" options="-parameters -Amapstruct.defaultComponentModel=spring -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.suppressGeneratorVersionInfoComment=true" />
+      <module name="federation-jpa-abstractions" options="-parameters -Amapstruct.defaultComponentModel=spring -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.suppressGeneratorVersionInfoComment=true" />
       <module name="federation-service" options="-parameters -Amapstruct.defaultComponentModel=spring -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.suppressGeneratorVersionInfoComment=true" />
+      <module name="federation-service-abstractions" options="-parameters -Amapstruct.defaultComponentModel=spring -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.suppressGeneratorVersionInfoComment=true" />
     </option>
   </component>
 </project>

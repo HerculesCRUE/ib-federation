@@ -1,5 +1,4 @@
 es\um\asio\back\controller\federation\FederationController.class
-es\um\asio\back\solr\controller\IndexController.class
 es\um\asio\back\controller\lod\LODSearchController$Mappings.class
 es\um\asio\back\controller\datafetcher\DataFetcherController$Mappings.class
 es\um\asio\back\filter\SimpleCORSFilter.class
@@ -9,8 +8,6 @@ es\um\asio\back\config\WebMvcConfig.class
 es\um\asio\back\controller\security\UserController$Mappings.class
 es\um\asio\back\controller\lod\LODSearchController.class
 es\um\asio\back\config\properties\CorsProperties.class
-es\um\asio\back\solr\SolrBackConfig.class
 es\um\asio\back\controller\federation\FederationController$Mappings.class
-es\um\asio\back\solr\controller\IndexController$Mappings.class
 es\um\asio\back\Application.class
 es\um\asio\back\controller\security\UserController.class

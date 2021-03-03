@@ -1,0 +1,9 @@
+es\um\asio\audit\model\Auditable_.class
+es\um\asio\audit\autoconfigure\AuditAutoConfiguration.class
+es\um\asio\audit\model\Auditable$Columns.class
+es\um\asio\audit\AuditConfiguration.class
+es\um\asio\audit\autoconfigure\properties\AuditProperties.class
+es\um\asio\audit\aware\UserAuditorAware.class
+es\um\asio\audit\model\Auditable$Properties.class
+es\um\asio\audit\dto\AuditableDto.class
+es\um\asio\audit\model\Auditable.class

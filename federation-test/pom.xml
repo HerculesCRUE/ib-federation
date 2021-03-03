@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>es.um.asio</groupId>
+		<artifactId>federation</artifactId>
+		<version>2.0.0</version>
+		<relativePath>..</relativePath>
+	</parent>
+
+	<artifactId>federation-test</artifactId>
+	<packaging>pom</packaging>
+	<name>UM - ASIO - service-discovery-test</name>
+	<description>UM - ASIO - service-discovery-test</description>
+
+	<dependencies>
+		<!-- UM ASIO - dependencies -->
+		<dependency>
+			<groupId>es.um.asio</groupId>
+			<artifactId>service-discovery-back</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>es.um.asio</groupId>
+			<artifactId>service-discovery-service</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+
+<!--		<dependency>
+			<groupId>es.um.asio</groupId>
+			<artifactId>discovery-swagger</artifactId>
+			<version>1.2.0</version>
+		</dependency>-->
+	</dependencies>
+
+</project>

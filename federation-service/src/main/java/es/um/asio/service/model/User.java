@@ -24,6 +24,7 @@ import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 import javax.validation.constraints.Size;
 
+import es.um.asio.audit.model.Auditable;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import es.um.asio.service.util.JpaConstants;
 import es.um.asio.service.util.ValidationConstants;
-import com.izertis.libraries.audit.model.Auditable;
+
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;

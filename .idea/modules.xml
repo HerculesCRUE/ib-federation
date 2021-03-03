@@ -3,8 +3,12 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/federation.iml" filepath="$PROJECT_DIR$/federation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/federation-audit/federation-audit.iml" filepath="$PROJECT_DIR$/federation-audit/federation-audit.iml" />
       <module fileurl="file://$PROJECT_DIR$/federation-back/federation-back.iml" filepath="$PROJECT_DIR$/federation-back/federation-back.iml" />
+      <module fileurl="file://$PROJECT_DIR$/federation-jpa-abstractions/federation-jpa-abstractions.iml" filepath="$PROJECT_DIR$/federation-jpa-abstractions/federation-jpa-abstractions.iml" />
       <module fileurl="file://$PROJECT_DIR$/federation-service/federation-service.iml" filepath="$PROJECT_DIR$/federation-service/federation-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/federation-service-abstractions/federation-service-abstractions.iml" filepath="$PROJECT_DIR$/federation-service-abstractions/federation-service-abstractions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/federation-test/federation-test.iml" filepath="$PROJECT_DIR$/federation-test/federation-test.iml" />
     </modules>
   </component>
 </project>
