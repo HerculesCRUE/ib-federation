@@ -47,7 +47,7 @@ public class FederationController {
             @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c}") final String query
     ) throws IOException, URISyntaxException, JSONException {
         Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);
-        JsonObject jResponse = federationService.executeQueryInAllNodes(authorization,query,tripleStore,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout), limit);
+        JsonObject jResponse = federationService.executeQueryInAllNodes(authorization,query,tripleStore,(pageSize!=null)?Integer.valueOf(pageSize):null, (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout), limit);
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
@@ -71,7 +71,7 @@ public class FederationController {
         }
         List<String> nodes = Arrays.asList(nodeList.replaceAll(" ","").split(","));
         Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);
-        JsonObject jResponse = federationService.executeQueryInNodesList(authorization,query,tripleStore,nodes,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout),limit );
+        JsonObject jResponse = federationService.executeQueryInNodesList(authorization,query,tripleStore,nodes,(pageSize!=null)?Integer.valueOf(pageSize):null, (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout),limit );
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
