@@ -11,7 +11,7 @@ on:
 env:
   DOCKER_IMAGE: herculescrue/federation
   ARTIFACT_PATH: federation-back/target/federation-back-*.jar
-  DOWNLOAD_ARTIFACT_PATH: docker-build/java/app.jar
+  DOWNLOAD_ARTIFACT_PATH: docker-build/java
 
 jobs:
   build:
@@ -43,6 +43,15 @@ jobs:
           name: jar
           path: ${{ env.ARTIFACT_PATH }}
           retention-days: 5
+      - name: Microsoft Teams Notification
+        uses: skitionek/notify-microsoft-teams@master
+        if: failure()
+        with:
+          webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
+          overwrite: "{title: `federation (Build)`}"
+          needs: ${{ toJson(needs) }}
+          job: ${{ toJson(job) }}
+          steps: ${{ toJson(steps) }}
 
   deploy:
     needs: [build]
@@ -59,7 +68,11 @@ jobs:
         with:
           name: jar
           path: ${{ env.DOWNLOAD_ARTIFACT_PATH }}
-      
+
+      - name: Prepare artifact
+        working-directory: ${{ env.DOWNLOAD_ARTIFACT_PATH }}
+        run: mv *.jar app.jar
+
       - name: Docker meta
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
@@ -92,5 +105,12 @@ jobs:
           cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:latest
           cache-to: type=inline
 
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+      - name: Microsoft Teams Notification
+        uses: skitionek/notify-microsoft-teams@master
+        if: failure()
+        with:
+          webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
+          overwrite: "{title: `federation (Build)`}"
+          needs: ${{ toJson(needs) }}
+          job: ${{ toJson(job) }}
+          steps: ${{ toJson(steps) }}
