@@ -9,11 +9,7 @@ es\um\asio\back\controller\security\UserController$Mappings.class
 es\um\asio\back\controller\lod\LODSearchController.class
 es\um\asio\back\controller\endpointSPARL\EndPointSPARQL$Mappings.class
 es\um\asio\back\config\properties\CorsProperties.class
-<<<<<<< HEAD
 es\um\asio\back\controller\endpointSPARL\EndPointSPARQL.class
-es\um\asio\back\solr\SolrBackConfig.class
-=======
->>>>>>> master
 es\um\asio\back\controller\federation\FederationController$Mappings.class
 es\um\asio\back\Application.class
 es\um\asio\back\controller\security\UserController.class

@@ -34,11 +34,25 @@ public class LodDataSet implements Cloneable{
     }
 
     public List<String> getDatasetNames() {
-        List<String> datasetsNames = new ArrayList<>();
+        Set<String> datasetsNames = new HashSet<>();
         for (Dataset dataset : datasets) {
             datasetsNames.add(dataset.getName());
         }
-        return datasetsNames;
+        return new ArrayList<>(datasetsNames);
+    }
+
+    public List<String> getClassNames() {
+        Set<String> classes = new HashSet<>();
+        for (Dataset dataset : datasets) {
+            for (Dataset.Connection connection : dataset.getConnections()) {
+                for (Dataset.Connection.Mapping mapping: connection.getMappings()) {
+                    for (Dataset.Connection.Mapping.LocalClass localClass : mapping.getLocalClasses()) {
+                        classes.add(localClass.getName());
+                    }
+                }
+            }
+        }
+        return new ArrayList<>(classes);
     }
 
 

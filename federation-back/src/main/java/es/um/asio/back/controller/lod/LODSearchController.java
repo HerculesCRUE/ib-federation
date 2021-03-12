@@ -2,6 +2,7 @@ package es.um.asio.back.controller.lod;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import es.um.asio.service.config.LodDataSet;
 import es.um.asio.service.model.TripleObjectLink;
 import es.um.asio.service.model.TripleObjectSimplified;
 import es.um.asio.service.service.LODHandlerService;
@@ -25,6 +26,9 @@ public class LODSearchController {
 
     @Autowired
     LODHandlerService lodHandlerService;
+
+    @Autowired
+    LodDataSet lodDataSet;
 
     @PostMapping(Mappings.SEARCH)
     @ApiOperation("search similar objects in Cloud LOD with the object in body of the request")
@@ -70,6 +74,18 @@ public class LODSearchController {
         return lodHandlerService.findLinksInHandlers(datasets,tos);
     }
 
+    @GetMapping(Mappings.DATASETS)
+    @ApiOperation("Get List of datasets names")
+    public List<String> getDataSetNames() {
+        return lodDataSet.getDatasetNames();
+    }
+
+    @GetMapping(Mappings.CLASSES)
+    @ApiOperation("Get List of datasets names")
+    public List<String> getDataSetClassNames() {
+        return lodDataSet.getClassNames();
+    }
+
     /**
      * Mappgins.
      */
@@ -84,5 +100,15 @@ public class LODSearchController {
          * Controller request mapping.
          */
         protected static final String SEARCH = "/search";
+
+        /**
+         * Controller request mapping.
+         */
+        protected static final String DATASETS = "/datasets";
+
+        /**
+         * Controller request mapping.
+         */
+        protected static final String CLASSES = "/clases";
     }
 }

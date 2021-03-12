@@ -1,6 +1,46 @@
-# Arquetipo Java para API Rest
+![](./images/logos_feder.png)
 
-Arquetipo Java para API Rest con base de datos relacional
+| Entregable     | Procesador de datos                                          |
+| -------------- | ------------------------------------------------------------ |
+| Fecha          | 17/12/2020                                                   |
+| Proyecto       | [ASIO](https://www.um.es/web/hercules/proyectos/asio) (Arquitectura Semántica e Infraestructura Ontológica) en el marco de la iniciativa [Hércules](https://www.um.es/web/hercules/) para la Semántica de Datos de Investigación de Universidades que forma parte de [CRUE-TIC](http://www.crue.org/SitePages/ProyectoHercules.aspx) |
+| Módulo         | Federación                                                   |
+| Tipo           | Software                                                     |
+| Objetivo       | Módulo de Federación para el proyecto Backend SGI (ASIO).    |
+| Estado         | Completado al **100%**                                       |
+| Próximos pasos | Si fuese necesario añadir mas conectores a datasets de la nube LOD |
+| Documentación  | [Manual de usuario](./docs/manual_de_usuario.md) (documentación de alto nivel)<br />[Documentación técnica](./docs/documentacion-tecnica.md) (documentación de bajo nivel)<br/>[Documentación API REST](./docs/documentacion_api_rest_de_la_libreria_de_descubrimiento.md) (documentación de bajo nivel)<br/>[Docker](./docs/docker.md) |
+
+
+
+# Módulo de federación
+
+El presente modulo, describe el módulo de Federación.
+
+Este modulo tiene como principal objetivo dar respuesta al requisito de respuesta conjunta de la red HERCULES ante una consulta sobre el sistema a nivel global.
+
+Es también el punto de acceso a los distinto sistemas de almacenamiento de información o incluso a fuentes de datos externas al proyecto, entre ellas:
+
+* Acceso a distintos Triple Stores configurados para el proyecto, pudiendo recuperar la información:
+  * En forma tripletas RDF, en cualquiera de los formatos soportados por los endpoint sparql
+  * En forma de POJOs o objetos JAVA generalizados, para su uso en la librería de descubrimiento
+* Acceso a fuentes de información externas (nube LOD), por medio de conectores, y configurables por medio de ficheros de configuración
+
+El módulo de federación de consultas se subdivide a su vez en tres subsistemas clave:
+
+1. **CONSULTA**: encargado de ejecutar la consulta de forma paralela en todos los nodos de la red y optimización del proceso.
+2. **IDENTIFICACIÓN**: se apoya en la librería de descubrimiento para poder identificar entidades repetidas o similares.
+3. **AGREGACIÓN**: una vez recibidos los resultados e identificadas las similitudes, se encargaría de unificar los datos de entidades equivalentes obtenidas de diferentes nodos.
+
+Para ello sigue una estrategia P2P, es decir:
+
+* Existirán tantos nodos de Federación como Backend SGI existan desplegados en la solución.
+* Es servicio [Service Discovery](https://github.com/HerculesCRUE/ib-service-discovery), será el encargado de conocer la ubicación de todos los nodos de federación que puedan estar desplegados.
+* Cualquier nodo de federación, puede actuar como maestro, y actuara siempre como tal el nodo que recibe la consulta.
+* Cada nodo de federación (esclavos y maestros), resolverá la consulta de forma local, en los triple stores desplegados en su nodo.
+* El nodo de federación que actúa como maestro, orquestara las peticiones al resto de nodos, y agregara las respuestas según lo descrito anteriormente.
+
+![](./images/ASIO_Izertis_Federación_v2.png)
 
 ## OnBoarding
 
@@ -15,128 +55,92 @@ Para iniciar el entorno de desarrollo se necesita cumplir los siguientes requisi
 
 También se debe instalar el entorno de desarrollo acorde con lo explicado en: [https://corpus.izertis.com/arquitectura/java/configuracion-del-entorno](https://corpus.izertis.com/arquitectura/java/configuracion-del-entorno)
 
+## OnBoarding
 
-### Instalar Lombok
+Para iniciar el entorno de desarrollo se necesita cumplir los siguientes requisitos:
 
-Para la instalación de Lombok, es preciso descargar la última versión desde [https://projectlombok.org/download](https://projectlombok.org/download). Se descargará un jar que precisa ser ejecutado:
+* OpenJDK 11 (en caso de querer JDK8: Oracle JDK 8)
+* Eclipse JEE 2019-09 con plugins:
+  ** Spring Tools 4
+  ** m2e-apt
+  ** Lombok
+* Docker
 
-	java -jar lombok.jar
+## Módulos disponibles
 
-Se seleccionará la ubicación en la que se encuentra instalado Eclipse.
-
-En caso que de problemas a la hora de generar las clases de Mapstruct, es preciso utilizar una versión parcheada de lombok. Para ello, se ha dejado en \\rackstation\Desarrollo\fuentes\Entorno de desarrollo\Eclipses el fichero lombok-patched-1.18.6.jar. Se deberá configurar en el fichero eclipse.ini, sustituyendo el jar que tiene configurado actualmente por el parcheado
-
-```
--javaagent:C:\desarrollo\java\install\eclipse-jee-2018-12-R-win32-x86_64\lombok-patched-1.18.6.jar
-```
-
-## Inicialización de la base de datos y solr
-
-La inicialización de la base de datos y solr se realiza con docker. En primer lugar es preciso modificar el fichero ```docker-devenv\.env``` y actualizar la variable de entorno ```COMPOSE_PROJECT_NAME```
-
-En el directorio docker-devenv se ha configurado un fichero docker-compose.yml para poder arrancar el entorno de desarrollo. Actualmente contiene los siguientes elementos:
-
-* Postgre 11.1
-* Solr 7.7 (no activo por defecto)
-
-En caso de querer cambiar una versión o añadir un nuevo elemento al docker-compose, se puede buscar la imagen apropiada en https://hub.docker.com/
-
-Se pueden eliminar los elementos que no se vayan a utilizar.
-
-Para arrancar el entorno:
-
-	docker-compose up -d
-
-Para pararlo:
-
-	docker-compose down
-
-En caso de querer levantar Solr, se precisa descomentar del fichero ```docker-compose.yml``` la sección correspondiente. Acceder a solr (http://localhost:8983/solr/#/~collections) y crear una colección llamada app con el esquema default
+* **Módulo back**: módulo que añade una capa de servicios REST a la funcionalidad de la aplicación. Genera un artefacto JAR bootable
+* **Módulo service**: módulo que contiene la lógica de la aplicación. Puede ser utilizado como librería independiente para ser integrado en otras aplicaciones
 
 ## Metodología de desarrollo
 
-La metodología de desarrollo es Git Flow. Se puede obtener más información en: [https://corpus.izertis.com/procedimientos/git-flow](https://corpus.izertis.com/procedimientos/git-flow)
+La metodología de desarrollo es Git Flow.
 
-## Inserción de usuario inicial
+## Entorno de desarrollo Docker
 
-La inserción de un usuario administrador inicial, con nombre de usuario ```user``` y contraseña ```secret``` se hace mediante el siguiente script:
+La inicialización de los elementos adicionales al entorno de desarrollo se realiza con docker. 
 
-```sql
-INSERT INTO APPLICATION_USER 
-	(ID, ACCOUNT_NON_EXPIRED, ACCOUNT_NON_LOCKED, ADDRESS, CITY, COUNTRY, CREDENTIALS_NON_EXPIRED, EMAIL, ENABLED, LANGUAGE, NAME, PASSWORD, PASSWORD_RECOVERY_HASH, USERNAME, VERSION) 
-VALUES 
-	('1', true, true, '1', '1', '1', true, 'b@t.com', true, '1', 'user', '{bcrypt}$2a$10$08d0l3aRNN.DQ/CgHFmZNOUmpaWSjWsTRzN/Dcd.1WEhpQ13CEDxK', 'secret', 'user', 1);
+En el directorio **docker-devenv** se ha configurado un fichero docker-compose.yml para poder arrancar el entorno de desarrollo.
 
-INSERT INTO application_user_role (ROLE, USER_ID) VALUES ('ADMINISTRATOR', '1');
+Para arrancar el entorno:
+
+```bash
+docker-compose up -d
 ```
 
-Se ha dejado el script en ```db\02.default-data.sql```
+Para pararlo:
 
-## OAuth
-
-En caso de querer utilizar OAuth con persistencia de sus datos en base de datos, además de configurar la aplicación, es preciso crear las tablas correspondientes. Se ha dejado el script en ```db\01.oauth-schema.sql```. Esto creará también un cliente con el usuario ```acme``` y contraseña ```acmesecret```.
-
-## Java 11
-
-La aplicación está preparada para funcionar con JDK 11. En caso de necesitar trabajar con un JDK anterior, es preciso especificar una propiedad en el POM:
-
-```xml
-<properties>
-	<java.version>1.8</java.version>
-</properties>
+```bash
+docker-compose down
 ```
 
-Para descargar JDK 11, se precisa utilizar openjdk, la cual se puede obtener de https://jdk.java.net/11/
+## Swagger
 
-### Swagger
+Se ha añadido la posibilidad de utilizar Swagger. Para acceder a Swagger, se utilizará la siguiente URL:
 
-Se ha añadido la posibilidad de utilizar Swagger, el cual se ha configurado como Starter:
+* http://localhost:9328/swagger-ui.html
 
-Para acceder a Swagger, se utilizará la siguiente URL:
+Para activar swagger se utilizará la variable `app.swagger.enabled`
 
-http://localhost:8080/swagger-ui.html
+## Instalación en entorno real
 
-## Transacciones Spring
+La aplicación se puede configurar por medio del fichero de configuración **application.yml** o mediante variables de entorno.
 
-Una cosa a tener en cuenta es cómo funcionan las transacciones con spring. Para declarar un método como transaccional, es preciso añadir la anotación @Transactional, la cual se puede añadir a nivel de clase y de método. Lo ideal es configurarlo en los service siguiendo el siguiente patrón:
+El fichero de configuración será la configuración usada para cualquier variable de entorno que no este configurada
 
-* Clase
-** readOnly: truee
-** propagation: supports
-* Métodos que modifiquen información (save, update, delete, etc.)
-** readOnly: false
-** propagation: required
+Será preciso configurar las siguientes variables de entorno cuando se instale en un entorno real (el resto pueden ser cambiadas si se desea en el fichero de configuración y en caso contrarío se usara el valor por defecto):
 
-Por ejemplo:
+* Relativas a la Base de datos Relacional
 
-```java
-@IndexableClass
-@Service
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-public class UserServiceImpl implements UserService, UserDetailsService {
+| Variable                                       | Descripción                                           | Valor por defecto                                            |
+| ---------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------ |
+| `APP_PERSISTENCE_DATASOURCE_DRIVER-CLASS-NAME` | Driver usado para la conexión a BBDD Relacional       | org.mariadb.jdbc.Driver                                      |
+| `APP_PERSISTENCE_DATASOURCE_USERNAME`          | Usuario para la conexión a BBDD Relacional            | app                                                          |
+| `APP_PERSISTENCE_DATASOURCE_PASSWORD`          | Password para la conexión a BBDD Relacional           | sqlpass                                                      |
+| `APP_PERSISTENCE_DATASOURCE_URL`               | Cadena de conexión para la conexión a BBDD Relacional | jdbc:mariadb://127.0.0.1:3307/federation?ssl=false&createDatabaseIfNotExist=true |
 
-    @Autowired
-    private UserRepository userRepository;
+* Relativas a la configuración de la instancia de Federación (para gestionar el registro en el Service Discovery)
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    @Override
-    public User save(final User entity) {
-        User user = new User();
-        user.setUsername("user69");
-        this.userRepository.save(user);
-        
-        return save2(entity);
-    }
-    
-    @Override
-    public List<User> findAll() {
-        return this.userRepository.findAll();
-    }
-}
-```
+| Variable            | Descripción                                                  | Valor por defecto  |
+| ------------------- | ------------------------------------------------------------ | ------------------ |
+| `APP_HOST`          | Host donde esta desplegada el nodo de federación. Se debe de facilitar la URL de acceso desde el exterior, ya que el nodo maestro accederá a los distintos módulos por medio de esta URL. Al inicializarse el nodo de Federación, se registrara con estos valores en el Service Discovery. | http://localhost   |
+| `APP_PORT`          | Puerto donde el nodo de federación estará escuchando. Dicho puerto ha de estar expuesto hacia el exterior. Al inicializarse el nodo de Federación, se registrara con estos valores en el Service Discovery. | 9328               |
+| `APP_NODE`          | Nombre del nodo al que pertenece la instancia de federación. Al inicializarse el nodo de Federación, se registrara con estos valores en el Service Discovery. | um                 |
+| `APP_NAME`          | Nombre del servicio de la instancia de federación. En este caso siempre ha de ser **Federation**. Al inicializarse el nodo de Federación, se registrara con estos valores en el Service Discovery. | Federation         |
+| `APP_HEATHENDPOINT` | Endpoint donde es posible chequear el estado de la instancia de federación. Al inicializarse el nodo de Federación, se registrara con estos valores en el Service Discovery. | /management/health |
+| `APP_TRIPLESTORES`  | Lista de triple stores que se crearan como tipos asociados a el servicio de Federación en el Service Discovery | fuseki             |
 
-Es preciso tener en cuenta que en caso que se produzca un excepción durante la transacción no siempre se realiza el rollback por defecto, las reglas a seguir son las siguientes:
+* Relativas a la ubicación de los servicios a los que el nodo de Federación debe acceder
 
-* Excepciones unchecked (runtime): aplica por defecto rollback, por ejemplo todas las excepciones sobre constraints violadas entrarían por esta opción
-* Excepciones checked: no aplica rollback por defecto, es preciso configuarlas mediante el parámetro rollbackFor de la anotación @Transactional
- 
+| Variable                                       | Descripción                                                  | Valor por defecto     |
+| ---------------------------------------------- | ------------------------------------------------------------ | --------------------- |
+| `SERVICE_DISCOVERY-HOST`                       | Dirección y puerto donde se encuentra desplegado el servicio Service Discovery | http://localhost:9329 |
+| `TRELLIS_HOST`                                 | Dirección y puerto donde se encuentra desplegado el servidor LDP Trellis local | http://localhost      |
+| `DATASOURCE_SPARQL_NODENAME`                   | Nombre del nodo donde se encuentran los conectores (en forma de lista) para las conexiones a los endpoint SPARQL | um                    |
+| `DATASOURCE_SPARQL_CONECTORS_0_TYPE`           | Tipo de conector del endpoint SPARQL que estamos configurando. Este tipo se registrara al arrancar la aplicación en el Service Discovery, asociado al servicio de Federación | fuseki                |
+| `DATASOURCE_SPARQL_CONECTORS_0_HOST`           | Host que usara el conector del endpoint SPARQL que estamos configurando. | fuseki                |
+| `DATASOURCE_SPARQL_CONECTORS_0_PORT`           | Puerto que usara el conector del endpoint SPARQL que estamos configurando. | 3030                  |
+| `DATASOURCE_SPARQL_CONECTORS_0_SUFFIXURL`      | Sufijo sobre la URL Base, que usara el conector del endpoint SPARQL que estamos configurando. | /trellis/query        |
+| `DATASOURCE_SPARQL_CONECTORS_0_QUERYPARAMNAME` | Nombre del parámetro que usa el endpoint SPARQL, para pasar la Query | query                 |
+
+Es muy relevante también la configuración para los conectores que acceden a los distintos datasets de la nube LOD, y que usara la [Librería de descubrimiento](https://github.com/HerculesCRUE/ib-asio-docs-/tree/master/24-Librer%C3%ADa_de_descubrimiento), para la tarea de descubrimiento de enlaces. Podemos encontrar mas información al respecto en la [Documentación técnica](./docs/documentacion-tecnica.md)
+
