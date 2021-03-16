@@ -63,10 +63,10 @@ public class DataFetcherServiceImpl implements DataFetcherService {
         logger.info("Request Object URIs. Node: {}, Service: {}, TripleStore {}", nodeName,service,tripleStore);
         Set<String> objects = new HashSet<>();
         DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);
-        logger.info("Node in DataSourceRepository: {}", node);
+        logger.info("Node in DataSourceRepository: {}", node.toString());
         if (node!=null) {
             DataSourceRepository.Node.Service serv = node.getServiceByName(service);
-            logger.info("Service in DataSourceRepository: {}", serv);
+            logger.info("Service in DataSourceRepository: {}", serv.toString());
             if (serv!=null) {
                 DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);
                 if (type != null) {
