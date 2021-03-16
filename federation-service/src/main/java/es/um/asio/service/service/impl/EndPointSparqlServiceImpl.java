@@ -11,6 +11,8 @@ import es.um.asio.service.model.constants.Constants;
 import es.um.asio.service.service.EndPointSparqlService;
 import es.um.asio.service.service.FederationServiceHelper;
 import es.um.asio.service.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +34,13 @@ public class EndPointSparqlServiceImpl implements EndPointSparqlService  {
     @Autowired
     DataSourceSPARQL dataSourceSPARQL;
 
+    private final Logger logger = LoggerFactory.getLogger(DataFetcherServiceImpl.class);
+
     @Override
     public JsonObject executeQuery(String authorization, String query, String tripleStore, Integer pageSize, Integer nodeTimeout) throws URISyntaxException, IOException {
 
         DataSourceSPARQL.Connector connector = dataSourceSPARQL.getConnectorByType(tripleStore);
+        logger.info("Connector: {}", connector.toString());
         Integer limit = null;
         if (connector == null) {
             throw new CustomFederationException("Type of triplestore "+tripleStore+" not is a valid tyoe");
@@ -62,7 +67,7 @@ public class EndPointSparqlServiceImpl implements EndPointSparqlService  {
             future = federationServiceHelper.executeQuery("EndPoint",authorization,dataSourceSPARQL.getNodeName(),new URL(url),query,nodeTimeout,limit);
 
         JsonObject jResponse = future.join();
-
+        logger.info("SPARQL Endpoint Response: {}", jResponse.toString());
         return jResponse;
     }
 

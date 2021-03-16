@@ -2,10 +2,7 @@ package es.um.asio.service.config;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +15,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class DataSourceRepository {
 
     private List<Node> nodes = new ArrayList<>();
@@ -34,6 +32,7 @@ public class DataSourceRepository {
     @NoArgsConstructor
     @Getter
     @Setter
+    @ToString
     public static class Node {
 
         private int id;
@@ -54,6 +53,7 @@ public class DataSourceRepository {
         @NoArgsConstructor
         @Getter
         @Setter
+        @ToString
         public static class Service {
             private int id;
             private String name;
@@ -84,6 +84,7 @@ public class DataSourceRepository {
             @NoArgsConstructor
             @Getter
             @Setter
+            @ToString
             public static class Type {
                 private int id;
                 private String name;

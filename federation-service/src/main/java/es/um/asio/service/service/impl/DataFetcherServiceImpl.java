@@ -56,7 +56,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
     @Value("${app.trellis-host}")
     String trellisHost;
 
-    private final Logger logger = LoggerFactory.getLogger(SparqlProxyHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(DataFetcherServiceImpl.class);
 
     @Override
     public Set<String> getObjectsUris(String nodeName, String service, String tripleStore) throws IOException {
@@ -69,6 +69,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
             logger.info("Service in DataSourceRepository: {}", serv.toString());
             if (serv!=null) {
                 DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);
+                logger.info("Type in DataSourceRepository: {}", type.toString());
                 if (type != null) {
                     URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
                     logger.info("URL: {}", url);

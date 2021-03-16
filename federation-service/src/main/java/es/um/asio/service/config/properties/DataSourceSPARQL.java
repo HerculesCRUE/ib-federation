@@ -1,10 +1,7 @@
 package es.um.asio.service.config.properties;
 
 import es.um.asio.service.util.Utils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.catalina.util.URLEncoder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -19,6 +16,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class DataSourceSPARQL {
 
     private String nodeName;
@@ -36,6 +34,7 @@ public class DataSourceSPARQL {
     @NoArgsConstructor
     @Getter
     @Setter
+    @ToString
     public static class Connector {
 
         private String type;
