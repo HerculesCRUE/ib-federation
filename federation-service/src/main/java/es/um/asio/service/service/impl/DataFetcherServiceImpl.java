@@ -8,12 +8,15 @@ import es.um.asio.service.config.DataSourceRepository;
 
 import es.um.asio.service.model.TripleObjectSimplified;
 import es.um.asio.service.model.URIComponent;
+import es.um.asio.service.repository.SparqlProxyHandler;
 import es.um.asio.service.service.DataFetcherService;
 import es.um.asio.service.service.HttpRequestHelper;
 import es.um.asio.service.service.SchemaService;
 import es.um.asio.service.service.ServiceDiscoveryService;
 import es.um.asio.service.util.Utils;
 import org.jsoup.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -53,16 +56,22 @@ public class DataFetcherServiceImpl implements DataFetcherService {
     @Value("${app.trellis-host}")
     String trellisHost;
 
+    private final Logger logger = LoggerFactory.getLogger(SparqlProxyHandler.class);
+
     @Override
     public Set<String> getObjectsUris(String nodeName, String service, String tripleStore) throws IOException {
+        logger.info("Request Object URIs. Node: {}, Service: {}, TripleStore {}", nodeName,service,tripleStore);
         Set<String> objects = new HashSet<>();
         DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);
+        logger.info("Node in DataSourceRepository: {}", node);
         if (node!=null) {
             DataSourceRepository.Node.Service serv = node.getServiceByName(service);
+            logger.info("Service in DataSourceRepository: {}", serv);
             if (serv!=null) {
                 DataSourceRepository.Node.Service.Type type = serv.getTypeByName(tripleStore);
                 if (type != null) {
                     URL url = Utils.buildURL(serv.getBaseURL(),serv.getPort(),type.getSuffixURL());
+                    logger.info("URL: {}", url);
                     String query = "SELECT DISTINCT ?object " +
                             "WHERE { " +
                             "?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  ?object . " +
@@ -72,8 +81,9 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                     queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
                     queryParam.put("pageSize","50000");
                     queryParam.put("query",query);
+                    logger.info("queryParam: {}", queryParam);
                     JsonElement jeResponse = Utils.doRequest(url, Connection.Method.GET,null,null,queryParam,true);
-
+                    logger.info("Response: {}", jeResponse.toString());
                     if (jeResponse != null && !jeResponse.isJsonNull() && jeResponse.isJsonObject()) {
                         JsonObject jResponse = jeResponse.getAsJsonObject();
                         for (JsonElement jeItem : getJsonItems(jResponse)) {
