@@ -1,12 +1,12 @@
 ---
 app:
   host: http://localhost
-  port: 9328
+  port: 19328
   node: um
   name: Federation
   healthEndpoint: /management/health
   tripleStores: fuseki
-  service-discovery-host: http://localhost:9329
+  service-discovery-host: http://localhost:19329
   trellis-host: http://localhost
   default-request-timeout: 60000
   persistence:
@@ -103,7 +103,7 @@ management:
 server:
   port: ${management.server.port}
 
-datasource-sparql:
+endpoint:
   nodeName: um
   connectors:
     - type: fuseki

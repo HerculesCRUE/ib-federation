@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@ConfigurationProperties("datasource-sparql") // prefix app, find app.* values
+@ConfigurationProperties("endpoint") // prefix app, find app.* values
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class DataSourceSPARQL {
+public class Endpoint {
 
     private String nodeName;
     private List<Connector> connectors = new ArrayList<>();
