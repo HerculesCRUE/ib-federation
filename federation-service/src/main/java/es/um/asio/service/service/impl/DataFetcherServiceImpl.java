@@ -59,7 +59,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
     private final Logger logger = LoggerFactory.getLogger(DataFetcherServiceImpl.class);
 
     @Override
-    public Set<String> getObjectsUris(String nodeName, String service, String tripleStore) throws IOException {
+    public Set<String> getObjectsUris(String domain,String nodeName, String service, String tripleStore) throws IOException {
         logger.info("Request Object URIs. Node: {}, Service: {}, TripleStore {}", nodeName,service,tripleStore);
         Set<String> objects = new HashSet<>();
         DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);
@@ -76,7 +76,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                     String query = "SELECT DISTINCT ?object " +
                             "WHERE { " +
                             "?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  ?object . " +
-                            " FILTER regex(str(?object),\"^http://hercules.org/um/*/*/\")" +
+                            " FILTER regex(str(?object),\"^http[s]*://"+domain+"/"+node.getName()+"/*/*/\")" +
                             "}";
                     Map<String,String> queryParam = new HashMap<>();
                     queryParam.put("nodeTimeout",String.valueOf(defaultTimeout));
@@ -105,7 +105,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
 
 
     @Override
-    public Set<TripleObjectSimplified> getTripleObjectSimplified(String nodeName, String service, String tripleStore, String className) throws URISyntaxException, IOException {
+    public Set<TripleObjectSimplified> getTripleObjectSimplified(String domain,String nodeName, String service, String tripleStore, String className) throws URISyntaxException, IOException {
         Map<String,TripleObjectSimplified> objects = new HashMap<>();
         DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);
         if (node!=null) {
@@ -173,7 +173,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
     }
 
     @Override
-    public TripleObjectSimplified findTripleObjectSimplifiedByURI(String nodeName, String service, String tripleStore, String className, String uri) throws URISyntaxException, IOException {
+    public TripleObjectSimplified findTripleObjectSimplifiedByURI(String domain,String nodeName, String service, String tripleStore, String className, String uri) throws URISyntaxException, IOException {
         TripleObjectSimplified tos = null;
         DataSourceRepository.Node node = serviceDiscoveryService.getNode(nodeName);
         if (node!=null) {

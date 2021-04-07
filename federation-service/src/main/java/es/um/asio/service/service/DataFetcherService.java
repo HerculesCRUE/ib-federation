@@ -9,9 +9,9 @@ import java.util.Set;
 
 public interface DataFetcherService {
 
-    Set<String> getObjectsUris(String nodeName, String service, String tripleStore) throws URISyntaxException, IOException;
+    Set<String> getObjectsUris(String domain,String nodeName, String service, String tripleStore) throws URISyntaxException, IOException;
 
-    Set<TripleObjectSimplified> getTripleObjectSimplified(String nodeName, String service, String tripleStore, String className) throws URISyntaxException, IOException;
+    Set<TripleObjectSimplified> getTripleObjectSimplified(String domain,String nodeName, String service, String tripleStore, String className) throws URISyntaxException, IOException;
 
-    TripleObjectSimplified findTripleObjectSimplifiedByURI(String nodeName, String service, String tripleStore, String className, String uri) throws URISyntaxException, IOException;
+    TripleObjectSimplified findTripleObjectSimplifiedByURI(String domain,String nodeName, String service, String tripleStore, String className, String uri) throws URISyntaxException, IOException;
 }

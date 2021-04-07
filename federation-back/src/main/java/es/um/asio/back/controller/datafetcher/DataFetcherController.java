@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,9 +38,12 @@ public class DataFetcherController {
     @Autowired
     DataSourceRepository dataSourceRepository;
 
+
     @GetMapping(Mappings.OBJECTS)
     @ApiOperation(value = "Get All Class in the Triple Store")
     public Set<String> getAllObjects(
+        @ApiParam(name = "domain", value = "Domain of data", defaultValue = "ldp.herculesasioizertis.desa.um.es", required = true)
+        @RequestParam(required = true, defaultValue = "ldp.herculesasioizertis.desa.um.es") @Validated(Create.class) final String domain,
         @ApiParam(name = "node", value = "Node of data", defaultValue = "um", required = true)
         @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
         @ApiParam(name = "service", value = "Service of SPARQL", defaultValue = "Federation", required = true)
@@ -48,13 +52,15 @@ public class DataFetcherController {
         @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore
     ) throws URISyntaxException, IOException {
         return dataFetcherService.getObjectsUris(
-                node,endpointSPARQService,tripleStore
+                domain,node,endpointSPARQService,tripleStore
         );
     }
 
     @GetMapping(Mappings.INSTANCES)
     @ApiOperation(value = "Get All Instances in the Triple Store")
     public Set<TripleObjectSimplified> getAllInstances(
+            @ApiParam(name = "domain", value = "Domain of data", defaultValue = "ldp.herculesasioizertis.desa.um.es", required = true)
+            @RequestParam(required = true, defaultValue = "ldp.herculesasioizertis.desa.um.es") @Validated(Create.class) final String domain,
             @ApiParam(name = "node", value = "Node of data", defaultValue = "um", required = true)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
             @ApiParam(name = "service", value = "Service of SPARQL", defaultValue = "Federation", required = true)
@@ -65,13 +71,15 @@ public class DataFetcherController {
             @RequestParam(required = true) @Validated(Create.class) final String className
     ) throws URISyntaxException, IOException {
         return dataFetcherService.getTripleObjectSimplified(
-                node,endpointSPARQService,tripleStore,className
+                domain,node,endpointSPARQService,tripleStore,className
         );
     }
 
     @GetMapping(Mappings.FIND_INSTANCE)
     @ApiOperation(value = "Find a instance in the Triple Store by Canonical URI")
     public TripleObjectSimplified getFindInstanceByURI(
+            @ApiParam(name = "domain", value = "Domain of data", defaultValue = "ldp.herculesasioizertis.desa.um.es", required = true)
+            @RequestParam(required = true, defaultValue = "ldp.herculesasioizertis.desa.um.es") @Validated(Create.class) final String domain,
             @ApiParam(name = "node", value = "Node of data", defaultValue = "um", required = true)
             @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
             @ApiParam(name = "service", value = "Service of SPARQL", defaultValue = "Federation", required = true)
@@ -85,7 +93,7 @@ public class DataFetcherController {
 
     ) throws URISyntaxException, IOException {
         return dataFetcherService.findTripleObjectSimplifiedByURI(
-                node,endpointSPARQService,tripleStore,className,uri
+                domain,node,endpointSPARQService,tripleStore,className,uri
         );
     }
 

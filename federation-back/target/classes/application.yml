@@ -1,12 +1,13 @@
 ---
 app:
   host: http://localhost
-  port: 9328
+  port: 19328
+  domain: ldp.herculesasioizertis.desa.um.es
   node: um
   name: Federation
   healthEndpoint: /management/health
   tripleStores: fuseki
-  service-discovery-host: http://localhost:9329
+  service-discovery-host: http://localhost:8089
   trellis-host: http://localhost
   default-request-timeout: 60000
   persistence:
