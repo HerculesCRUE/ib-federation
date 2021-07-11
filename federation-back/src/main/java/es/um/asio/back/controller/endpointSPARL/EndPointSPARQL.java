@@ -33,30 +33,22 @@ public class EndPointSPARQL {
 
     @GetMapping("/{type}")
     @ApiOperation(value = "End Point Sparql to fetch data at local node and triple store type by name")
-    @ApiImplicitParams({
-            @ApiImplicitParam(
-                    name = "query",
-                    examples = @io.swagger.annotations.Example(
-                            value = {
-                                    @ExampleProperty(value = "SELECT ?a ?b ?c WHERE { ?a ?b ?c }", mediaType = "text/plain")
-                            }))
-    })
-    public Map<String,Object> executeQueryInTripleStore(
+    public String executeQueryInTripleStore(
             @RequestHeader( value = "Authorization", required = false) final String authorization,
             @ApiParam(name = "type", value = "Triple Store by name to fetch data [ fuseki , wikibase ]", defaultValue = "fuseki", required = true)
             @PathVariable(required = true) @Validated(Create.class) final String type,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
             @RequestParam(required = false) final String nodeTimeout,
-            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false)
+            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "5001", required = false)
             @RequestParam(required = false) final String pageSize,
-            @ApiParam(name = "query", value = "the query", defaultValue = "SELECT ?a ?b ?c WHERE { ?a ?b ?c }", required = false)
-            @RequestParam(required = true)  final String query
+            @ApiParam(name = "query", value = "The query SPARQL", defaultValue = "SELECT * WHERE {?a ?b ?c} limit 10000", required = false)
+            @RequestParam(required = false) final String query
 
     ) throws URISyntaxException, IOException {
 
         JsonObject jResponse = endPointSparqlService.executeQuery(authorization,query,type,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
-        return new Gson().fromJson(jResponse.toString(), LinkedTreeMap.class);
-        //return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
+        //return new Gson().fromJson(jResponse.toString(), LinkedTreeMap.class);
+        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
     @PostMapping(path = "/{type}", consumes = "text/plain; charset: utf-8")
@@ -69,20 +61,20 @@ public class EndPointSPARQL {
                                     @ExampleProperty(value = "SELECT ?a ?b ?c WHERE { ?a ?b ?c }", mediaType = "text/plain")
                             }))
     })
-    public Map<String,Object> executeQueryPostInTripleStore(
+    public String executeQueryPostInTripleStore(
             @RequestHeader( value = "Authorization", required = false) final String authorization,
             @ApiParam(name = "type", value = "Triple Store by name to fetch data [ fuseki , wikibase ]", defaultValue = "fuseki", required = true)
             @PathVariable(required = true) @Validated(Create.class) final String type,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
             @RequestParam(required = false) final String nodeTimeout,
-            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false)
+            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "5000", required = false)
             @RequestParam(required = false) final String pageSize,
             @RequestBody(required = true) String query
     ) throws URISyntaxException, IOException {
 
         JsonObject jResponse = endPointSparqlService.executeQuery(authorization,query,type,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
-        return new Gson().fromJson(jResponse.toString(), LinkedTreeMap.class);
-        //return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
+        // return new Gson().fromJson(jResponse.toString(), LinkedTreeMap.class);
+        return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
 

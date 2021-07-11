@@ -58,7 +58,7 @@ public class EndPointSparqlServiceImpl implements EndPointSparqlService  {
             future = federationServiceHelper.executeQuery("EndPoint",authorization, endpoint.getNodeName(),new URL(url),query,nodeTimeout,limit);
 
         JsonObject jResponse = future.join();
-        logger.info("SPARQL Endpoint Response: {}", jResponse.toString());
+        logger.info("Completed SPARQL Endpoint Response");
         return jResponse;
     }
 

@@ -36,27 +36,7 @@ public class LODSearchController {
             @ApiImplicitParam(
                     name = "obj",
                     dataType = "TripleObjectSimplified",
-                    value ="{" +
-                            "\"localURI\": \"http://herc-iz-front-desa.atica.um.es/Articulo/94eb3174-c69b-3a2a-a3e3-ebf3d6605d8b\"," +
-                                    "\"className\": \"Articulo\"," +
-                                    "\"lastModification\": 1434060000000," +
-                                    "\"tripleStore\":{" +
-                                    "\"id\": null,"+
-                                    "\"name\": \"sparql\","+
-                                    "\"baseURL\": null,"+
-                                    "\"user\": null,"+
-                                    "\"password\": null,"+
-                                    "\"node\":{" +
-                                    "\"nodeName\": \"um\""+
-                                    "}" +
-                                    "}," +
-                                    "\"attributes\":{" +
-                                    "\"localId\": \"51260\","+
-                                    "\"año\": \"2011\","+
-                                    "\"coautoria\": \"N\","+
-                                    "\"name\": \"Implementation of a new modular facility to detoxify agro-wastewater polluted with neonicotinoid insecticides in farms by solar photocatalysis\""+
-                                    "}"+
-                            "}",
+                    value ="{\"localURI\": \"http://herc-iz-front-desa.atica.um.es/Articulo/94eb3174-c69b-3a2a-a3e3-ebf3d6605d8b\",\"className\": \"Article\",\"lastModification\": 1434060000000,\"tripleStore\":{\"id\": null,\"name\": \"sparql\",\"baseURL\": null,\"user\": null,\"password\": null,\"node\":{\"nodeName\": \"um\"}},\"attributes\":{\"localId\": \"51260\",\"año\": \"2011\",\"coautoria\": \"N\",\"title\": \"Implementation modular facility detoxify agro-wastewater \"}}",
                     examples = @io.swagger.annotations.Example(
                             value = {
                                     @ExampleProperty(value = "’obj‘：{\"localURI\": \"http://herc-iz-front-desa.atica.um.es/Articulo/94eb3174-c69b-3a2a-a3e3-ebf3d6605d8b\",\"className\": \"Articulo\",\"lastModification\": 1434060000000,\"tripleStore\":{\"id\": null,\"name\": \"sparql\",\"baseURL\": null,\"user\": null,\"password\": null,\"node\":{\"nodeName\": \"um\"}},\"attributes\":{\"localId\": \"51260\",\"año\": \"2011\",\"coautoria\": \"N\",\"name\": \"Implementation of a new modular facility to detoxify agro-wastewater polluted with neonicotinoid insecticides in farms by solar photocatalysis\"}}", mediaType = "application/json")

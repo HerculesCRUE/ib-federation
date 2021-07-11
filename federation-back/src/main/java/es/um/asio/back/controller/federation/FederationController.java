@@ -41,10 +41,10 @@ public class FederationController {
             @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
             @RequestParam(required = false) final String nodeTimeout,
-            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false)
+            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "5000", required = false)
             @RequestParam(required = false) final String pageSize,
             @ApiParam(name = "query", value = "Query to execute in nodes", required = true)
-            @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c}") final String query
+            @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c} limit 10000") final String query
     ) throws IOException, URISyntaxException, JSONException {
         Integer limit = es.um.asio.service.util.Utils.extractLimitInSPARQL(query);
         JsonObject jResponse = federationService.executeQueryInAllNodes(authorization,query,tripleStore,(pageSize!=null)?Integer.valueOf(pageSize):null, (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout), limit);
@@ -59,12 +59,12 @@ public class FederationController {
             @RequestParam(required = true, defaultValue = "fuseki") @Validated(Create.class) final String tripleStore,
             @ApiParam(name = "nodeTimeout", value = "Node Timeout", defaultValue = "60000", required = false)
             @RequestParam(required = false) final String nodeTimeout,
-            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "1000", required = false, type = "Integer")
+            @ApiParam(name = "pageSize", value = "pageSize", defaultValue = "5000", required = false, type = "Integer")
             @RequestParam(required = false) final String pageSize,
             @ApiParam(name = "nodeList", value = "Node List", defaultValue = "um, um2", required = true)
             @RequestParam(required = true) final String nodeList,
             @ApiParam(name = "query", value = "Query to execute in nodes", required = true)
-            @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c}") final String query
+            @RequestParam(required = true, defaultValue = "SELECT ?a ?b ?c WHERE {?a ?b ?c} limit 10000") final String query
     ) throws IOException, URISyntaxException, JSONException {
         if (!Utils.isValidString(nodeList)) {
             throw new CustomFederationException("nodes list can not be null");
