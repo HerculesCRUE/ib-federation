@@ -113,7 +113,6 @@ endpoint:
       suffixURL: /trellis/query
       queryParamName: query
 
-
 lod-data-sources:
   datasets:
     - name: SCOPUS
