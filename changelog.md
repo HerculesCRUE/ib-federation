@@ -1,5 +1,9 @@
 # Registro de cambios
 
+## 2.1.0 (15/07/2021)
+
+* Añadido endpoint de consulta 
+
 ## 2.0.5
 
 * Actualización versión parent y librerías a 1.1.3
