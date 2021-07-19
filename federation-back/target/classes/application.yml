@@ -2,14 +2,14 @@
 app:
   host: http://localhost
   port: 9328
-  domain:
+  domain: ldpld1.um.es
   node: um
   name: Federation
   healthEndpoint: /management/health
   tripleStores: fuseki
   service-discovery-host: http://localhost:9329
   trellis-host: http://localhost
-  default-request-timeout: 60000
+  default-request-timeout: 300000
   persistence:
     datasource:
       driver-class-name: org.mariadb.jdbc.Driver
@@ -112,7 +112,6 @@ endpoint:
       port: 3030
       suffixURL: /trellis/query
       queryParamName: query
-
 
 lod-data-sources:
   datasets:

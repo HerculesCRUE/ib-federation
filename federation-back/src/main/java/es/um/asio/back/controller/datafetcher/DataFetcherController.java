@@ -39,11 +39,12 @@ public class DataFetcherController {
     DataSourceRepository dataSourceRepository;
 
 
+
     @GetMapping(Mappings.OBJECTS)
     @ApiOperation(value = "Get All Class in the Triple Store")
     public Set<String> getAllObjects(
-        @ApiParam(name = "domain", value = "Domain of data", defaultValue = "ldp.herculesasioizertis.desa.um.es", required = true)
-        @RequestParam(required = true, defaultValue = "ldp.herculesasioizertis.desa.um.es") @Validated(Create.class) final String domain,
+        @ApiParam(name = "domain", value = "Domain of data", defaultValue = "ldpld1.um.es",required = true)
+        @RequestParam(required = true) @Validated(Create.class) final String domain,
         @ApiParam(name = "node", value = "Node of data", defaultValue = "um", required = true)
         @RequestParam(required = true, defaultValue = "um") @Validated(Create.class) final String node,
         @ApiParam(name = "service", value = "Service of SPARQL", defaultValue = "Federation", required = true)
