@@ -3,6 +3,7 @@ package es.um.asio.service.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 import es.um.asio.service.repository.SparqlProxyHandler;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -10,10 +11,7 @@ import org.json.JSONException;
 import org.json.XML;
 import org.jsoup.Connection;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -52,18 +50,30 @@ public class Utils {
         }
         con.setDoOutput(true);
         StringBuilder response;
-        try(BufferedReader br = new BufferedReader(
+        JsonReader r = null;
+        JsonElement jResponse = null;
+        try {
+            Reader reader = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"));
+            r = new JsonReader(reader);
+            jResponse = new Gson().fromJson(r,JsonElement.class);
+        } finally {
+            if (r != null){
+                r.close();
+            }
+        }
+ /*       try(BufferedReader br = new BufferedReader(
                 new InputStreamReader(con.getInputStream(), "utf-8"))) {
             response = new StringBuilder();
             String responseLine;
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
-        }
-        con.disconnect();
+                    con.disconnect();
         JsonElement jResponse = new Gson().fromJson(response.toString(), JsonElement.class);
+        }*/
         return jResponse;
     }
+
 
     public static JsonElement doRequestXML(URL url, Connection.Method method, Map<String,String> headers, Map<String,String> params, Map<String,String> queryParams,boolean encode) throws IOException {
         if (queryParams!=null) {
