@@ -51,7 +51,7 @@ public class Utils {
         con.setDoOutput(true);
         StringBuilder response;
         JsonReader r = null;
-        JsonElement jResponse = null;
+        JsonElement jResponse = new JsonObject();
         try {
             Reader reader = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"));
             r = new JsonReader(reader);
