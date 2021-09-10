@@ -6,9 +6,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import lombok.*;
 import util.Utils;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -19,6 +17,7 @@ public class TripleObjectSimplified {
 
     private String id;
     private String localURI;
+    private String canonicalURI;
     private String className;
     private String node;
     private String tripleStore;
@@ -87,7 +86,19 @@ public class TripleObjectSimplified {
             if (key.equals("id")) {
                 key = "localId";
             }
-            attributes.put(key, Utils.isValidString(value)?value:null);
+            if (!attributes.containsKey(key) || attributes.get(key).toString().equals(value.toString())) {
+                attributes.put(key, Utils.isValidString(value) ? value : null);
+            } else {
+                Object oldValue = attributes.get(key);
+                if (oldValue instanceof Set) {
+                    ((Set) oldValue).add(Utils.isValidString(value) ? value : null);
+                } else {
+                    Set<Object> values = new HashSet<>();
+                    values.add(oldValue);
+                    values.add(Utils.isValidString(value) ? value : null);
+                    attributes.put(key, values);
+                }
+            }
         } catch (Exception e ) {
             System.out.println();
         }

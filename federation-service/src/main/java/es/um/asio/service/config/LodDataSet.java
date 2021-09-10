@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LodDataSet implements Cloneable{
+public class LodDataSet implements Cloneable {
 
     private List<Dataset> datasets = new ArrayList<>();
 

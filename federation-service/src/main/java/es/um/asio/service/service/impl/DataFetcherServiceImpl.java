@@ -145,6 +145,7 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                                 tripleObjectSimplified = new TripleObjectSimplified(nodeName,tripleStore,className,uriComponent.getReference());
                                 objects.put(tripleObjectSimplified.getId(),tripleObjectSimplified);
                             }
+                            tripleObjectSimplified.setCanonicalURI(jSubject.get("value").getAsString());
                             String predicate = schemaService.getURIComponentFromCanonicalLocalURI(jPredicate.get("value").getAsString()).getConcept();
                             String value = jObject.get("value").getAsString();
                             tripleObjectSimplified.addAttribute(predicate,value);
