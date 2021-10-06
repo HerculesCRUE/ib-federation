@@ -132,23 +132,33 @@ public class DataFetcherServiceImpl implements DataFetcherService {
                         String subjectVar = jVarsArray.get(0).getAsString();
                         String predicateVar = jVarsArray.get(1).getAsString();
                         String objectVar = jVarsArray.get(2).getAsString();
+                        int counter = 0;
                         for (JsonElement jeItem : getJsonItems(jResponse)) {
+                            if (++counter%1000 == 0)
+                                logger.info("Processing response ({}/{}) to cast to Triple Object Simplified",counter,getJsonItems(jResponse).size());
                             JsonObject jItem = jeItem.getAsJsonObject();
                             JsonObject jSubject = jItem.get(subjectVar).getAsJsonObject();
                             JsonObject jPredicate = jItem.get(predicateVar).getAsJsonObject();
                             JsonObject jObject = jItem.get(objectVar).getAsJsonObject();
-                            URIComponent uriComponent = schemaService.getURIComponentFromCanonicalLocalURI(jSubject.get("value").getAsString());
-                            TripleObjectSimplified tripleObjectSimplified;
-                            if (objects.containsKey(uriComponent.getReference())) {
-                                tripleObjectSimplified = objects.get(uriComponent.getReference());
-                            } else {
-                                tripleObjectSimplified = new TripleObjectSimplified(nodeName,tripleStore,className,uriComponent.getReference());
-                                objects.put(tripleObjectSimplified.getId(),tripleObjectSimplified);
+                            URIComponent uriComponent = null;
+                            try {
+                                uriComponent = schemaService.getURIComponentFromCanonicalLocalURI(jSubject.get("value").getAsString());
+                            } catch (Exception e) {
+                                logger.error(e.getMessage());
                             }
-                            tripleObjectSimplified.setCanonicalURI(jSubject.get("value").getAsString());
-                            String predicate = schemaService.getURIComponentFromCanonicalLocalURI(jPredicate.get("value").getAsString()).getConcept();
-                            String value = jObject.get("value").getAsString();
-                            tripleObjectSimplified.addAttribute(predicate,value);
+                            if (uriComponent!=null) {
+                                TripleObjectSimplified tripleObjectSimplified;
+                                if (objects.containsKey(uriComponent.getReference())) {
+                                    tripleObjectSimplified = objects.get(uriComponent.getReference());
+                                } else {
+                                    tripleObjectSimplified = new TripleObjectSimplified(nodeName, tripleStore, className, uriComponent.getReference());
+                                    objects.put(tripleObjectSimplified.getId(), tripleObjectSimplified);
+                                }
+                                tripleObjectSimplified.setCanonicalURI(jSubject.get("value").getAsString());
+                                String predicate = schemaService.getURIComponentFromCanonicalLocalURI(jPredicate.get("value").getAsString()).getConcept();
+                                String value = jObject.get("value").getAsString();
+                                tripleObjectSimplified.addAttribute(predicate, value);
+                            }
                         }
                     }
 
