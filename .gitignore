@@ -33,3 +33,7 @@ hs_err_pid*
 /.idea/
 /.ci/
 /.github/
+.idea
+/federation-audit/
+/federation-back/target/
+/federation-audit/

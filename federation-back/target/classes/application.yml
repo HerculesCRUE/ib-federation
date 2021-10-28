@@ -32,6 +32,7 @@ app:
     collection-name: app
 
 
+
   # CORS
   cors:
     enabled: true
@@ -77,6 +78,7 @@ app:
       - /public/**
       - /oauth/**
       - /management/**
+      -
 
 ## Actuator
 management:

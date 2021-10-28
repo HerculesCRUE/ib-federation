@@ -8,7 +8,6 @@ import es.um.asio.service.config.DataSourceRepository;
 
 import es.um.asio.service.model.TripleObjectSimplified;
 import es.um.asio.service.model.URIComponent;
-import es.um.asio.service.repository.SparqlProxyHandler;
 import es.um.asio.service.service.DataFetcherService;
 import es.um.asio.service.service.HttpRequestHelper;
 import es.um.asio.service.service.SchemaService;
@@ -22,12 +21,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

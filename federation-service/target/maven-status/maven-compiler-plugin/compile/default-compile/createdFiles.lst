@@ -1,3 +1,4 @@
+es\um\asio\service\config\properties\Endpoint$Connector.class
 es\um\asio\service\config\properties\JpaProperties.class
 es\um\asio\service\model\UserRole$Columns.class
 util\Utils.class
@@ -9,15 +10,14 @@ es\um\asio\service\config\DataSourceRepository$Node$Service$Type.class
 es\um\asio\service\mapper\BaseMapper.class
 es\um\asio\service\model\Role$UserAuthority.class
 es\um\asio\service\service\impl\ServiceDiscoveryServiceImpl.class
-es\um\asio\service\config\properties\DataSourceSPARQL.class
 es\um\asio\service\service\impl\UserServiceImpl.class
 es\um\asio\service\repository\lod\connectors\PubMedHandler.class
 es\um\asio\service\service\impl\TextHandlerServiceImp.class
-es\um\asio\service\config\properties\DataSourceSPARQL$Connector.class
 es\um\asio\service\model\User$Columns.class
 es\um\asio\service\repository\RepositoryConfig.class
 es\um\asio\service\repository\lod\connectors\LODHandler.class
 es\um\asio\service\service\HttpRequestHelper.class
+es\um\asio\service\config\properties\Endpoint.class
 es\um\asio\service\model\URIComponent.class
 es\um\asio\service\repository\lod\connectors\CrossRefHandler.class
 es\um\asio\service\service\impl\FederationServiceImpl.class
