@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.stream.JsonWriter;
 import es.um.asio.back.controller.datafetcher.DataFetcherController;
 import es.um.asio.service.service.EndPointSparqlService;
 import es.um.asio.service.validation.group.Create;
@@ -15,7 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +51,7 @@ public class EndPointSPARQL {
 
         JsonObject jResponse = endPointSparqlService.executeQuery(authorization,query,type,Integer.valueOf(pageSize), (nodeTimeout==null)?defaultTimeout:Integer.valueOf(nodeTimeout) );
         //return new Gson().fromJson(jResponse.toString(), LinkedTreeMap.class);
+        //String r = jResponse.getAsString();
         return new GsonBuilder().setPrettyPrinting().create().toJson(jResponse);
     }
 
