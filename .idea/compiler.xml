@@ -32,11 +32,11 @@
           <entry name="$MAVEN_REPOSITORY$/org/jvnet/staxex/stax-ex/1.8/stax-ex-1.8.jar" />
           <entry name="$MAVEN_REPOSITORY$/com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar" />
         </processorPath>
+        <module name="federation-jpa-abstractions" />
+        <module name="federation-back" />
         <module name="federation-service" />
         <module name="federation-audit" />
-        <module name="federation-back" />
         <module name="federation-service-abstractions" />
-        <module name="federation-jpa-abstractions" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

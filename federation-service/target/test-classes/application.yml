@@ -15,3 +15,4 @@ app:
   # Solr
   solr:
     enabled: false
+

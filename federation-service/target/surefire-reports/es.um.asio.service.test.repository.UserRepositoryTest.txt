@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: es.um.asio.service.test.repository.UserRepositoryTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.049 s - in es.um.asio.service.test.repository.UserRepositoryTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.393 s - in es.um.asio.service.test.repository.UserRepositoryTest

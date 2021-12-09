@@ -2,7 +2,7 @@
 app:
   host: http://localhost
   port: 9328
-  domain: ldpld1.um.es
+  domain: ldpld1desa.um.es
   node: um
   name: Federation
   healthEndpoint: /management/health
@@ -30,6 +30,7 @@ app:
     enabled: false
     base-url: http://localhost:8983/solr
     collection-name: app
+
 
 
   # CORS
@@ -77,6 +78,7 @@ app:
       - /public/**
       - /oauth/**
       - /management/**
+      -
 
 ## Actuator
 management:
